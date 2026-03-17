@@ -1,0 +1,103 @@
+# ===========================
+# .NET / Visual Studio
+# ===========================
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+*.exe
+*.dll
+*.pdb
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.dbmdl
+*.jfm
+
+# Build results
+[Bb]uild[Ll]og.*
+*.VisualState.xml
+TestResult.xml
+
+# NuGet
+*.nupkg
+**/packages/
+*.nuget.props
+*.nuget.targets
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Visual Studio
+.vs/
+*.rsuser
+*.sln.iml
+
+# Rider / JetBrains
+.idea/
+*.sln.iml
+
+# ===========================
+# Security & Secrets (QUAN TRỌNG)
+# ===========================
+# Connection strings, API keys
+appsettings.json
+appsettings.Development.json
+appsettings.Production.json
+appsettings.Local.json
+secrets.json
+*.pfx
+*.key
+*.pem
+
+# User secrets
+**/Properties/launchSettings.json
+
+# ===========================
+# Data & Cache
+# ===========================
+# JSON cache files (chứa data từ DB)
+**/Data/categories.json
+**/Data/*.cache
+
+# Database backup files
+*.bak
+*.mdf
+*.ldf
+*.ndf
+
+# ===========================
+# Temp files
+# ===========================
+tmp_*/
+tmp_seeder/
+tmp_fix/
+*.tmp
+*.log
+*.swp
+~$*
+
+# ===========================
+# OS files
+# ===========================
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+*.stackdump
+
+# ===========================
+# Publish / Deploy
+# ===========================
+publish/
+dist/
+
+# ===========================
+# Internal docs & Plans
+# ===========================
+docs/
+*.plan.md
+
