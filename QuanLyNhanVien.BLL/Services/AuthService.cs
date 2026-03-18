@@ -33,7 +33,9 @@ namespace QuanLyNhanVien.BLL.Services
             var user = await _userRepo.GetByUsernameAsync(username);
             if (user == null)
             {
-                result.Message = "Tên đăng nhập không tồn tại.";
+                // Thực hiện BCrypt verify giả để tránh timing attack
+                BCrypt.Net.BCrypt.Verify(password, "$2a$12$LJ3m4ys3Lg2VBe/GFa7X3OFfPBSPRJGjontPzTdlMboJj/BzGK0f.");
+                result.Message = "Tên đăng nhập hoặc mật khẩu không đúng.";
                 return result;
             }
 
@@ -57,7 +59,7 @@ namespace QuanLyNhanVien.BLL.Services
                 await _userRepo.IncrementFailedLoginAsync(user.UserId);
                 var attemptsLeft = AppConstants.MaxLoginAttempts - user.FailedLoginCount - 1;
                 result.Message = attemptsLeft > 0
-                    ? $"Mật khẩu không đúng. Còn {attemptsLeft} lần thử."
+                    ? "Tên đăng nhập hoặc mật khẩu không đúng."
                     : "Tài khoản đã bị khóa do nhập sai mật khẩu quá nhiều lần.";
                 return result;
             }
@@ -82,8 +84,9 @@ namespace QuanLyNhanVien.BLL.Services
         /// </summary>
         public async Task<(bool Success, string Message)> ChangePasswordAsync(int userId, string oldPassword, string newPassword)
         {
-            if (newPassword.Length < AppConstants.MinPasswordLength)
-                return (false, $"Mật khẩu mới phải có ít nhất {AppConstants.MinPasswordLength} ký tự.");
+            var (isValid, validationMsg) = AppConstants.ValidatePasswordStrength(newPassword);
+            if (!isValid)
+                return (false, validationMsg);
 
             var user = await _userRepo.GetByIdAsync(userId);
             if (user == null)

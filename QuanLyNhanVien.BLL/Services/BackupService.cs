@@ -1,5 +1,7 @@
 using Dapper;
 using QuanLyNhanVien.DAL.Context;
+using System.Text.RegularExpressions;
+using QuanLyNhanVien.BLL.Services;
 
 namespace QuanLyNhanVien.BLL.Services
 {
@@ -10,10 +12,19 @@ namespace QuanLyNhanVien.BLL.Services
     {
         private readonly DbConnectionFactory _dbFactory;
         private readonly string _databaseName;
+        private readonly AuditService _audit;
 
-        public BackupService(DbConnectionFactory dbFactory, string databaseName = "QuanLyNhanVien")
+        // Regex chỉ cho phép ký tự hợp lệ trong tên database — chống SQL injection
+        private static readonly Regex ValidDbNameRegex = new(@"^[a-zA-Z0-9_]+$", RegexOptions.Compiled);
+
+        public BackupService(DbConnectionFactory dbFactory, AuditService audit, string databaseName = "QuanLyNhanVien")
         {
             _dbFactory = dbFactory;
+            _audit = audit;
+
+            if (string.IsNullOrWhiteSpace(databaseName) || !ValidDbNameRegex.IsMatch(databaseName))
+                throw new ArgumentException($"Tên database không hợp lệ: '{databaseName}'. Chỉ chấp nhận chữ, số và dấu gạch dưới.", nameof(databaseName));
+
             _databaseName = databaseName;
         }
 

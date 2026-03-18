@@ -69,8 +69,11 @@ namespace QuanLyNhanVien.BLL.Services
             // 3. Đếm ngày công từ chấm công
             var attendanceRecords = await _attendanceRepo.GetMonthlyAsync(month, year);
             var empAttendance = attendanceRecords.Where(a => a.EmployeeId == emp.EmployeeId).ToList();
+            // Chỉ tính ngày có mặt, đi trễ, nghỉ phép CÓ LƯƠNG
+            // Nghỉ không lương (UnpaidLeave) KHÔNG được tính lương
             var workingDays = empAttendance.Count(a =>
                 a.Status == "Present" || a.Status == "Late" || a.Status == "OnLeave");
+            // Lưu ý: "UnpaidLeave" và "Absent" không được tính vào workingDays
             var totalOvertimeHours = empAttendance.Sum(a => a.OvertimeHours);
 
             // 4. Tính thu nhập

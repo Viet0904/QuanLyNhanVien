@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using QuanLyNhanVien.BLL.Cache;
 using QuanLyNhanVien.BLL.Services;
 using QuanLyNhanVien.DAL.Context;
@@ -9,43 +10,49 @@ namespace QuanLyNhanVien
 {
     internal static class Program
     {
-        // Service instances (Poor man's DI cho WinForms)
-        public static DbConnectionFactory DbFactory { get; private set; } = null!;
-        public static AuthService AuthService { get; private set; } = null!;
-        public static EmployeeService EmployeeService { get; private set; } = null!;
-        public static DepartmentService DeptService { get; private set; } = null!;
-        public static PositionService PosService { get; private set; } = null!;
-        public static MenuService MenuService { get; private set; } = null!;
-        public static CategoryService CatService { get; private set; } = null!;
-        public static JsonCacheManager CacheManager { get; private set; } = null!;
-        public static AttendanceService AttendanceService { get; private set; } = null!;
-        public static LeaveService LeaveService { get; private set; } = null!;
-        public static SalaryService SalaryService { get; private set; } = null!;
-        public static ReportService ReportService { get; private set; } = null!;
-        public static UserService UserService { get; private set; } = null!;
-        public static BackupService BackupService { get; private set; } = null!;
-        public static CompanySettingsService CompanySettingsService { get; private set; } = null!;
-        public static ContractService ContractService { get; private set; } = null!;
-        public static EmployeeEventService EmployeeEventService { get; private set; } = null!;
-        public static AdvanceService AdvanceService { get; private set; } = null!;
+        /// <summary>
+        /// DI Service Provider — nguồn duy nhất để resolve services.
+        /// </summary>
+        public static IServiceProvider Services { get; private set; } = null!;
 
-        // Repositories (cho các form cần truy cập trực tiếp)
-        public static UserRepository UserRepo { get; private set; } = null!;
-        public static EmployeeRepository EmployeeRepo { get; private set; } = null!;
-        public static DepartmentRepository DeptRepo { get; private set; } = null!;
-        public static PositionRepository PosRepo { get; private set; } = null!;
-        public static MenuRepository MenuRepo { get; private set; } = null!;
-        public static RoleRepository RoleRepo { get; private set; } = null!;
-        public static CategoryRepository CategoryRepo { get; private set; } = null!;
-        public static AttendanceRepository AttendanceRepo { get; private set; } = null!;
-        public static LeaveRequestRepository LeaveRepo { get; private set; } = null!;
-        public static SalaryRepository SalaryRepo { get; private set; } = null!;
-        public static ReportRepository ReportRepo { get; private set; } = null!;
-        public static AuditLogRepository AuditLogRepo { get; private set; } = null!;
-        public static CompanySettingsRepository CompanySettingsRepo { get; private set; } = null!;
-        public static ContractRepository ContractRepo { get; private set; } = null!;
-        public static EmployeeEventRepository EmployeeEventRepo { get; private set; } = null!;
-        public static AdvanceRepository AdvanceRepo { get; private set; } = null!;
+        // Backward-compatible accessors (delegate sang DI container)
+        public static DbConnectionFactory DbFactory => Services.GetRequiredService<DbConnectionFactory>();
+        public static AuthService AuthService => Services.GetRequiredService<AuthService>();
+        public static EmployeeService EmployeeService => Services.GetRequiredService<EmployeeService>();
+        public static DepartmentService DeptService => Services.GetRequiredService<DepartmentService>();
+        public static PositionService PosService => Services.GetRequiredService<PositionService>();
+        public static MenuService MenuService => Services.GetRequiredService<MenuService>();
+        public static CategoryService CatService => Services.GetRequiredService<CategoryService>();
+        public static JsonCacheManager CacheManager => Services.GetRequiredService<JsonCacheManager>();
+        public static AttendanceService AttendanceService => Services.GetRequiredService<AttendanceService>();
+        public static LeaveService LeaveService => Services.GetRequiredService<LeaveService>();
+        public static SalaryService SalaryService => Services.GetRequiredService<SalaryService>();
+        public static ReportService ReportService => Services.GetRequiredService<ReportService>();
+        public static UserService UserService => Services.GetRequiredService<UserService>();
+        public static BackupService BackupService => Services.GetRequiredService<BackupService>();
+        public static CompanySettingsService CompanySettingsService => Services.GetRequiredService<CompanySettingsService>();
+        public static ContractService ContractService => Services.GetRequiredService<ContractService>();
+        public static EmployeeEventService EmployeeEventService => Services.GetRequiredService<EmployeeEventService>();
+        public static AdvanceService AdvanceService => Services.GetRequiredService<AdvanceService>();
+        public static AuditService AuditService => Services.GetRequiredService<AuditService>();
+
+        // Repositories (backward-compatible)
+        public static UserRepository UserRepo => Services.GetRequiredService<UserRepository>();
+        public static EmployeeRepository EmployeeRepo => Services.GetRequiredService<EmployeeRepository>();
+        public static DepartmentRepository DeptRepo => Services.GetRequiredService<DepartmentRepository>();
+        public static PositionRepository PosRepo => Services.GetRequiredService<PositionRepository>();
+        public static MenuRepository MenuRepo => Services.GetRequiredService<MenuRepository>();
+        public static RoleRepository RoleRepo => Services.GetRequiredService<RoleRepository>();
+        public static CategoryRepository CategoryRepo => Services.GetRequiredService<CategoryRepository>();
+        public static AttendanceRepository AttendanceRepo => Services.GetRequiredService<AttendanceRepository>();
+        public static LeaveRequestRepository LeaveRepo => Services.GetRequiredService<LeaveRequestRepository>();
+        public static SalaryRepository SalaryRepo => Services.GetRequiredService<SalaryRepository>();
+        public static ReportRepository ReportRepo => Services.GetRequiredService<ReportRepository>();
+        public static AuditLogRepository AuditLogRepo => Services.GetRequiredService<AuditLogRepository>();
+        public static CompanySettingsRepository CompanySettingsRepo => Services.GetRequiredService<CompanySettingsRepository>();
+        public static ContractRepository ContractRepo => Services.GetRequiredService<ContractRepository>();
+        public static EmployeeEventRepository EmployeeEventRepo => Services.GetRequiredService<EmployeeEventRepository>();
+        public static AdvanceRepository AdvanceRepo => Services.GetRequiredService<AdvanceRepository>();
 
         [STAThread]
         static void Main()
@@ -62,8 +69,8 @@ namespace QuanLyNhanVien
             var connStr = config.GetConnectionString("DefaultConnection")
                 ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
-            // Initialize services
-            InitializeServices(connStr);
+            // Build DI container
+            Services = ConfigureServices(connStr);
 
             // Show login form
             var loginForm = new FrmLogin();
@@ -73,46 +80,74 @@ namespace QuanLyNhanVien
             }
         }
 
-        private static void InitializeServices(string connectionString)
+        private static IServiceProvider ConfigureServices(string connectionString)
         {
-            DbFactory = new DbConnectionFactory(connectionString);
+            var services = new ServiceCollection();
 
-            // Repositories
-            UserRepo = new UserRepository(DbFactory);
-            EmployeeRepo = new EmployeeRepository(DbFactory);
-            DeptRepo = new DepartmentRepository(DbFactory);
-            PosRepo = new PositionRepository(DbFactory);
-            MenuRepo = new MenuRepository(DbFactory);
-            RoleRepo = new RoleRepository(DbFactory);
-            CategoryRepo = new CategoryRepository(DbFactory);
-            AttendanceRepo = new AttendanceRepository(DbFactory);
-            LeaveRepo = new LeaveRequestRepository(DbFactory);
-            SalaryRepo = new SalaryRepository(DbFactory);
-            ReportRepo = new ReportRepository(DbFactory);
-            AuditLogRepo = new AuditLogRepository(DbFactory);
-            CompanySettingsRepo = new CompanySettingsRepository(DbFactory);
-            ContractRepo = new ContractRepository(DbFactory);
-            EmployeeEventRepo = new EmployeeEventRepository(DbFactory);
-            AdvanceRepo = new AdvanceRepository(DbFactory);
+            // Infrastructure
+            services.AddSingleton(new DbConnectionFactory(connectionString));
+
+            // Repositories (Singleton — stateless, thread-safe với Dapper)
+            services.AddSingleton<UserRepository>();
+            services.AddSingleton<EmployeeRepository>();
+            services.AddSingleton<DepartmentRepository>();
+            services.AddSingleton<PositionRepository>();
+            services.AddSingleton<MenuRepository>();
+            services.AddSingleton<RoleRepository>();
+            services.AddSingleton<CategoryRepository>();
+            services.AddSingleton<AttendanceRepository>();
+            services.AddSingleton<LeaveRequestRepository>();
+            services.AddSingleton<SalaryRepository>();
+            services.AddSingleton<ReportRepository>();
+            services.AddSingleton<AuditLogRepository>();
+            services.AddSingleton<CompanySettingsRepository>();
+            services.AddSingleton<ContractRepository>();
+            services.AddSingleton<EmployeeEventRepository>();
+            services.AddSingleton<AdvanceRepository>();
+
+            // Cache
+            services.AddSingleton(sp => new JsonCacheManager(
+                sp.GetRequiredService<CategoryRepository>(),
+                AppDomain.CurrentDomain.BaseDirectory));
 
             // Services
-            AuthService = new AuthService(UserRepo);
-            EmployeeService = new EmployeeService(EmployeeRepo, DeptRepo, PosRepo);
-            DeptService = new DepartmentService(DeptRepo);
-            PosService = new PositionService(PosRepo);
-            MenuService = new MenuService(MenuRepo, RoleRepo);
-            CacheManager = new JsonCacheManager(CategoryRepo, AppDomain.CurrentDomain.BaseDirectory);
-            CatService = new CategoryService(CategoryRepo, CacheManager);
-            AttendanceService = new AttendanceService(AttendanceRepo, EmployeeRepo);
-            LeaveService = new LeaveService(LeaveRepo);
-            SalaryService = new SalaryService(SalaryRepo, AttendanceRepo, EmployeeRepo, PosRepo);
-            ReportService = new ReportService(ReportRepo);
-            UserService = new UserService(UserRepo, RoleRepo);
-            BackupService = new BackupService(DbFactory);
-            CompanySettingsService = new CompanySettingsService(CompanySettingsRepo);
-            ContractService = new ContractService(ContractRepo);
-            EmployeeEventService = new EmployeeEventService(EmployeeEventRepo);
-            AdvanceService = new AdvanceService(AdvanceRepo);
+            services.AddSingleton<AuthService>();
+            services.AddSingleton(sp => new EmployeeService(
+                sp.GetRequiredService<EmployeeRepository>(),
+                sp.GetRequiredService<DepartmentRepository>(),
+                sp.GetRequiredService<PositionRepository>()));
+            services.AddSingleton<DepartmentService>();
+            services.AddSingleton<PositionService>();
+            services.AddSingleton(sp => new MenuService(
+                sp.GetRequiredService<MenuRepository>(),
+                sp.GetRequiredService<RoleRepository>()));
+            services.AddSingleton(sp => new CategoryService(
+                sp.GetRequiredService<CategoryRepository>(),
+                sp.GetRequiredService<JsonCacheManager>()));
+            services.AddSingleton(sp => new AttendanceService(
+                sp.GetRequiredService<AttendanceRepository>(),
+                sp.GetRequiredService<EmployeeRepository>()));
+            services.AddSingleton<LeaveService>();
+            services.AddSingleton(sp => new SalaryService(
+                sp.GetRequiredService<SalaryRepository>(),
+                sp.GetRequiredService<AttendanceRepository>(),
+                sp.GetRequiredService<EmployeeRepository>(),
+                sp.GetRequiredService<PositionRepository>()));
+            services.AddSingleton<ReportService>();
+            services.AddSingleton(sp => new UserService(
+                sp.GetRequiredService<UserRepository>(),
+                sp.GetRequiredService<RoleRepository>(),
+                sp.GetRequiredService<AuditService>()));
+            services.AddSingleton(sp => new BackupService(
+                sp.GetRequiredService<DbConnectionFactory>(),
+                sp.GetRequiredService<AuditService>()));
+            services.AddSingleton<CompanySettingsService>();
+            services.AddSingleton<ContractService>();
+            services.AddSingleton<EmployeeEventService>();
+            services.AddSingleton<AdvanceService>();
+            services.AddSingleton<AuditService>();
+
+            return services.BuildServiceProvider();
         }
     }
 }

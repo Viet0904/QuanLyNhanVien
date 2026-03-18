@@ -23,9 +23,10 @@ namespace QuanLyNhanVien.BLL.Services
             if (advance.EmployeeId <= 0) return (false, "Chưa chọn nhân viên.");
             if (advance.Amount <= 0) return (false, "Số tiền phải lớn hơn 0.");
 
-            advance.Status = "Approved";
+            // Phải qua quy trình duyệt, không auto-approve
+            advance.Status = "Pending";
             await _repo.InsertAsync(advance);
-            return (true, "Thêm tạm ứng thành công!");
+            return (true, "Thêm yêu cầu tạm ứng thành công! Đang chờ duyệt.");
         }
 
         public async Task<(bool Ok, string Msg)> UpdateAsync(Advance advance)

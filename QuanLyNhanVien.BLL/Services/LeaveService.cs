@@ -110,17 +110,36 @@ namespace QuanLyNhanVien.BLL.Services
         }
 
         /// <summary>
-        /// Tính số ngày làm việc (bỏ qua T7, CN)
+        /// Tính số ngày làm việc (bỏ qua T7, CN và ngày lễ VN)
         /// </summary>
         private decimal CalculateWorkingDays(DateTime start, DateTime end)
         {
             int count = 0;
             for (var d = start; d <= end; d = d.AddDays(1))
             {
-                if (d.DayOfWeek != DayOfWeek.Saturday && d.DayOfWeek != DayOfWeek.Sunday)
-                    count++;
+                if (d.DayOfWeek == DayOfWeek.Saturday || d.DayOfWeek == DayOfWeek.Sunday)
+                    continue;
+                if (IsVietnameseHoliday(d))
+                    continue;
+                count++;
             }
             return count;
+        }
+
+        /// <summary>
+        /// Kiểm tra ngày lễ Việt Nam (dương lịch cố định)
+        /// </summary>
+        private static bool IsVietnameseHoliday(DateTime date)
+        {
+            var holidays = new (int Month, int Day)[]
+            {
+                (1, 1),   // Tết Dương lịch
+                (4, 30),  // Ngày Giải phóng miền Nam
+                (5, 1),   // Ngày Quốc tế Lao động
+                (9, 2),   // Ngày Quốc khánh
+                (9, 3),   // Nghỉ bù Quốc khánh
+            };
+            return holidays.Any(h => h.Month == date.Month && h.Day == date.Day);
         }
     }
 }

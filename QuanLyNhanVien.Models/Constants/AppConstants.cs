@@ -35,5 +35,23 @@ namespace QuanLyNhanVien.Models.Constants
         public const decimal SocialInsuranceRate = 0.08m;      // 8%
         public const decimal HealthInsuranceRate = 0.015m;     // 1.5%
         public const decimal UnemploymentInsuranceRate = 0.01m; // 1%
+
+        /// <summary>
+        /// Kiểm tra độ mạnh mật khẩu: ít nhất 6 ký tự, có chữ hoa, chữ thường, số
+        /// </summary>
+        public static (bool IsValid, string Message) ValidatePasswordStrength(string password)
+        {
+            if (string.IsNullOrWhiteSpace(password))
+                return (false, "Mật khẩu không được để trống.");
+            if (password.Length < MinPasswordLength)
+                return (false, $"Mật khẩu phải có ít nhất {MinPasswordLength} ký tự.");
+            if (!password.Any(char.IsUpper))
+                return (false, "Mật khẩu phải chứa ít nhất 1 chữ hoa (A-Z).");
+            if (!password.Any(char.IsLower))
+                return (false, "Mật khẩu phải chứa ít nhất 1 chữ thường (a-z).");
+            if (!password.Any(char.IsDigit))
+                return (false, "Mật khẩu phải chứa ít nhất 1 chữ số (0-9).");
+            return (true, "");
+        }
     }
 }

@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using QuanLyNhanVien.DAL.Repositories;
 using QuanLyNhanVien.Models.Constants;
 using QuanLyNhanVien.Models.Entities;
@@ -11,11 +12,13 @@ namespace QuanLyNhanVien.BLL.Services
     {
         private readonly UserRepository _userRepo;
         private readonly RoleRepository _roleRepo;
+        private readonly AuditService _audit;
 
-        public UserService(UserRepository userRepo, RoleRepository roleRepo)
+        public UserService(UserRepository userRepo, RoleRepository roleRepo, AuditService audit)
         {
             _userRepo = userRepo;
             _roleRepo = roleRepo;
+            _audit = audit;
         }
 
         /// <summary>
@@ -43,8 +46,10 @@ namespace QuanLyNhanVien.BLL.Services
         {
             if (string.IsNullOrWhiteSpace(username))
                 return (false, "Tên đăng nhập không được để trống.");
-            if (password.Length < AppConstants.MinPasswordLength)
-                return (false, $"Mật khẩu phải có ít nhất {AppConstants.MinPasswordLength} ký tự.");
+
+            var (isValid, validationMsg) = AppConstants.ValidatePasswordStrength(password);
+            if (!isValid)
+                return (false, validationMsg);
 
             var existing = await _userRepo.GetByUsernameAsync(username);
             if (existing != null)
@@ -89,11 +94,26 @@ namespace QuanLyNhanVien.BLL.Services
             var user = await _userRepo.GetByIdAsync(userId);
             if (user == null) return (false, "Không tìm thấy tài khoản.");
 
-            var defaultPassword = "123456";
-            var hash = BCrypt.Net.BCrypt.HashPassword(defaultPassword, AppConstants.BcryptWorkFactor);
+            // Sinh mật khẩu ngẫu nhiên an toàn thay vì dùng mật khẩu hardcode
+            var randomPassword = GenerateSecurePassword(10);
+            var hash = BCrypt.Net.BCrypt.HashPassword(randomPassword, AppConstants.BcryptWorkFactor);
             await _userRepo.ResetPasswordAsync(userId, hash);
 
-            return (true, $"Đã reset mật khẩu về '{defaultPassword}'.");
+            return (true, $"Đã reset mật khẩu thành công.\nMật khẩu mới: {randomPassword}\n\nVui lòng ghi lại và đổi mật khẩu ngay sau khi đăng nhập.");
+        }
+
+        /// <summary>
+        /// Sinh mật khẩu ngẫu nhiên an toàn bằng cryptographic RNG
+        /// </summary>
+        private static string GenerateSecurePassword(int length)
+        {
+            const string chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#$%";
+            var password = new char[length];
+            var randomBytes = new byte[length];
+            RandomNumberGenerator.Fill(randomBytes);
+            for (int i = 0; i < length; i++)
+                password[i] = chars[randomBytes[i] % chars.Length];
+            return new string(password);
         }
 
         /// <summary>

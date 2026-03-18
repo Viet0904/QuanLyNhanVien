@@ -145,7 +145,13 @@ namespace QuanLyNhanVien.Forms.SystemAdmin
                 MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes) return;
 
             var (ok, msg) = await Program.UserService.DeactivateAsync(userId);
-            if (ok) { FormHelper.ShowSuccess(msg); await LoadDataAsync(); }
+            if (ok)
+            {
+                // Audit log: vô hiệu hóa user
+                await Program.AuditService.LogUserChangeAsync(
+                    AppSession.CurrentUser?.UserId ?? 0, "DEACTIVATE_USER", userId, $"Username: {username}");
+                FormHelper.ShowSuccess(msg); await LoadDataAsync();
+            }
             else FormHelper.ShowError(msg);
         }
 
@@ -155,11 +161,26 @@ namespace QuanLyNhanVien.Forms.SystemAdmin
             var username = GetSelectedUsername();
             if (userId == 0) { FormHelper.ShowError("Vui lòng chọn tài khoản."); return; }
 
-            if (MessageBox.Show($"Reset mật khẩu của '{username}' về '123456'?", "Xác nhận",
+            if (MessageBox.Show($"Reset mật khẩu của '{username}' về mật khẩu ngẫu nhiên?", "Xác nhận",
                 MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes) return;
 
             var (ok, msg) = await Program.UserService.ResetPasswordAsync(userId);
-            if (ok) FormHelper.ShowSuccess(msg);
+            if (ok)
+            {
+                // Trích mật khẩu mới từ message và copy vào clipboard
+                // Format msg: "Đã reset...\nMật khẩu mới: XXXX\n..."
+                var lines = msg.Split('\n');
+                var pwLine = lines.FirstOrDefault(l => l.StartsWith("Mật khẩu mới:"));
+                if (pwLine != null)
+                {
+                    var pw = pwLine.Replace("Mật khẩu mới:", "").Trim();
+                    Clipboard.SetText(pw);
+                }
+                FormHelper.ShowSuccess(msg + "\n\n(Mật khẩu đã được copy vào clipboard)");
+                // Audit log: reset mật khẩu
+                await Program.AuditService.LogUserChangeAsync(
+                    AppSession.CurrentUser?.UserId ?? 0, "RESET_PASSWORD", userId);
+            }
             else FormHelper.ShowError(msg);
         }
     }

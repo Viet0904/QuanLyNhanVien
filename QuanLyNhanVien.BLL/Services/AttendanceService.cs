@@ -140,7 +140,7 @@ namespace QuanLyNhanVien.BLL.Services
         }
 
         /// <summary>
-        /// Tính giờ tăng ca
+        /// Tính giờ tăng ca (xử lý cả ca đêm vượt qua 0:00)
         /// </summary>
         private decimal CalculateOvertime(TimeSpan checkIn, TimeSpan checkOut, string? shiftType)
         {
@@ -153,10 +153,29 @@ namespace QuanLyNhanVien.BLL.Services
                 _ => new TimeSpan(17, 0, 0)
             };
 
-            if (checkOut > shiftEnd)
+            // Ca đêm: shift vượt qua 0:00 (shiftEnd < shiftStart ngầm hiểu)
+            bool isNightShift = shiftType == "NIGHT";
+
+            if (isNightShift)
             {
-                var overtime = checkOut - shiftEnd;
-                return Math.Round((decimal)overtime.TotalHours, 2);
+                // Chuẩn hóa: cộng 24h cho các giá trị trước nửa đêm 
+                // VD: checkIn=22:00→22h, checkOut=07:00→31h, shiftEnd=06:00→30h
+                var normalizedCheckOut = checkOut < checkIn ? checkOut.Add(TimeSpan.FromHours(24)) : checkOut;
+                var normalizedShiftEnd = shiftEnd.Add(TimeSpan.FromHours(24));
+
+                if (normalizedCheckOut > normalizedShiftEnd)
+                {
+                    var overtime = normalizedCheckOut - normalizedShiftEnd;
+                    return Math.Round((decimal)overtime.TotalHours, 2);
+                }
+            }
+            else
+            {
+                if (checkOut > shiftEnd)
+                {
+                    var overtime = checkOut - shiftEnd;
+                    return Math.Round((decimal)overtime.TotalHours, 2);
+                }
             }
 
             return 0;

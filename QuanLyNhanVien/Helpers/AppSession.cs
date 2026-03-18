@@ -38,6 +38,17 @@ namespace QuanLyNhanVien.Helpers
         }
 
         /// <summary>
+        /// Yêu cầu quyền — throw exception nếu không có.
+        /// Dùng trong BLL để enforce authorization (defense-in-depth).
+        /// </summary>
+        public static void RequirePermission(string menuCode, PermissionType permType)
+        {
+            if (!HasPermission(menuCode, permType))
+                throw new UnauthorizedAccessException(
+                    $"Bạn không có quyền '{permType}' trên chức năng '{menuCode}'.");
+        }
+
+        /// <summary>
         /// Lấy thông tin quyền cho một menu cụ thể
         /// </summary>
         public static MenuPermissionDto? GetMenuPermission(string menuCode)

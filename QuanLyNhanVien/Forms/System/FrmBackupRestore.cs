@@ -176,6 +176,9 @@ namespace QuanLyNhanVien.Forms.SystemAdmin
                 lblStatus.Text = "✅ Sao lưu thành công!";
                 FormHelper.ShowSuccess(msg);
                 RefreshBackupList();
+                // Audit log: backup
+                await Program.AuditService.LogSystemAsync(
+                    AppSession.CurrentUser?.UserId ?? 0, "BACKUP_DATABASE", msg);
             }
             else
             {
@@ -216,6 +219,9 @@ namespace QuanLyNhanVien.Forms.SystemAdmin
                 lblStatus.ForeColor = ThemeColors.Success;
                 lblStatus.Text = "✅ Phục hồi thành công!";
                 FormHelper.ShowSuccess(msg);
+                // Audit log: restore
+                await Program.AuditService.LogSystemAsync(
+                    AppSession.CurrentUser?.UserId ?? 0, "RESTORE_DATABASE", $"File: {Path.GetFileName(dlg.FileName)}");
             }
             else
             {

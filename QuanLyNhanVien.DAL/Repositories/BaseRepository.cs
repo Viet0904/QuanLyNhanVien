@@ -71,13 +71,15 @@ namespace QuanLyNhanVien.DAL.Repositories
         }
 
         /// <summary>
-        /// Thực thi SP trả về nhiều result sets (dùng QueryMultiple)
+        /// Thực thi SP trả về nhiều result sets (dùng QueryMultiple).
+        /// Connection được tự động dispose sau khi callback hoàn tất.
         /// </summary>
-        protected async Task<SqlMapper.GridReader> QueryMultipleAsync(string spName, object? parameters = null)
+        protected async Task<T> QueryMultipleAsync<T>(string spName, object? parameters, Func<SqlMapper.GridReader, Task<T>> callback)
         {
-            var conn = _dbFactory.CreateConnection();
+            using var conn = _dbFactory.CreateConnection();
             conn.Open();
-            return await conn.QueryMultipleAsync(spName, parameters, commandType: CommandType.StoredProcedure);
+            using var multi = await conn.QueryMultipleAsync(spName, parameters, commandType: CommandType.StoredProcedure);
+            return await callback(multi);
         }
     }
 }

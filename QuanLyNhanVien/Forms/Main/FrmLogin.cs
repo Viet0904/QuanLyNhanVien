@@ -277,9 +277,9 @@ namespace QuanLyNhanVien.Forms.Main
                     txtPassword.Focus();
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                lblMessage.Text = $"Lỗi kết nối: {ex.Message}";
+                lblMessage.Text = "Không thể kết nối đến máy chủ. Vui lòng thử lại sau.";
             }
             finally
             {

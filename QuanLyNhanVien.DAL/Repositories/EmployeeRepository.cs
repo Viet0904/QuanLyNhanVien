@@ -98,20 +98,38 @@ namespace QuanLyNhanVien.DAL.Repositories
 
         public async Task<string> GenerateNextCodeAsync()
         {
-            var sql = @"SELECT TOP 1 EmployeeCode FROM Employees 
+            // Dùng transaction + lock hint để tránh race condition
+            var sql = @"SELECT TOP 1 EmployeeCode FROM Employees WITH (UPDLOCK, HOLDLOCK)
                         WHERE EmployeeCode LIKE 'NV-%' 
                         ORDER BY EmployeeCode DESC";
             using var conn = _dbFactory.CreateConnection();
-            var lastCode = await conn.ExecuteScalarAsync<string>(sql);
+            conn.Open();
+            using var tx = conn.BeginTransaction();
+            try
+            {
+                var lastCode = await conn.ExecuteScalarAsync<string>(sql, transaction: tx);
 
-            if (string.IsNullOrEmpty(lastCode))
-                return "NV-0001";
+                string newCode;
+                if (string.IsNullOrEmpty(lastCode))
+                {
+                    newCode = "NV-0001";
+                }
+                else
+                {
+                    var numPart = lastCode.Replace("NV-", "");
+                    newCode = int.TryParse(numPart, out int num)
+                        ? $"NV-{(num + 1):D4}"
+                        : $"NV-{DateTime.Now:yyyyMMddHHmmss}";
+                }
 
-            var numPart = lastCode.Replace("NV-", "");
-            if (int.TryParse(numPart, out int num))
-                return $"NV-{(num + 1):D4}";
-
-            return $"NV-{DateTime.Now:yyyyMMddHHmmss}";
+                tx.Commit();
+                return newCode;
+            }
+            catch
+            {
+                tx.Rollback();
+                throw;
+            }
         }
 
         public async Task<IEnumerable<Employee>> GetByDepartmentAsync(int departmentId)
