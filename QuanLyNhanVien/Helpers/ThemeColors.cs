@@ -77,11 +77,11 @@ namespace QuanLyNhanVien.Helpers
             var btn = new Button
             {
                 Text = text, Size = new Size(width, height),
-                FlatStyle = FlatStyle.Flat, BackColor = Background,
+                FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(249, 250, 251), // #F9FAFB - xám rất nhạt
                 ForeColor = Foreground, Font = new Font("Segoe UI", 9.5F),
                 Cursor = Cursors.Hand
             };
-            btn.FlatAppearance.BorderColor = Color.FromArgb(190, 190, 190); // #BEBEBE - viền rõ ràng
+            btn.FlatAppearance.BorderColor = Color.FromArgb(156, 163, 175); // #9CA3AF - viền xám đậm, rõ ràng
             btn.FlatAppearance.BorderSize = 1;
             return btn;
         }
@@ -108,13 +108,17 @@ namespace QuanLyNhanVien.Helpers
 
             dgv.ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle
             {
-                BackColor = Surface,
-                ForeColor = MutedForeground,
+                BackColor = Color.FromArgb(229, 231, 235),    // #E5E7EB - nền header xám rõ ràng
+                ForeColor = Color.FromArgb(55, 65, 81),       // #374151 - chữ header gần đen
                 Font = FontTableHeader,
-                Padding = new Padding(8, 6, 8, 6)
+                Padding = new Padding(8, 6, 8, 6),
+                Alignment = DataGridViewContentAlignment.MiddleLeft
             };
 
+            dgv.ColumnHeadersVisible = true;
             dgv.ColumnHeadersHeight = 44;
+            dgv.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+            dgv.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
             dgv.RowTemplate.Height = 48;
 
             dgv.AlternatingRowsDefaultCellStyle = new DataGridViewCellStyle

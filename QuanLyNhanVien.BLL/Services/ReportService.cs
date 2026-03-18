@@ -36,5 +36,9 @@ namespace QuanLyNhanVien.BLL.Services
 
         public async Task<IEnumerable<dynamic>> GetSalaryReportAsync(int month, int year, int? deptId = null)
             => await _reportRepo.GetSalaryReportAsync(month, year, deptId);
+
+        // Báo cáo tần suất đi muộn
+        public async Task<IEnumerable<dynamic>> GetLateFrequencyReportAsync(int month, int year)
+            => await _reportRepo.GetLateFrequencyReportAsync(month, year);
     }
 }

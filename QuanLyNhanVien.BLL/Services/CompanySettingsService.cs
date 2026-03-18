@@ -20,6 +20,15 @@ namespace QuanLyNhanVien.BLL.Services
         public const string KEY_REPRESENTATIVE = "Representative";
         public const string KEY_REPRESENTATIVE_TITLE = "RepresentativeTitle";
 
+        // SMTP Email keys
+        public const string KEY_SMTP_HOST = "SMTP_Host";
+        public const string KEY_SMTP_PORT = "SMTP_Port";
+        public const string KEY_SMTP_USERNAME = "SMTP_Username";
+        public const string KEY_SMTP_PASSWORD = "SMTP_Password";
+        public const string KEY_SMTP_ENABLE_SSL = "SMTP_EnableSsl";
+        public const string KEY_SMTP_SENDER_NAME = "SMTP_SenderName";
+        public const string KEY_SMTP_SENDER_EMAIL = "SMTP_SenderEmail";
+
         public CompanySettingsService(CompanySettingsRepository repo)
         {
             _repo = repo;

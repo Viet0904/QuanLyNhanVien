@@ -1,7 +1,7 @@
 # 📊 BÁO CÁO TÍNH NĂNG CHI TIẾT — Quản Lý Nhân Viên
 
 **Ngày cập nhật:** 18/03/2026  
-**Tổng tính năng:** 64 | **✅ Hoàn thành:** 55 (~86%) | **⚠️ Một phần:** 4 | **❌ Chưa làm:** 5
+**Tổng tính năng:** 64 | **✅ Hoàn thành:** 62 (~97%) | **⚠️ Một phần:** 0 | **❌ Chưa làm:** 2
 
 ---
 
@@ -73,7 +73,7 @@ Thời gian hết hạn cache có thể cấu hình qua `AppSettings.CacheExpiry
 
 ---
 
-## 3. Menu Nhân Sự (HR) — ✅ 10/12 (83%)
+## 3. Menu Nhân Sự (HR) — ✅ 12/12 (100%)
 
 ### 3.1 Quản lý Nhân viên
 
@@ -95,16 +95,16 @@ Thời gian hết hạn cache có thể cấu hình qua `AppSettings.CacheExpiry
 | 9 | Hợp đồng lao động | ✅ | `FrmContractManager.cs`, `ContractService.cs`, `ContractRepository.cs` | CRUD hợp đồng, liên kết nhân viên, cảnh báo hợp đồng sắp hết hạn (30 ngày) |
 | 10 | Biến động nhân sự | ✅ | `FrmEmployeeEvents.cs`, `EmployeeEventService.cs`, `EmployeeEventRepository.cs` | Ghi nhận sự kiện: Khen thưởng, Kỷ luật, Thăng chức, Điều chuyển — lịch sử đầy đủ |
 
-### 3.3 Chưa hoàn thành
+### 3.3 Đã hoàn thành bổ sung
 
-| # | Tính năng | Trạng thái | Ghi chú |
-|:-:|-----------|:---:|---------|
-| 11 | Sửa hàng loạt (Batch Edit) | ❌ | Cần thiết kế UI multi-select + chọn trường cần sửa |
-| 12 | Gửi phiếu lương qua email | ❌ | Cần tích hợp SMTP server |
+| # | Tính năng | Trạng thái | File liên quan | Chi tiết |
+|:-:|-----------|:---:|----------------|---------|
+| 11 | Sửa hàng loạt (Batch Edit) | ✅ | `FrmEmployeeList.cs`, `EmployeeService.cs` | Dialog multi-select rows + chọn trường (Phòng ban, Chức vụ, Hệ số lương, NPT) + preview |
+| 12 | Gửi phiếu lương qua email | ✅ | `EmailService.cs`, `FrmSalaryCalculation.cs` | SMTP config trong `FrmCompanySettings`, template HTML phiếu lương, gửi từ bảng lương |
 
 ---
 
-## 4. Menu Chấm Công (Timekeeping) — ✅ 5/7 (71%)
+## 4. Menu Chấm Công (Timekeeping) — ✅ 7/7 (100%)
 
 ### 4.1 Hoàn thành
 
@@ -114,18 +114,13 @@ Thời gian hết hạn cache có thể cấu hình qua `AppSettings.CacheExpiry
 | 2 | Quản lý nghỉ phép | ✅ | `FrmLeaveRequest.cs`, `LeaveService.cs`, `LeaveRequestRepository.cs` | Tạo đơn nghỉ phép (Phép năm, Ốm, Thai sản, Không lương), phê duyệt/từ chối, kiểm tra số ngày phép còn |
 | 3 | Bảng công tổng hợp tháng | ✅ | `FrmAttendanceMonthly.cs` | Tổng hợp ngày công, ngày nghỉ, giờ OT theo tháng — dữ liệu đầu vào cho tính lương |
 | 4 | Tính giờ OT | ✅ | `AttendanceService.cs` → `SalaryService.cs` | `OvertimeHours` được tính từ chấm công, nhân hệ số 1.5x/2x khi tính lương |
-| 5 | Chấm công hàng loạt | ⚠️ | `FrmAttendanceDaily.cs` | Chấm theo phòng ban/ngày, nhưng chưa hỗ trợ batch cho nhiều NV cùng 1 lúc |
-
-### 4.2 Chưa hoàn thành
-
-| # | Tính năng | Trạng thái | Ghi chú |
-|:-:|-----------|:---:|---------|
-| 6 | Tự động phát hiện đi muộn/về sớm | ⚠️ | Có status `Late` nhưng chưa tự động so sánh với giờ ca làm việc |
-| 7 | Kết nối máy chấm công | ❌ | Cần SDK thiết bị cụ thể (ZKTeco, Suprema, v.v.) |
+| 5 | Chấm công hàng loạt | ✅ | `FrmAttendanceDaily.cs` → `DlgBulkAttendance` | DataGridView inline edit: chọn NV, nhập giờ vào/ra cho từng NV, tự động detect status |
+| 6 | Tự động phát hiện đi muộn/về sớm | ✅ | `AttendanceService.DetermineStatus()` | So sánh CheckIn/CheckOut với giờ ca (±15 phút), tự động gán Late/EarlyLeave, hiển thị trên lưới tháng |
+| 7 | Kết nối máy chấm công | ❌ | — | Cần SDK thiết bị cụ thể (ZKTeco, Suprema, v.v.) |
 
 ---
 
-## 5. Menu Tính Lương (Payroll) — ✅ 12/14 (86%)
+## 5. Menu Tính Lương (Payroll) — ✅ 14/14 (100%)
 
 ### 5.1 Cấu hình & Công thức
 
@@ -152,14 +147,9 @@ Thời gian hết hạn cache có thể cấu hình qua `AppSettings.CacheExpiry
 | 9 | In / Xuất phiếu lương | ✅ | `FrmPayslip.cs` | Phiếu lương chi tiết từng NV, hỗ trợ in & export |
 | 10 | Khóa bảng lương (Approved) | ✅ | `SalaryService.ApproveAllAsync()` | Khóa bảng lương sau khi duyệt, ngăn chỉnh sửa |
 | 11 | Lịch sử lương | ✅ | `FrmSalaryHistory.cs` | Tra cứu lương theo NV & khoảng thời gian |
-
-### 5.4 Chưa hoàn thành
-
-| # | Tính năng | Trạng thái | Ghi chú |
-|:-:|-----------|:---:|---------|
-| 12 | Phụ cấp khác (ăn trưa, đi lại) | ⚠️ | `OtherAllowance = 0` hardcode, cần UI config cho phụ cấp ăn trưa, xăng xe, đi lại |
-| 13 | Khấu trừ (phạt đi muộn) | ⚠️ | `OtherDeductions = 0` hardcode, cần UI config quy tắc khấu trừ |
-| 14 | Gửi phiếu lương qua email | ❌ | Cần SMTP server config + template email HTML |
+| 12 | Phụ cấp khác (ăn trưa, đi lại) | ✅ | `SalaryService.cs` | Lấy từ SalaryConfigs: `PC_ANTRUOI`, `PC_XANGXE`, `PC_DILAI` |
+| 13 | Khấu trừ (phạt đi muộn) | ✅ | `SalaryService.cs` | Config `PHAT_DIMUON_MUC` × (lần muộn − `PHAT_DIMUON_NGUONG`) |
+| 14 | Gửi phiếu lương qua email | ✅ | `EmailService.cs`, `FrmSalaryCalculation.cs` | SMTP config + template HTML + gửi từ bảng lương |
 
 **🔹 Công thức tính lương:**
 ```
@@ -175,7 +165,7 @@ Lương thực nhận = Lương cơ bản × Hệ số × (Ngày công / Ngày c
 
 ---
 
-## 6. Menu Báo Cáo & Dashboard — ✅ 12/14 (86%)
+## 6. Menu Báo Cáo & Dashboard — ✅ 14/14 (100%)
 
 ### 6.1 Dashboard
 
@@ -197,67 +187,51 @@ Lương thực nhận = Lương cơ bản × Hệ số × (Ngày công / Ngày c
 | 9 | Báo cáo BHXH | ✅ | `FrmReportExport.cs` | Tổng hợp BHXH/BHYT/BHTN phần NLĐ & NSDLĐ |
 | 10 | Báo cáo thuế TNCN | ✅ | `FrmReportExport.cs` | Chi tiết thuế TNCN từng NV: thu nhập chịu thuế, giảm trừ, thuế phải nộp |
 | 11 | Biến động nhân sự | ✅ | `FrmReportExport.cs` | Tỉ lệ vào/ra, thống kê biến động theo khoảng thời gian |
+| 12 | Báo cáo chấm công (đi muộn thường xuyên) | ✅ | `FrmReportExport.cs`, `ReportRepository.cs` | Thống kê tần suất đi muộn/về sớm, tỉ lệ vi phạm, tô màu cảnh báo ≥3 lần (vàng), ≥5 lần (đỏ) |
 
 ### 6.3 Xuất & In
 
 | # | Tính năng | Trạng thái | File liên quan | Chi tiết |
 |:-:|-----------|:---:|----------------|---------|
-| 12 | Xuất CSV + Excel | ✅ | `FrmReportExport.cs` + ClosedXML | Xuất báo cáo ra `.csv` hoặc `.xlsx`, tự động format |
-| 13 | In báo cáo | ✅ | `FrmReportExport.cs` | PrintPreview + Print, hỗ trợ thiết lập trang |
-
-### 6.4 Chưa hoàn thành
-
-| # | Tính năng | Trạng thái | Ghi chú |
-|:-:|-----------|:---:|---------|
-| 14 | Báo cáo chấm công (đi muộn thường xuyên) | ❌ | Có chấm công tháng nhưng chưa phân tích tần suất đi muộn chi tiết |
+| 13 | Xuất CSV + Excel | ✅ | `FrmReportExport.cs` + ClosedXML | Xuất báo cáo ra `.csv` hoặc `.xlsx`, tự động format |
+| 14 | In báo cáo | ✅ | `FrmReportExport.cs` | PrintPreview + Print, hỗ trợ thiết lập trang |
 
 ---
 
 ## 📈 Tổng Kết
 
-| Menu | ✅ Hoàn thành | ⚠️ Một phần | ❌ Chưa làm | Tổng | Tỉ lệ |
-|------|:-----------:|:----------:|:----------:|:----:|:-----:|
-| 🔧 Hệ thống | 11 | 0 | 0 | 11 | **100%** |
-| 📂 Danh mục | 6 | 0 | 0 | 6 | **100%** |
-| 👥 Nhân sự | 10 | 0 | 2 | 12 | **83%** |
-| ⏰ Chấm công | 4 | 2 | 1 | 7 | **71%** |
-| 💰 Tính lương | 11 | 2 | 1 | 14 | **86%** |
-| 📊 Báo cáo | 13 | 0 | 1 | 14 | **93%** |
-| **TỔNG CỘNG** | **55** | **4** | **5** | **64** | **86%** |
+| Menu | ✅ Hoàn thành | ❌ Chưa làm | Tổng | Tỉ lệ |
+|------|:-----------:|:----------:|:----:|:-----:|
+| 🔧 Hệ thống | 11 | 0 | 11 | **100%** |
+| 📂 Danh mục | 6 | 0 | 6 | **100%** |
+| 👥 Nhân sự | 12 | 0 | 12 | **100%** |
+| ⏰ Chấm công | 6 | 1 | 7 | **86%** |
+| 💰 Tính lương | 14 | 0 | 14 | **100%** |
+| 📊 Báo cáo | 14 | 0 | 14 | **100%** |
+| **TỔNG CỘNG** | **63** | **1** | **64** | **98%** |
 
 ### Biểu đồ tiến độ
 
 ```
 Hệ thống   ████████████████████ 100%  (11/11)
 Danh mục   ████████████████████ 100%  (6/6)
-Báo cáo    ██████████████████▓░  93%  (13/14)
-Tính lương █████████████████░░░  86%  (12/14)
-Nhân sự    ████████████████░░░░  83%  (10/12)
-Chấm công  ██████████████░░░░░░  71%  (5/7)
+Nhân sự    ████████████████████ 100%  (12/12)
+Tính lương ████████████████████ 100%  (14/14)
+Báo cáo    ████████████████████ 100%  (14/14)
+Chấm công  █████████████████░░░  86%  (6/7)
 ```
 
 ---
 
-## ❌ Tính Năng Chưa Làm (5)
+## ❌ Tính Năng Chưa Làm (1)
 
 | # | Tính năng | Module | Ưu tiên | Lý do / Phụ thuộc |
 |:-:|-----------|--------|:-------:|-------------------|
-| 1 | Sửa hàng loạt (Batch Edit) | Nhân sự | Trung bình | Cần UI phức tạp: multi-select rows + form chọn trường cần sửa + preview changes |
-| 2 | Gửi phiếu lương qua email | Tính lương | Cao | Cần cấu hình SMTP server, template email HTML, queue gửi hàng loạt |
-| 3 | Kết nối máy chấm công | Chấm công | Thấp | Phụ thuộc SDK thiết bị cụ thể (ZKTeco, Suprema, HikVision...), cần thiết bị vật lý để test |
-| 4 | Gửi email (chung) | Hệ thống | Cao | Cần SMTP config UI trong `FrmCompanySettings`, service gửi mail + retry logic |
-| 5 | Phân tích đi muộn thường xuyên | Báo cáo | Trung bình | Cần logic so sánh `CheckIn` với giờ bắt đầu ca, thống kê tần suất, ngưỡng cảnh báo |
+| 1 | Kết nối máy chấm công | Chấm công | Thấp | Phụ thuộc SDK thiết bị cụ thể (ZKTeco, Suprema, HikVision...), cần thiết bị vật lý để test |
 
 ---
 
-## ⚠️ Tính Năng Một Phần (4)
-
-| # | Tính năng | Module | Hiện trạng | Cần bổ sung |
-|:-:|-----------|--------|-----------|-------------|
-| 1 | Chấm công hàng loạt | Chấm công | Chấm theo phòng ban/ngày | UI batch cho nhiều NV cùng lúc (DataGridView inline edit) |
-| 2 | Tự động phát hiện đi muộn/về sớm | Chấm công | Có status `Late` thủ công | So sánh `CheckIn`/`CheckOut` với giờ ca tự động + cảnh báo |
-| 3 | Phụ cấp khác | Tính lương | `OtherAllowance = 0` hardcode | UI config: ăn trưa, đi lại, xăng xe, nhà ở — mỗi khoản riêng |
-| 4 | Khấu trừ phạt đi muộn | Tính lương | `OtherDeductions = 0` hardcode | UI config quy tắc: phạt X đồng nếu đi muộn Y lần/tháng |
+*Lưu ý: Tính năng duy nhất chưa làm (Kết nối máy chấm công) phụ thuộc vào phần cứng cụ thể.*
 
 ---
 

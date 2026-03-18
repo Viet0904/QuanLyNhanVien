@@ -58,10 +58,34 @@ namespace QuanLyNhanVien.BLL.Services
             if (emp == null) return (false, "Không tìm thấy nhân viên.");
 
             await _empRepo.DeleteAsync(employeeId);
-            return (true, $"Đã vô hiệu hóa nhân viên {emp.FullName}.");
+            return (true, "Đã cho nhân viên thôi việc.");
         }
 
         public async Task<IEnumerable<Department>> GetDepartmentsAsync() => await _deptRepo.GetAllAsync();
         public async Task<IEnumerable<Position>> GetPositionsAsync() => await _posRepo.GetAllAsync();
+
+        /// <summary>
+        /// Cập nhật hàng loạt 1 trường cho nhiều nhân viên
+        /// </summary>
+        public async Task<(bool Success, string Message, int Count)> BatchUpdateAsync(
+            List<int> employeeIds, string fieldName, object value)
+        {
+            if (employeeIds == null || employeeIds.Count == 0)
+                return (false, "Chưa chọn nhân viên nào.", 0);
+
+            try
+            {
+                var count = await _empRepo.BatchUpdateFieldAsync(employeeIds, fieldName, value);
+                return (true, $"Đã cập nhật {count} nhân viên.", count);
+            }
+            catch (ArgumentException ex)
+            {
+                return (false, ex.Message, 0);
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Lỗi cập nhật hàng loạt: {ex.Message}", 0);
+            }
+        }
     }
 }

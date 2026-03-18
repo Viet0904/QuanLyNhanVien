@@ -1,3 +1,4 @@
+using QuanLyNhanVien.BLL.Services;
 using QuanLyNhanVien.Helpers;
 using QuanLyNhanVien.Models.Entities;
 
@@ -10,7 +11,7 @@ namespace QuanLyNhanVien.Forms.Salary
     {
         private DataGridView dgv = null!;
         private ComboBox cboMonth = null!, cboYear = null!, cboDept = null!;
-        private Button btnCalc = null!, btnApprove = null!, btnRefresh = null!;
+        private Button btnCalc = null!, btnApprove = null!, btnRefresh = null!, btnSendEmail = null!;
         private Label lblTotal = null!;
         private readonly string _menuCode = "LG_TINH";
 
@@ -34,12 +35,14 @@ namespace QuanLyNhanVien.Forms.Salary
             };
             btnCalc = CreateBtn("🧮 Tính Lương", "Add", ThemeColors.Primary, 140);
             btnApprove = CreateBtn("✅ Duyệt tất cả", "Edit", ThemeColors.Success, 150);
+            btnSendEmail = CreateBtn("📧 Gửi phiếu lương", "Export", Color.FromArgb(168, 85, 247), 170);
             btnRefresh = CreateBtn("🔄", "", ThemeColors.MutedForeground, 50);
-            toolbar.Controls.AddRange(new Control[] { btnCalc, btnApprove, btnRefresh });
+            toolbar.Controls.AddRange(new Control[] { btnCalc, btnApprove, btnSendEmail, btnRefresh });
 
             btnCalc.Click += BtnCalc_Click;
             btnApprove.Click += BtnApprove_Click;
             btnRefresh.Click += async (s, e) => await LoadDataAsync();
+            btnSendEmail.Click += BtnSendEmail_Click;
 
             // Filter bar
             var filterBar = new Panel { Dock = DockStyle.Top, Height = 50, BackColor = ThemeColors.Background };
@@ -204,6 +207,68 @@ namespace QuanLyNhanVien.Forms.Salary
             var (ok, msg) = await Program.SalaryService.ApproveAllAsync(month, year, AppSession.CurrentUser?.UserId ?? 0);
             if (ok) { FormHelper.ShowSuccess(msg); await LoadDataAsync(); }
             else FormHelper.ShowError(msg);
+        }
+
+        private async void BtnSendEmail_Click(object? s, EventArgs e)
+        {
+            if (dgv.DataSource is not List<SalaryRecord> records || records.Count == 0)
+            {
+                FormHelper.ShowError("Không có phiếu lương. Vui lòng tính lương trước.");
+                return;
+            }
+
+            // Chỉ gửi cho phiếu đã Approved
+            var approved = records.Where(r => r.Status == "Approved").ToList();
+            if (approved.Count == 0)
+            {
+                FormHelper.ShowError("Không có phiếu lương đã duyệt. Vui lòng duyệt trước khi gửi.");
+                return;
+            }
+
+            if (MessageBox.Show(
+                $"Gửi phiếu lương email cho {approved.Count} nhân viên?\n\nChỉ gửi cho NV có email và phiếu đã duyệt.",
+                "Xác nhận gửi email", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+                return;
+
+            btnSendEmail.Enabled = false;
+            btnSendEmail.Text = "⏳ Đang gửi...";
+
+            var companyName = await Program.CompanySettingsService.GetAsync(CompanySettingsService.KEY_COMPANY_NAME, "Công ty");
+            int sent = 0, failed = 0, skipped = 0;
+
+            try
+            {
+                foreach (var sr in approved)
+                {
+                    // Lấy email NV
+                    var emp = await Program.EmployeeService.GetByIdAsync(sr.EmployeeId);
+                    if (emp == null || string.IsNullOrWhiteSpace(emp.Email))
+                    {
+                        skipped++;
+                        continue;
+                    }
+
+                    var html = EmailService.BuildPayslipHtml(sr, companyName);
+                    var (ok, msg) = await Program.EmailService.SendPayslipAsync(emp.Email, sr.EmployeeName ?? emp.FullName, html);
+
+                    if (ok) sent++;
+                    else failed++;
+
+                    // Small delay to avoid SMTP throttling
+                    await Task.Delay(500);
+                }
+
+                FormHelper.ShowSuccess($"Kết quả gửi email:\n✅ Thành công: {sent}\n❌ Lỗi: {failed}\n⏭️ Bỏ qua (không có email): {skipped}");
+            }
+            catch (Exception ex)
+            {
+                FormHelper.ShowError($"Lỗi gửi email: {ex.Message}");
+            }
+            finally
+            {
+                btnSendEmail.Enabled = true;
+                btnSendEmail.Text = "📧 Gửi phiếu lương";
+            }
         }
     }
 }

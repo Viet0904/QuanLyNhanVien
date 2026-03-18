@@ -1,4 +1,4 @@
-using Dapper;
+﻿using Dapper;
 using QuanLyNhanVien.DAL.Context;
 
 namespace QuanLyNhanVien.DAL.Repositories
@@ -96,7 +96,7 @@ namespace QuanLyNhanVien.DAL.Repositories
                           AND MONTH(a.WorkDate) = @Month AND YEAR(a.WorkDate) = @Year
                         WHERE e.IsActive = 1
                         GROUP BY e.EmployeeCode, e.FullName
-                        HAVING COUNT(a.AttendanceId) > 0
+                        HAVING COUNT(a.RecordId) > 0
                         ORDER BY e.FullName";
             using var conn = _dbFactory.CreateConnection();
             return await conn.QueryAsync(sql, new { Month = month, Year = year });
@@ -222,6 +222,34 @@ namespace QuanLyNhanVien.DAL.Repositories
             using var conn = _dbFactory.CreateConnection();
             var results = await conn.QueryAsync(sql, new { Year = year });
             return results.Select(r => ((int)r.Month, (int)r.NewHires, (int)r.Terminations));
+        }
+
+        /// <summary>
+        /// Báo cáo tần suất đi muộn/về sớm theo tháng
+        /// </summary>
+        public async Task<IEnumerable<dynamic>> GetLateFrequencyReportAsync(int month, int year)
+        {
+            var sql = @"SELECT e.EmployeeCode, e.FullName AS EmployeeName, d.DepartmentName,
+                           COUNT(*) AS TotalWorkDays,
+                           COUNT(CASE WHEN a.[Status] = 'Late' THEN 1 END) AS LateDays,
+                           COUNT(CASE WHEN a.[Status] = 'EarlyLeave' THEN 1 END) AS EarlyLeaveDays,
+                           COUNT(CASE WHEN a.[Status] IN ('Late','EarlyLeave') THEN 1 END) AS TotalViolations,
+                           CAST(
+                             ROUND(
+                               COUNT(CASE WHEN a.[Status] IN ('Late','EarlyLeave') THEN 1 END) * 100.0 / NULLIF(COUNT(*), 0),
+                               1
+                             ) AS DECIMAL(5,1)
+                           ) AS ViolationPercent
+                         FROM AttendanceRecords a
+                         INNER JOIN Employees e ON a.EmployeeId = e.EmployeeId
+                         LEFT JOIN Departments d ON e.DepartmentId = d.DepartmentId
+                         WHERE MONTH(a.WorkDate) = @Month AND YEAR(a.WorkDate) = @Year
+                           AND e.IsActive = 1
+                         GROUP BY e.EmployeeCode, e.FullName, d.DepartmentName
+                         HAVING COUNT(CASE WHEN a.[Status] IN ('Late','EarlyLeave') THEN 1 END) > 0
+                         ORDER BY TotalViolations DESC, e.FullName";
+            using var conn = _dbFactory.CreateConnection();
+            return await conn.QueryAsync(sql, new { Month = month, Year = year });
         }
     }
 }

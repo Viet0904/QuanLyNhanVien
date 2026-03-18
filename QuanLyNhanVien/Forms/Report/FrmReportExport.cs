@@ -55,7 +55,8 @@ namespace QuanLyNhanVien.Forms.Report
             };
             cboReportType.Items.AddRange(new object[] {
                 "Danh sách nhân viên", "Bảng lương tháng", "Chấm công tháng", "Nghỉ phép",
-                "NV mới / nghỉ việc", "Sinh nhật tháng", "Bảo hiểm xã hội", "Thuế TNCN", "Biến động nhân sự"
+                "NV mới / nghỉ việc", "Sinh nhật tháng", "Bảo hiểm xã hội", "Thuế TNCN", "Biến động nhân sự",
+                "Đi muộn thường xuyên"
             });
             cboReportType.SelectedIndex = 0;
             cboReportType.SelectedIndexChanged += (s, e) => UpdateFilterVisibility();
@@ -176,6 +177,9 @@ namespace QuanLyNhanVien.Forms.Report
                     var turnover = await Program.ReportRepo.GetTurnoverAsync(year);
                     data = turnover.Select(t => (dynamic)new { Thang = t.Month, NhanVienMoi = t.NewHires, NghiViec = t.Terminations }).ToList();
                     break;
+                case 9: // Đi muộn thường xuyên
+                    data = await Program.ReportService.GetLateFrequencyReportAsync(month, year);
+                    break;
                 default:
                     return;
             }
@@ -208,6 +212,50 @@ namespace QuanLyNhanVien.Forms.Report
                 "SocialInsurance", "HealthInsurance", "UnemploymentInsurance", "PersonalIncomeTax", "NetSalary" };
             foreach (var col in moneyCols)
                 if (dgv.Columns.Contains(col)) dgv.Columns[col].DefaultCellStyle.Format = "N0";
+
+            // Vietnamese headers cho báo cáo đi muộn
+            if (idx == 9)
+            {
+                var lateHeaders = new Dictionary<string, string>
+                {
+                    ["EmployeeCode"] = "Mã NV", ["EmployeeName"] = "Họ Tên", ["DepartmentName"] = "Phòng Ban",
+                    ["TotalWorkDays"] = "Ngày công", ["LateDays"] = "Đi muộn", ["EarlyLeaveDays"] = "Về sớm",
+                    ["TotalViolations"] = "Tổng vi phạm", ["ViolationPercent"] = "Tỉ lệ (%)"
+                };
+                foreach (var (col, header) in lateHeaders)
+                    if (dgv.Columns.Contains(col)) dgv.Columns[col].HeaderText = header;
+
+                // Tô màu hàng theo ngưỡng vi phạm
+                foreach (DataGridViewRow row in dgv.Rows)
+                {
+                    if (row.Cells["TotalViolations"].Value is int violations)
+                    {
+                        if (violations >= 5)
+                        {
+                            row.DefaultCellStyle.BackColor = Color.FromArgb(80, 30, 30);
+                            row.DefaultCellStyle.ForeColor = Color.FromArgb(255, 130, 130);
+                        }
+                        else if (violations >= 3)
+                        {
+                            row.DefaultCellStyle.BackColor = Color.FromArgb(70, 60, 20);
+                            row.DefaultCellStyle.ForeColor = Color.FromArgb(255, 220, 100);
+                        }
+                    }
+                }
+            }
+
+            // Vietnamese headers cho chấm công tháng
+            if (idx == 2)
+            {
+                var attHeaders = new Dictionary<string, string>
+                {
+                    ["EmployeeCode"] = "Mã NV", ["FullName"] = "Họ Tên",
+                    ["PresentDays"] = "Có mặt", ["AbsentDays"] = "Vắng",
+                    ["LateDays"] = "Đi muộn", ["EarlyLeaveDays"] = "Về sớm", ["TotalOT"] = "OT (h)"
+                };
+                foreach (var (col, header) in attHeaders)
+                    if (dgv.Columns.Contains(col)) dgv.Columns[col].HeaderText = header;
+            }
         }
 
         private void BtnExport_Click(object? s, EventArgs e)

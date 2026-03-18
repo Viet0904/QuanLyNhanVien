@@ -50,7 +50,7 @@ namespace QuanLyNhanVien.BLL.Services
         /// </summary>
         public async Task<SalaryRecord> CalculateForEmployeeAsync(Employee emp, int month, int year)
         {
-            // 1. Lấy configs
+            // 1. Lấy configs bảo hiểm & thuế
             var bhxhRate = await GetConfigValueAsync("BHXH") / 100;
             var bhytRate = await GetConfigValueAsync("BHYT") / 100;
             var bhtnRate = await GetConfigValueAsync("BHTN") / 100;
@@ -66,39 +66,51 @@ namespace QuanLyNhanVien.BLL.Services
             var position = positions.FirstOrDefault(p => p.PositionId == emp.PositionId);
             var positionAllowance = position?.AllowanceAmount ?? 0;
 
-            // 3. Đếm ngày công từ chấm công
+            // 3. Lấy phụ cấp khác (ăn trưa, xăng xe, đi lại) từ SalaryConfigs
+            var lunchAllowance = await GetConfigValueAsync("PC_ANTRUOI");
+            var petrolAllowance = await GetConfigValueAsync("PC_XANGXE");
+            var travelAllowance = await GetConfigValueAsync("PC_DILAI");
+            var otherAllowance = lunchAllowance + petrolAllowance + travelAllowance;
+
+            // 4. Đếm ngày công từ chấm công
             var attendanceRecords = await _attendanceRepo.GetMonthlyAsync(month, year);
             var empAttendance = attendanceRecords.Where(a => a.EmployeeId == emp.EmployeeId).ToList();
-            // Chỉ tính ngày có mặt, đi trễ, nghỉ phép CÓ LƯƠNG
+            // Chỉ tính ngày có mặt, đi trễ, về sớm, nghỉ phép CÓ LƯƠNG
             // Nghỉ không lương (UnpaidLeave) KHÔNG được tính lương
             var workingDays = empAttendance.Count(a =>
-                a.Status == "Present" || a.Status == "Late" || a.Status == "OnLeave");
-            // Lưu ý: "UnpaidLeave" và "Absent" không được tính vào workingDays
+                a.Status == "Present" || a.Status == "Late" || a.Status == "EarlyLeave" || a.Status == "OnLeave");
             var totalOvertimeHours = empAttendance.Sum(a => a.OvertimeHours);
 
-            // 4. Tính thu nhập
+            // 5. Tính khấu trừ phạt đi muộn
+            var latePenaltyAmount = await GetConfigValueAsync("PHAT_DIMUON_MUC");   // VNĐ/lần
+            var latePenaltyThreshold = await GetConfigValueAsync("PHAT_DIMUON_NGUONG"); // Số lần miễn phạt
+            var lateCount = empAttendance.Count(a => a.Status == "Late" || a.Status == "EarlyLeave");
+            var penalizableLateCount = Math.Max(0, lateCount - (int)latePenaltyThreshold);
+            var otherDeductions = penalizableLateCount * latePenaltyAmount;
+
+            // 6. Tính thu nhập
             var basicSalary = emp.BasicSalary;
             var coefficient = emp.SalaryCoefficient;
             var dailyRate = (basicSalary * coefficient) / standardDays;
             var grossFromWork = dailyRate * workingDays;
             var overtimePay = (dailyRate / 8) * totalOvertimeHours * otRate; // OT = daily/8 * hours * rate
-            var grossIncome = grossFromWork + positionAllowance + overtimePay;
+            var grossIncome = grossFromWork + positionAllowance + otherAllowance + overtimePay;
 
-            // 5. Tính bảo hiểm (trên lương cơ bản × hệ số)
+            // 7. Tính bảo hiểm (trên lương cơ bản × hệ số)
             var insuranceBase = basicSalary * coefficient;
             var socialIns = Math.Round(insuranceBase * bhxhRate);
             var healthIns = Math.Round(insuranceBase * bhytRate);
             var unemploymentIns = Math.Round(insuranceBase * bhtnRate);
             var totalInsurance = socialIns + healthIns + unemploymentIns;
 
-            // 6. Tính thuế TNCN
+            // 8. Tính thuế TNCN
             var depDeduction = dependentDeduction * emp.NumberOfDependents;
             var taxableIncome = grossIncome - totalInsurance - personalDeduction - depDeduction;
             if (taxableIncome < 0) taxableIncome = 0;
             var pit = CalculatePIT(taxableIncome);
 
-            // 7. Lương thực lĩnh
-            var netSalary = grossIncome - totalInsurance - pit;
+            // 9. Lương thực lĩnh
+            var netSalary = grossIncome - totalInsurance - pit - otherDeductions;
 
             return new SalaryRecord
             {
@@ -110,7 +122,7 @@ namespace QuanLyNhanVien.BLL.Services
                 BasicSalary = basicSalary,
                 SalaryCoefficient = coefficient,
                 PositionAllowance = positionAllowance,
-                OtherAllowance = 0,
+                OtherAllowance = Math.Round(otherAllowance),
                 OvertimePay = Math.Round(overtimePay),
                 GrossIncome = Math.Round(grossIncome),
                 SocialInsurance = socialIns,
@@ -120,7 +132,7 @@ namespace QuanLyNhanVien.BLL.Services
                 DependentDeduction = depDeduction,
                 TaxableIncome = taxableIncome,
                 PersonalIncomeTax = pit,
-                OtherDeductions = 0,
+                OtherDeductions = Math.Round(otherDeductions),
                 NetSalary = Math.Round(netSalary),
                 Status = "Draft",
                 EmployeeName = emp.FullName,

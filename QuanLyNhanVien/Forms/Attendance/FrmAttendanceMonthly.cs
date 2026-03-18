@@ -160,7 +160,7 @@ namespace QuanLyNhanVien.Forms.Attendance
                     int dayIndex = rec.WorkDate.Day - 1 + 2; // offset by 2 for code + name columns
                     row[dayIndex] = GetStatusSymbol(rec.Status);
 
-                    if (rec.Status == "Present" || rec.Status == "Late")
+                    if (rec.Status == "Present" || rec.Status == "Late" || rec.Status == "EarlyLeave")
                         workDays++;
                     if (rec.Status == "OnLeave")
                         workDays += 0; // không tính công
@@ -183,6 +183,7 @@ namespace QuanLyNhanVien.Forms.Attendance
             {
                 "Present" => "✓",
                 "Late" => "T",
+                "EarlyLeave" => "S",
                 "Absent" => "X",
                 "OnLeave" => "P",
                 "Holiday" => "L",
@@ -199,6 +200,7 @@ namespace QuanLyNhanVien.Forms.Attendance
             {
                 "✓" => ThemeColors.Success,
                 "T" => Color.FromArgb(255, 200, 60),
+                "S" => Color.FromArgb(255, 160, 50),
                 "X" => Color.FromArgb(220, 70, 70),
                 "P" => Color.FromArgb(100, 170, 255),
                 "L" => Color.FromArgb(180, 130, 255),

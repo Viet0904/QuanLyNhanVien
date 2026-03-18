@@ -142,5 +142,29 @@ namespace QuanLyNhanVien.DAL.Repositories
                         ORDER BY e.FullName";
             return await QuerySqlAsync<Employee>(sql, new { DepartmentId = departmentId });
         }
+
+        /// <summary>
+        /// Cập nhật hàng loạt 1 trường cho nhiều nhân viên
+        /// </summary>
+        public async Task<int> BatchUpdateFieldAsync(List<int> employeeIds, string fieldName, object value)
+        {
+            // Whitelist fields cho phép batch update (chống SQL injection)
+            var allowedFields = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                "DepartmentId", "PositionId", "SalaryCoefficient",
+                "BasicSalary", "NumberOfDependents", "IsActive"
+            };
+
+            if (!allowedFields.Contains(fieldName))
+                throw new ArgumentException($"Trường '{fieldName}' không được phép cập nhật hàng loạt.");
+
+            if (employeeIds == null || employeeIds.Count == 0)
+                return 0;
+
+            var sql = $@"UPDATE Employees SET [{fieldName}] = @Value, UpdatedAt = GETDATE()
+                         WHERE EmployeeId IN @Ids";
+            using var conn = _dbFactory.CreateConnection();
+            return await conn.ExecuteAsync(sql, new { Value = value, Ids = employeeIds });
+        }
     }
 }

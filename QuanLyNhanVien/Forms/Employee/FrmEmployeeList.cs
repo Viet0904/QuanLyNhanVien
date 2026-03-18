@@ -7,7 +7,7 @@ namespace QuanLyNhanVien.Forms.Employee
     public class FrmEmployeeList : Form
     {
         private DataGridView dgv = null!;
-        private Button btnAdd = null!, btnExport = null!, btnImport = null!;
+        private Button btnAdd = null!, btnExport = null!, btnImport = null!, btnBatchEdit = null!;
         private TextBox txtSearch = null!;
         private ComboBox cboDept = null!, cboStatus = null!;
         private Label lblCount = null!;
@@ -33,19 +33,22 @@ namespace QuanLyNhanVien.Forms.Employee
             btnImport.Tag = "Add";
             btnExport = ThemeColors.CreateOutlineButton("📤 Xuất dữ liệu", 140);
             btnExport.Tag = "Export";
+            btnBatchEdit = ThemeColors.CreateOutlineButton("✏️ Sửa hàng loạt", 150);
+            btnBatchEdit.Tag = "Edit";
             btnAdd = ThemeColors.CreatePrimaryButton("+ Thêm mới", 120);
             btnAdd.Tag = "Add";
 
             var header = ThemeColors.CreatePageHeader(
                 "Quản lý nhân sự",
                 "Quản lý toàn bộ hồ sơ nhân viên trong hệ thống",
-                new Control[] { btnImport, btnExport, btnAdd }
+                new Control[] { btnImport, btnExport, btnBatchEdit, btnAdd }
             );
             this.Controls.Add(header);
 
             btnAdd.Click += BtnAdd_Click;
             btnExport.Click += BtnExportExcel_Click;
             btnImport.Click += BtnImportExcel_Click;
+            btnBatchEdit.Click += BtnBatchEdit_Click;
 
             // ===== FILTER BAR =====
             var filterBar = new Panel
@@ -220,6 +223,129 @@ namespace QuanLyNhanVien.Forms.Employee
             if (emp == null) { FormHelper.ShowError("Vui lòng chọn nhân viên."); return; }
             if (!FormHelper.ConfirmDelete(emp.FullName)) return;
             var (ok, msg) = await Program.EmployeeService.DeleteAsync(emp.EmployeeId);
+            if (ok) { FormHelper.ShowSuccess(msg); await LoadDataAsync(); }
+            else FormHelper.ShowError(msg);
+        }
+
+        private async void BtnBatchEdit_Click(object? s, EventArgs e)
+        {
+            // Lấy danh sách NV đã chọn
+            var selectedIds = new List<int>();
+            foreach (DataGridViewRow row in dgv.SelectedRows)
+            {
+                if (row.DataBoundItem is Models.Entities.Employee emp)
+                    selectedIds.Add(emp.EmployeeId);
+            }
+
+            if (selectedIds.Count < 2)
+            {
+                FormHelper.ShowError("Vui lòng chọn ít nhất 2 nhân viên để sửa hàng loạt.\n(Giữ Ctrl + Click để chọn nhiều)");
+                return;
+            }
+
+            // Dialog chọn trường và giá trị
+            using var dlg = new Form
+            {
+                Text = $"✏️ Sửa hàng loạt ({selectedIds.Count} nhân viên)",
+                Size = new Size(420, 280), StartPosition = FormStartPosition.CenterParent,
+                FormBorderStyle = FormBorderStyle.FixedDialog, MaximizeBox = false, MinimizeBox = false,
+                BackColor = ThemeColors.Background, Font = new Font("Segoe UI", 10F)
+            };
+
+            var lblField = new Label { Text = "Trường cần sửa:", Location = new Point(20, 20), AutoSize = true, ForeColor = ThemeColors.Foreground };
+            var cboField = new ComboBox
+            {
+                Location = new Point(20, 45), Size = new Size(360, 30),
+                DropDownStyle = ComboBoxStyle.DropDownList,
+                BackColor = ThemeColors.Surface, ForeColor = ThemeColors.Foreground
+            };
+            cboField.Items.AddRange(new object[] { "Phòng ban", "Chức vụ", "Hệ số lương", "Số người phụ thuộc" });
+            cboField.SelectedIndex = 0;
+
+            var lblValue = new Label { Text = "Giá trị mới:", Location = new Point(20, 90), AutoSize = true, ForeColor = ThemeColors.Foreground };
+            var cboValue = new ComboBox
+            {
+                Location = new Point(20, 115), Size = new Size(360, 30),
+                DropDownStyle = ComboBoxStyle.DropDownList,
+                BackColor = ThemeColors.Surface, ForeColor = ThemeColors.Foreground
+            };
+            var numValue = new NumericUpDown
+            {
+                Location = new Point(20, 115), Size = new Size(360, 30),
+                BackColor = ThemeColors.Surface, ForeColor = ThemeColors.Foreground,
+                DecimalPlaces = 2, Minimum = 0, Maximum = 99, Value = 1, Visible = false
+            };
+
+            // Load depts and positions
+            var depts = (await Program.DeptService.GetAllAsync()).ToList();
+            var positions = (await Program.EmployeeService.GetDepartmentsAsync()).ToList();
+            var positionsList = (await Program.PosService.GetAllAsync()).ToList();
+
+            void UpdateValueControl()
+            {
+                var idx = cboField.SelectedIndex;
+                if (idx <= 1) // Phòng ban / Chức vụ
+                {
+                    cboValue.Visible = true; numValue.Visible = false;
+                    cboValue.DataSource = null;
+                    if (idx == 0)
+                    {
+                        cboValue.DataSource = depts;
+                        cboValue.DisplayMember = "DepartmentName";
+                        cboValue.ValueMember = "DepartmentId";
+                    }
+                    else
+                    {
+                        cboValue.DataSource = positionsList;
+                        cboValue.DisplayMember = "PositionName";
+                        cboValue.ValueMember = "PositionId";
+                    }
+                }
+                else // Hệ số lương / Số người phụ thuộc
+                {
+                    cboValue.Visible = false; numValue.Visible = true;
+                    if (idx == 2) { numValue.DecimalPlaces = 2; numValue.Maximum = 99; numValue.Value = 1; }
+                    else { numValue.DecimalPlaces = 0; numValue.Maximum = 20; numValue.Value = 0; }
+                }
+            }
+            cboField.SelectedIndexChanged += (_, _) => UpdateValueControl();
+            UpdateValueControl();
+
+            var btnOk = new Button
+            {
+                Text = "✅ Áp dụng", Location = new Point(20, 175), Size = new Size(170, 40),
+                FlatStyle = FlatStyle.Flat, BackColor = ThemeColors.Primary, ForeColor = ThemeColors.Foreground,
+                Font = new Font("Segoe UI", 10F, FontStyle.Bold), DialogResult = DialogResult.OK
+            };
+            btnOk.FlatAppearance.BorderSize = 0;
+            var btnCancel = new Button
+            {
+                Text = "Hủy", Location = new Point(210, 175), Size = new Size(170, 40),
+                FlatStyle = FlatStyle.Flat, BackColor = ThemeColors.Surface, ForeColor = ThemeColors.Foreground,
+                DialogResult = DialogResult.Cancel
+            };
+            btnCancel.FlatAppearance.BorderColor = ThemeColors.Border;
+
+            dlg.Controls.AddRange(new Control[] { lblField, cboField, lblValue, cboValue, numValue, btnOk, btnCancel });
+            dlg.AcceptButton = btnOk;
+            dlg.CancelButton = btnCancel;
+
+            if (dlg.ShowDialog() != DialogResult.OK) return;
+
+            // Xác định field name và value
+            var fieldIdx = cboField.SelectedIndex;
+            string fieldName;
+            object value;
+            switch (fieldIdx)
+            {
+                case 0: fieldName = "DepartmentId"; value = (int)cboValue.SelectedValue!; break;
+                case 1: fieldName = "PositionId"; value = (int)cboValue.SelectedValue!; break;
+                case 2: fieldName = "SalaryCoefficient"; value = numValue.Value; break;
+                case 3: fieldName = "NumberOfDependents"; value = (int)numValue.Value; break;
+                default: return;
+            }
+
+            var (ok, msg, count) = await Program.EmployeeService.BatchUpdateAsync(selectedIds, fieldName, value);
             if (ok) { FormHelper.ShowSuccess(msg); await LoadDataAsync(); }
             else FormHelper.ShowError(msg);
         }

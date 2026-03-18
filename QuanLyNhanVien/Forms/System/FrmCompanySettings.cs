@@ -11,6 +11,10 @@ namespace QuanLyNhanVien.Forms.SystemAdmin
         private TextBox txtCompanyName = null!, txtAddress = null!, txtPhone = null!;
         private TextBox txtEmail = null!, txtTaxCode = null!, txtWebsite = null!;
         private TextBox txtFax = null!, txtRepresentative = null!, txtRepTitle = null!;
+        // SMTP fields
+        private TextBox txtSmtpHost = null!, txtSmtpPort = null!, txtSmtpUser = null!;
+        private TextBox txtSmtpPass = null!, txtSmtpSenderName = null!, txtSmtpSenderEmail = null!;
+        private CheckBox chkSmtpSsl = null!;
         private PictureBox picLogo = null!;
         private Label lblStatus = null!;
         private readonly string _menuCode = "HT_CAUHINH";
@@ -103,6 +107,47 @@ namespace QuanLyNhanVien.Forms.SystemAdmin
             AddLabel(content, "Chức danh:", labelX, y);
             txtRepTitle = AddTextBox(content, inputX, y, 250); y += 55;
 
+            // ===== SMTP Section =====
+            var smtpHeader = new Label
+            {
+                Text = "📧 CẤU HÌNH EMAIL (SMTP)", Location = new Point(labelX, y),
+                AutoSize = true, ForeColor = ThemeColors.Foreground,
+                Font = new Font("Segoe UI", 11F, FontStyle.Bold)
+            };
+            content.Controls.Add(smtpHeader); y += 35;
+
+            AddLabel(content, "SMTP Host:", labelX, y);
+            txtSmtpHost = AddTextBox(content, inputX, y, 250);
+            txtSmtpHost.PlaceholderText = "smtp.gmail.com"; y += 42;
+
+            AddLabel(content, "SMTP Port:", labelX, y);
+            txtSmtpPort = AddTextBox(content, inputX, y, 80);
+            txtSmtpPort.PlaceholderText = "587";
+
+            chkSmtpSsl = new CheckBox
+            {
+                Text = "SSL/TLS", Location = new Point(inputX + 120, y + 2),
+                AutoSize = true, Checked = true, ForeColor = ThemeColors.Foreground
+            };
+            content.Controls.Add(chkSmtpSsl); y += 42;
+
+            AddLabel(content, "Tài khoản SMTP:", labelX, y);
+            txtSmtpUser = AddTextBox(content, inputX, y, 300);
+            txtSmtpUser.PlaceholderText = "your-email@gmail.com"; y += 42;
+
+            AddLabel(content, "Mật khẩu SMTP:", labelX, y);
+            txtSmtpPass = AddTextBox(content, inputX, y, 300);
+            txtSmtpPass.UseSystemPasswordChar = true;
+            txtSmtpPass.PlaceholderText = "App Password"; y += 42;
+
+            AddLabel(content, "Tên người gửi:", labelX, y);
+            txtSmtpSenderName = AddTextBox(content, inputX, y, 250);
+            txtSmtpSenderName.PlaceholderText = "Phòng Nhân Sự"; y += 42;
+
+            AddLabel(content, "Email người gửi:", labelX, y);
+            txtSmtpSenderEmail = AddTextBox(content, inputX, y, 300);
+            txtSmtpSenderEmail.PlaceholderText = "hr@company.com (nếu khác tài khoản SMTP)"; y += 50;
+
             // Buttons
             var btnSave = new Button
             {
@@ -115,9 +160,20 @@ namespace QuanLyNhanVien.Forms.SystemAdmin
             btnSave.Click += BtnSave_Click;
             content.Controls.Add(btnSave);
 
+            var btnTestEmail = new Button
+            {
+                Text = "📧 Test Email", Location = new Point(inputX + 195, y), Size = new Size(140, 42),
+                FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(168, 85, 247),
+                ForeColor = ThemeColors.Foreground, Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+                Cursor = Cursors.Hand
+            };
+            btnTestEmail.FlatAppearance.BorderSize = 0;
+            btnTestEmail.Click += BtnTestEmail_Click;
+            content.Controls.Add(btnTestEmail);
+
             lblStatus = new Label
             {
-                Text = "", Location = new Point(inputX + 195, y + 10), AutoSize = true,
+                Text = "", Location = new Point(inputX + 350, y + 10), AutoSize = true,
                 ForeColor = ThemeColors.Success, Font = new Font("Segoe UI", 9F, FontStyle.Bold)
             };
             content.Controls.Add(lblStatus);
@@ -161,6 +217,15 @@ namespace QuanLyNhanVien.Forms.SystemAdmin
             txtFax.Text = settings.GetValueOrDefault(CompanySettingsService.KEY_FAX, "");
             txtRepresentative.Text = settings.GetValueOrDefault(CompanySettingsService.KEY_REPRESENTATIVE, "");
             txtRepTitle.Text = settings.GetValueOrDefault(CompanySettingsService.KEY_REPRESENTATIVE_TITLE, "");
+
+            // SMTP
+            txtSmtpHost.Text = settings.GetValueOrDefault(CompanySettingsService.KEY_SMTP_HOST, "");
+            txtSmtpPort.Text = settings.GetValueOrDefault(CompanySettingsService.KEY_SMTP_PORT, "587");
+            txtSmtpUser.Text = settings.GetValueOrDefault(CompanySettingsService.KEY_SMTP_USERNAME, "");
+            txtSmtpPass.Text = settings.GetValueOrDefault(CompanySettingsService.KEY_SMTP_PASSWORD, "");
+            chkSmtpSsl.Checked = settings.GetValueOrDefault(CompanySettingsService.KEY_SMTP_ENABLE_SSL, "true") == "true";
+            txtSmtpSenderName.Text = settings.GetValueOrDefault(CompanySettingsService.KEY_SMTP_SENDER_NAME, "");
+            txtSmtpSenderEmail.Text = settings.GetValueOrDefault(CompanySettingsService.KEY_SMTP_SENDER_EMAIL, "");
 
             // Load logo
             var logoBase64 = settings.GetValueOrDefault("Logo", "");
@@ -218,7 +283,15 @@ namespace QuanLyNhanVien.Forms.SystemAdmin
                 [CompanySettingsService.KEY_WEBSITE] = txtWebsite.Text.Trim(),
                 [CompanySettingsService.KEY_FAX] = txtFax.Text.Trim(),
                 [CompanySettingsService.KEY_REPRESENTATIVE] = txtRepresentative.Text.Trim(),
-                [CompanySettingsService.KEY_REPRESENTATIVE_TITLE] = txtRepTitle.Text.Trim()
+                [CompanySettingsService.KEY_REPRESENTATIVE_TITLE] = txtRepTitle.Text.Trim(),
+                // SMTP
+                [CompanySettingsService.KEY_SMTP_HOST] = txtSmtpHost.Text.Trim(),
+                [CompanySettingsService.KEY_SMTP_PORT] = txtSmtpPort.Text.Trim(),
+                [CompanySettingsService.KEY_SMTP_USERNAME] = txtSmtpUser.Text.Trim(),
+                [CompanySettingsService.KEY_SMTP_PASSWORD] = txtSmtpPass.Text.Trim(),
+                [CompanySettingsService.KEY_SMTP_ENABLE_SSL] = chkSmtpSsl.Checked ? "true" : "false",
+                [CompanySettingsService.KEY_SMTP_SENDER_NAME] = txtSmtpSenderName.Text.Trim(),
+                [CompanySettingsService.KEY_SMTP_SENDER_EMAIL] = txtSmtpSenderEmail.Text.Trim()
             };
 
             // Save logo as Base64
@@ -231,6 +304,38 @@ namespace QuanLyNhanVien.Forms.SystemAdmin
             {
                 lblStatus.ForeColor = ThemeColors.Success;
                 lblStatus.Text = "✅ " + msg;
+            }
+            else
+            {
+                lblStatus.ForeColor = Color.FromArgb(255, 100, 100);
+                lblStatus.Text = "❌ " + msg;
+                FormHelper.ShowError(msg);
+            }
+        }
+
+        private async void BtnTestEmail_Click(object? sender, EventArgs e)
+        {
+            // Save settings first
+            BtnSave_Click(sender, e);
+            await Task.Delay(500); // Wait for save
+
+            var testEmail = txtSmtpUser.Text.Trim();
+            if (string.IsNullOrWhiteSpace(testEmail))
+            {
+                FormHelper.ShowError("Vui lòng nhập tài khoản SMTP trước khi test.");
+                return;
+            }
+
+            lblStatus.Text = "📧 Đang gửi email test...";
+            lblStatus.ForeColor = Color.FromArgb(59, 130, 246);
+
+            var (ok, msg) = await Program.EmailService.TestConnectionAsync(testEmail);
+
+            if (ok)
+            {
+                lblStatus.ForeColor = ThemeColors.Success;
+                lblStatus.Text = "✅ " + msg;
+                FormHelper.ShowSuccess(msg);
             }
             else
             {

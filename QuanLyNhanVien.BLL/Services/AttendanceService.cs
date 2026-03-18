@@ -43,10 +43,10 @@ namespace QuanLyNhanVien.BLL.Services
             if (existing != null)
                 return (false, "Nhân viên đã được chấm công ngày này rồi.");
 
-            // Tự động xác định status nếu cần
+            // Tự động xác định status (Late / EarlyLeave / Present)
             if (record.CheckIn.HasValue && !string.IsNullOrEmpty(record.ShiftType))
             {
-                record.Status = DetermineStatus(record.CheckIn.Value, record.ShiftType);
+                record.Status = DetermineStatus(record.CheckIn.Value, record.CheckOut, record.ShiftType);
             }
 
             // Tính overtime
@@ -67,7 +67,7 @@ namespace QuanLyNhanVien.BLL.Services
             // Tự động tính lại status và overtime
             if (record.CheckIn.HasValue && !string.IsNullOrEmpty(record.ShiftType))
             {
-                record.Status = DetermineStatus(record.CheckIn.Value, record.ShiftType);
+                record.Status = DetermineStatus(record.CheckIn.Value, record.CheckOut, record.ShiftType);
             }
             if (record.CheckIn.HasValue && record.CheckOut.HasValue)
             {
@@ -111,6 +111,32 @@ namespace QuanLyNhanVien.BLL.Services
         }
 
         /// <summary>
+        /// Chấm công hàng loạt nâng cao — cho phép chấm với giờ vào/ra cụ thể
+        /// </summary>
+        public async Task<(bool Success, string Message, int Count)> BulkInsertWithDetailsAsync(
+            List<AttendanceRecord> records)
+        {
+            if (records == null || records.Count == 0)
+                return (false, "Không có dữ liệu chấm công.", 0);
+
+            // Auto-calculate status and overtime for each record
+            foreach (var record in records)
+            {
+                if (record.CheckIn.HasValue && !string.IsNullOrEmpty(record.ShiftType))
+                {
+                    record.Status = DetermineStatus(record.CheckIn.Value, record.CheckOut, record.ShiftType);
+                }
+                if (record.CheckIn.HasValue && record.CheckOut.HasValue)
+                {
+                    record.OvertimeHours = CalculateOvertime(record.CheckIn.Value, record.CheckOut.Value, record.ShiftType);
+                }
+            }
+
+            var count = await _attendanceRepo.BulkInsertAsync(records);
+            return (true, $"Đã chấm công hàng loạt cho {count} nhân viên.", count);
+        }
+
+        /// <summary>
         /// Lấy danh sách NV chưa chấm công
         /// </summary>
         public async Task<IEnumerable<Employee>> GetUncheckedEmployeesAsync(DateTime date, int? deptId = null)
@@ -119,24 +145,70 @@ namespace QuanLyNhanVien.BLL.Services
         }
 
         /// <summary>
-        /// Xác định trạng thái dựa trên giờ check-in và ca làm việc
+        /// Xác định trạng thái dựa trên giờ check-in, check-out và ca làm việc.
+        /// Hỗ trợ: Present, Late, EarlyLeave
         /// </summary>
-        private string DetermineStatus(TimeSpan checkIn, string shiftType)
+        private string DetermineStatus(TimeSpan checkIn, TimeSpan? checkOut, string shiftType)
         {
             // Lấy giờ bắt đầu ca
-            var shiftStart = shiftType switch
+            var shiftStart = GetShiftStart(shiftType);
+            // Lấy giờ kết thúc ca
+            var shiftEnd = GetShiftEnd(shiftType);
+
+            // Trễ nếu check-in sau giờ bắt đầu ca + 15 phút
+            bool isLate = checkIn > shiftStart.Add(TimeSpan.FromMinutes(15));
+
+            // Về sớm nếu check-out trước giờ kết thúc ca - 15 phút
+            bool isEarlyLeave = false;
+            if (checkOut.HasValue)
+            {
+                bool isNightShift = shiftType == "NIGHT";
+                if (isNightShift)
+                {
+                    // Ca đêm: normalize checkout nếu vượt qua nửa đêm
+                    var normalizedCheckOut = checkOut.Value < checkIn
+                        ? checkOut.Value.Add(TimeSpan.FromHours(24))
+                        : checkOut.Value;
+                    var normalizedShiftEnd = shiftEnd.Add(TimeSpan.FromHours(24));
+                    isEarlyLeave = normalizedCheckOut < normalizedShiftEnd.Subtract(TimeSpan.FromMinutes(15));
+                }
+                else
+                {
+                    isEarlyLeave = checkOut.Value < shiftEnd.Subtract(TimeSpan.FromMinutes(15));
+                }
+            }
+
+            if (isLate) return "Late";
+            if (isEarlyLeave) return "EarlyLeave";
+            return "Present";
+        }
+
+        /// <summary>
+        /// Lấy giờ bắt đầu ca làm việc
+        /// </summary>
+        private static TimeSpan GetShiftStart(string shiftType)
+        {
+            return shiftType switch
             {
                 "MORNING" or "FULLDAY" => new TimeSpan(7, 30, 0),
                 "AFTERNOON" => new TimeSpan(13, 0, 0),
                 "NIGHT" => new TimeSpan(22, 0, 0),
                 _ => new TimeSpan(8, 0, 0)
             };
+        }
 
-            // Trễ nếu check-in sau giờ bắt đầu ca + 15 phút
-            if (checkIn > shiftStart.Add(TimeSpan.FromMinutes(15)))
-                return "Late";
-
-            return "Present";
+        /// <summary>
+        /// Lấy giờ kết thúc ca làm việc
+        /// </summary>
+        private static TimeSpan GetShiftEnd(string shiftType)
+        {
+            return shiftType switch
+            {
+                "MORNING" => new TimeSpan(11, 30, 0),
+                "AFTERNOON" or "FULLDAY" => new TimeSpan(17, 0, 0),
+                "NIGHT" => new TimeSpan(6, 0, 0), // hôm sau
+                _ => new TimeSpan(17, 0, 0)
+            };
         }
 
         /// <summary>
@@ -144,22 +216,11 @@ namespace QuanLyNhanVien.BLL.Services
         /// </summary>
         private decimal CalculateOvertime(TimeSpan checkIn, TimeSpan checkOut, string? shiftType)
         {
-            // Lấy giờ kết thúc ca
-            var shiftEnd = shiftType switch
-            {
-                "MORNING" => new TimeSpan(11, 30, 0),
-                "AFTERNOON" or "FULLDAY" => new TimeSpan(17, 0, 0),
-                "NIGHT" => new TimeSpan(6, 0, 0), // hôm sau
-                _ => new TimeSpan(17, 0, 0)
-            };
-
-            // Ca đêm: shift vượt qua 0:00 (shiftEnd < shiftStart ngầm hiểu)
+            var shiftEnd = GetShiftEnd(shiftType ?? "FULLDAY");
             bool isNightShift = shiftType == "NIGHT";
 
             if (isNightShift)
             {
-                // Chuẩn hóa: cộng 24h cho các giá trị trước nửa đêm 
-                // VD: checkIn=22:00→22h, checkOut=07:00→31h, shiftEnd=06:00→30h
                 var normalizedCheckOut = checkOut < checkIn ? checkOut.Add(TimeSpan.FromHours(24)) : checkOut;
                 var normalizedShiftEnd = shiftEnd.Add(TimeSpan.FromHours(24));
 

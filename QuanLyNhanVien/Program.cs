@@ -35,6 +35,7 @@ namespace QuanLyNhanVien
         public static EmployeeEventService EmployeeEventService => Services.GetRequiredService<EmployeeEventService>();
         public static AdvanceService AdvanceService => Services.GetRequiredService<AdvanceService>();
         public static AuditService AuditService => Services.GetRequiredService<AuditService>();
+        public static EmailService EmailService => Services.GetRequiredService<EmailService>();
 
         // Repositories (backward-compatible)
         public static UserRepository UserRepo => Services.GetRequiredService<UserRepository>();
@@ -146,6 +147,7 @@ namespace QuanLyNhanVien
             services.AddSingleton<EmployeeEventService>();
             services.AddSingleton<AdvanceService>();
             services.AddSingleton<AuditService>();
+            services.AddSingleton<EmailService>();
 
             return services.BuildServiceProvider();
         }
