@@ -36,6 +36,9 @@ artifacts/
 *.rsuser
 *.sln.iml
 
+# Ignore Google Antigravity Agent and Skills
+.agent/
+
 # Rider / JetBrains
 .idea/
 *.sln.iml

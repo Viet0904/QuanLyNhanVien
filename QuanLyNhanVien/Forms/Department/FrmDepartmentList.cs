@@ -19,22 +19,22 @@ namespace QuanLyNhanVien.Forms.Department
         {
             this.Text = "Quản Lý Phòng Ban";
             this.Font = new Font("Segoe UI", 10F);
-            this.BackColor = Color.FromArgb(30, 30, 46);
+            this.BackColor = ThemeColors.Background;
 
             // Toolbar
             var toolbar = new FlowLayoutPanel
             {
-                Dock = DockStyle.Top, Height = 50, BackColor = Color.FromArgb(40, 40, 60),
+                Dock = DockStyle.Top, Height = 50, BackColor = ThemeColors.Background,
                 Padding = new Padding(8, 8, 0, 0), FlowDirection = FlowDirection.LeftToRight
             };
 
-            btnAdd = CreateToolButton("➕ Thêm", "Add", Color.FromArgb(88, 101, 242));
-            btnEdit = CreateToolButton("✏️ Sửa", "Edit", Color.FromArgb(87, 163, 75));
-            btnDelete = CreateToolButton("🗑️ Xóa", "Delete", Color.FromArgb(200, 60, 60));
-            btnRefresh = CreateToolButton("🔄 Làm mới", "", Color.FromArgb(100, 100, 140));
+            btnAdd = CreateToolButton("➕ Thêm", "Add", ThemeColors.Primary);
+            btnEdit = CreateToolButton("✏️ Sửa", "Edit", ThemeColors.Success);
+            btnDelete = CreateToolButton("🗑️ Xóa", "Delete", ThemeColors.Error);
+            btnRefresh = CreateToolButton("🔄 Làm mới", "", ThemeColors.MutedForeground);
 
             toolbar.Controls.AddRange(new Control[] { btnAdd, btnEdit, btnDelete, btnRefresh });
-            this.Controls.Add(toolbar);
+
 
             btnAdd.Click += BtnAdd_Click;
             btnEdit.Click += BtnEdit_Click;
@@ -47,22 +47,24 @@ namespace QuanLyNhanVien.Forms.Department
                 Dock = DockStyle.Fill, ReadOnly = true, AllowUserToAddRows = false,
                 AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
                 SelectionMode = DataGridViewSelectionMode.FullRowSelect,
-                BackgroundColor = Color.FromArgb(35, 35, 55),
-                GridColor = Color.FromArgb(60, 60, 80),
+                BackgroundColor = ThemeColors.Background,
+                GridColor = ThemeColors.Border,
                 DefaultCellStyle = new DataGridViewCellStyle
                 {
-                    BackColor = Color.FromArgb(40, 40, 60), ForeColor = Color.FromArgb(200, 210, 230),
-                    SelectionBackColor = Color.FromArgb(88, 101, 242), Font = new Font("Segoe UI", 10F)
+                    BackColor = ThemeColors.Background, ForeColor = ThemeColors.Foreground,
+                    SelectionBackColor = ThemeColors.Primary, Font = new Font("Segoe UI", 10F)
                 },
                 ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle
                 {
-                    BackColor = Color.FromArgb(50, 50, 75), ForeColor = Color.FromArgb(180, 190, 220),
+                    BackColor = ThemeColors.Surface, ForeColor = ThemeColors.MutedForeground,
                     Font = new Font("Segoe UI", 10F, FontStyle.Bold)
                 },
                 EnableHeadersVisualStyles = false, RowHeadersVisible = false, BorderStyle = BorderStyle.None
             };
             dgv.CellDoubleClick += (s, e) => { if (e.RowIndex >= 0) BtnEdit_Click(s, e); };
-            this.Controls.Add(dgv);
+            // WinForms dock order: Fill first, Top after
+            this.Controls.Add(dgv);       // Fill
+            this.Controls.Add(toolbar);   // Top
         }
 
         private Button CreateToolButton(string text, string tag, Color color)
@@ -70,7 +72,7 @@ namespace QuanLyNhanVien.Forms.Department
             var btn = new Button
             {
                 Text = text, Tag = tag, Size = new Size(120, 35), FlatStyle = FlatStyle.Flat,
-                BackColor = color, ForeColor = Color.White, Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+                BackColor = color, ForeColor = ThemeColors.Foreground, Font = new Font("Segoe UI", 9F, FontStyle.Bold),
                 Cursor = Cursors.Hand, Margin = new Padding(0, 0, 8, 0)
             };
             btn.FlatAppearance.BorderSize = 0;
@@ -153,7 +155,7 @@ namespace QuanLyNhanVien.Forms.Department
             this.StartPosition = FormStartPosition.CenterParent;
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
-            this.BackColor = Color.FromArgb(40, 40, 60);
+            this.BackColor = ThemeColors.Background;
             this.Font = new Font("Segoe UI", 10F);
 
             var y = 20;
@@ -165,8 +167,8 @@ namespace QuanLyNhanVien.Forms.Department
             var btnSave = new Button
             {
                 Text = "💾 Lưu", Size = new Size(120, 40), Location = new Point(160, y),
-                FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(88, 101, 242),
-                ForeColor = Color.White, Font = new Font("Segoe UI", 10F, FontStyle.Bold)
+                FlatStyle = FlatStyle.Flat, BackColor = ThemeColors.Primary,
+                ForeColor = ThemeColors.Foreground, Font = new Font("Segoe UI", 10F, FontStyle.Bold)
             };
             btnSave.FlatAppearance.BorderSize = 0;
             btnSave.Click += BtnSave_Click;
@@ -175,8 +177,8 @@ namespace QuanLyNhanVien.Forms.Department
             var btnCancel = new Button
             {
                 Text = "Hủy", Size = new Size(80, 40), Location = new Point(290, y),
-                FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(80, 80, 100),
-                ForeColor = Color.White
+                FlatStyle = FlatStyle.Flat, BackColor = ThemeColors.MutedForeground,
+                ForeColor = ThemeColors.Foreground
             };
             btnCancel.FlatAppearance.BorderSize = 0;
             btnCancel.Click += (s, e) => { this.DialogResult = DialogResult.Cancel; this.Close(); };
@@ -191,7 +193,7 @@ namespace QuanLyNhanVien.Forms.Department
 
         private void AddLabel(string text, int x, int y)
         {
-            this.Controls.Add(new Label { Text = text, Location = new Point(x, y + 3), AutoSize = true, ForeColor = Color.FromArgb(180, 190, 220) });
+            this.Controls.Add(new Label { Text = text, Location = new Point(x, y + 3), AutoSize = true, ForeColor = ThemeColors.MutedForeground });
         }
 
         private TextBox AddTextBox(int x, int y, int w)
@@ -199,7 +201,7 @@ namespace QuanLyNhanVien.Forms.Department
             var tb = new TextBox
             {
                 Location = new Point(x, y), Size = new Size(w, 30),
-                BackColor = Color.FromArgb(55, 55, 80), ForeColor = Color.White, BorderStyle = BorderStyle.FixedSingle
+                BackColor = ThemeColors.Background, ForeColor = ThemeColors.Foreground, BorderStyle = BorderStyle.FixedSingle
             };
             this.Controls.Add(tb);
             return tb;

@@ -1,3 +1,4 @@
+using ClosedXML.Excel;
 using QuanLyNhanVien.Helpers;
 using QuanLyNhanVien.Models.Entities;
 
@@ -6,10 +7,9 @@ namespace QuanLyNhanVien.Forms.Employee
     public class FrmEmployeeList : Form
     {
         private DataGridView dgv = null!;
-        private Button btnAdd = null!, btnEdit = null!, btnDelete = null!, btnRefresh = null!;
+        private Button btnAdd = null!, btnExport = null!, btnImport = null!;
         private TextBox txtSearch = null!;
-        private ComboBox cboDept = null!;
-        private CheckBox chkActive = null!;
+        private ComboBox cboDept = null!, cboStatus = null!;
         private Label lblCount = null!;
         private readonly string _menuCode = "NS_DSNV";
         private int _page = 1;
@@ -23,99 +23,134 @@ namespace QuanLyNhanVien.Forms.Employee
 
         private void InitializeComponent()
         {
-            this.Text = "Danh Sách Nhân Viên";
+            this.Text = "Quản lý nhân sự";
             this.Font = new Font("Segoe UI", 10F);
-            this.BackColor = Color.FromArgb(30, 30, 46);
+            this.BackColor = ThemeColors.Background;
+            this.Padding = new Padding(32, 24, 32, 24);
 
-            // === Toolbar ===
-            var toolbar = new FlowLayoutPanel
-            {
-                Dock = DockStyle.Top, Height = 50, BackColor = Color.FromArgb(40, 40, 60),
-                Padding = new Padding(8, 8, 0, 0)
-            };
-            btnAdd = CreateBtn("➕ Thêm", "Add", Color.FromArgb(88, 101, 242));
-            btnEdit = CreateBtn("✏️ Sửa", "Edit", Color.FromArgb(87, 163, 75));
-            btnDelete = CreateBtn("🗑️ Xóa", "Delete", Color.FromArgb(200, 60, 60));
-            btnRefresh = CreateBtn("🔄", "", Color.FromArgb(100, 100, 140));
-            btnRefresh.Size = new Size(50, 35);
-            toolbar.Controls.AddRange(new Control[] { btnAdd, btnEdit, btnDelete, btnRefresh });
-            this.Controls.Add(toolbar);
+            // ===== PAGE HEADER =====
+            btnImport = ThemeColors.CreateOutlineButton("📥 Nhập dữ liệu", 140);
+            btnImport.Tag = "Add";
+            btnExport = ThemeColors.CreateOutlineButton("📤 Xuất dữ liệu", 140);
+            btnExport.Tag = "Export";
+            btnAdd = ThemeColors.CreatePrimaryButton("+ Thêm mới", 120);
+            btnAdd.Tag = "Add";
+
+            var header = ThemeColors.CreatePageHeader(
+                "Quản lý nhân sự",
+                "Quản lý toàn bộ hồ sơ nhân viên trong hệ thống",
+                new Control[] { btnImport, btnExport, btnAdd }
+            );
+            this.Controls.Add(header);
 
             btnAdd.Click += BtnAdd_Click;
-            btnEdit.Click += BtnEdit_Click;
-            btnDelete.Click += BtnDelete_Click;
-            btnRefresh.Click += async (s, e) => await LoadDataAsync();
+            btnExport.Click += BtnExportExcel_Click;
+            btnImport.Click += BtnImportExcel_Click;
 
-            // === Filter bar ===
-            var filterBar = new Panel { Dock = DockStyle.Top, Height = 45, BackColor = Color.FromArgb(35, 35, 55) };
-            this.Controls.Add(filterBar);
-
-            filterBar.Controls.Add(new Label { Text = "🔍", Location = new Point(10, 10), AutoSize = true, ForeColor = Color.White });
-            txtSearch = new TextBox
+            // ===== FILTER BAR =====
+            var filterBar = new Panel
             {
-                Location = new Point(35, 8), Size = new Size(200, 30), PlaceholderText = "Tìm theo tên, mã NV...",
-                BackColor = Color.FromArgb(50, 50, 75), ForeColor = Color.White, BorderStyle = BorderStyle.FixedSingle
+                Dock = DockStyle.Top, Height = 55,
+                BackColor = ThemeColors.Background,
+                Padding = new Padding(0, 8, 0, 8)
             };
+
+            // Search box
+            txtSearch = ThemeColors.CreateSearchBox("Tìm theo tên, mã NV...", 300);
+            txtSearch.Location = new Point(0, 8);
             txtSearch.KeyDown += async (s, e) => { if (e.KeyCode == Keys.Enter) { _page = 1; await LoadDataAsync(); } };
             filterBar.Controls.Add(txtSearch);
 
-            filterBar.Controls.Add(new Label { Text = "Phòng ban:", Location = new Point(250, 12), AutoSize = true, ForeColor = Color.FromArgb(180, 190, 220) });
-            cboDept = new ComboBox
-            {
-                Location = new Point(330, 8), Size = new Size(180, 30), DropDownStyle = ComboBoxStyle.DropDownList,
-                BackColor = Color.FromArgb(50, 50, 75), ForeColor = Color.White, FlatStyle = FlatStyle.Flat
-            };
+            // Phòng ban filter
+            cboDept = ThemeColors.CreateFilterCombo(180);
+            cboDept.Location = new Point(320, 8);
             cboDept.SelectedIndexChanged += async (s, e) => { _page = 1; await LoadDataAsync(); };
             filterBar.Controls.Add(cboDept);
 
-            chkActive = new CheckBox
+            // Trạng thái filter
+            cboStatus = ThemeColors.CreateFilterCombo(160);
+            cboStatus.Location = new Point(520, 8);
+            cboStatus.Items.AddRange(new object[] { "Tất cả", "Đang làm", "Đã nghỉ" });
+            cboStatus.SelectedIndex = 1;
+            cboStatus.SelectedIndexChanged += async (s, e) => { _page = 1; await LoadDataAsync(); };
+            filterBar.Controls.Add(cboStatus);
+
+            this.Controls.Add(filterBar);
+
+            // ===== TABLE CONTAINER =====
+            var tableContainer = new Panel
             {
-                Text = "Chỉ NV đang làm", Checked = true, Location = new Point(530, 12),
-                AutoSize = true, ForeColor = Color.FromArgb(180, 190, 220)
+                Dock = DockStyle.Fill, BackColor = ThemeColors.Card,
+                Padding = new Padding(0)
             };
-            chkActive.CheckedChanged += async (s, e) => { _page = 1; await LoadDataAsync(); };
-            filterBar.Controls.Add(chkActive);
+            tableContainer.Paint += (s, e) =>
+            {
+                using var pen = new Pen(ThemeColors.Border, 1);
+                e.Graphics.DrawRectangle(pen, 0, 0, tableContainer.Width - 1, tableContainer.Height - 1);
+            };
+
+            // --- Table Footer (pagination) ---
+            var footer = new Panel
+            {
+                Dock = DockStyle.Bottom, Height = 50,
+                BackColor = ThemeColors.Card,
+                Padding = new Padding(20, 12, 20, 12)
+            };
+            footer.Paint += (s, e) =>
+            {
+                using var pen = new Pen(ThemeColors.Border, 1);
+                e.Graphics.DrawLine(pen, 0, 0, footer.Width, 0);
+            };
 
             lblCount = new Label
             {
-                Text = "", Location = new Point(700, 12), AutoSize = true,
-                ForeColor = Color.FromArgb(120, 220, 120), Font = new Font("Segoe UI", 9F, FontStyle.Bold)
+                Text = "Đang tải...",
+                ForeColor = ThemeColors.MutedForeground,
+                Font = ThemeColors.FontSmall,
+                Location = new Point(20, 14), AutoSize = true
             };
-            filterBar.Controls.Add(lblCount);
+            footer.Controls.Add(lblCount);
 
-            // === DataGridView ===
+            // Pagination buttons
+            var btnPrev = ThemeColors.CreateOutlineButton("‹", 36, 30);
+            btnPrev.Location = new Point(footer.Width - 200, 10);
+            btnPrev.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnPrev.Click += async (s, e) => { if (_page > 1) { _page--; await LoadDataAsync(); } };
+            footer.Controls.Add(btnPrev);
+
+            var lblPage = new Label
+            {
+                Text = "1", ForeColor = ThemeColors.PrimaryForeground,
+                BackColor = ThemeColors.Primary,
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+                Size = new Size(30, 30), TextAlign = ContentAlignment.MiddleCenter,
+                Location = new Point(footer.Width - 160, 10),
+                Anchor = AnchorStyles.Top | AnchorStyles.Right
+            };
+            footer.Controls.Add(lblPage);
+
+            var btnNext = ThemeColors.CreateOutlineButton("›", 36, 30);
+            btnNext.Location = new Point(footer.Width - 120, 10);
+            btnNext.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnNext.Click += async (s, e) => { _page++; await LoadDataAsync(); };
+            footer.Controls.Add(btnNext);
+
+            tableContainer.Controls.Add(footer);
+
+            // --- DataGridView ---
             dgv = new DataGridView
             {
-                Dock = DockStyle.Fill, ReadOnly = true, AllowUserToAddRows = false,
+                Dock = DockStyle.Fill, ReadOnly = true,
+                AllowUserToAddRows = false,
                 AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
                 SelectionMode = DataGridViewSelectionMode.FullRowSelect,
-                BackgroundColor = Color.FromArgb(35, 35, 55), GridColor = Color.FromArgb(60, 60, 80),
-                DefaultCellStyle = new DataGridViewCellStyle
-                {
-                    BackColor = Color.FromArgb(40, 40, 60), ForeColor = Color.FromArgb(200, 210, 230),
-                    SelectionBackColor = Color.FromArgb(88, 101, 242), Font = new Font("Segoe UI", 10F)
-                },
-                ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle
-                {
-                    BackColor = Color.FromArgb(50, 50, 75), ForeColor = Color.FromArgb(180, 190, 220),
-                    Font = new Font("Segoe UI", 10F, FontStyle.Bold)
-                },
-                EnableHeadersVisualStyles = false, RowHeadersVisible = false, BorderStyle = BorderStyle.None
+                MultiSelect = true
             };
+            ThemeColors.StyleDataGridView(dgv);
             dgv.CellDoubleClick += (s, e) => { if (e.RowIndex >= 0) BtnEdit_Click(s, e); };
-            this.Controls.Add(dgv);
-        }
 
-        private Button CreateBtn(string text, string tag, Color c)
-        {
-            var b = new Button
-            {
-                Text = text, Tag = tag, Size = new Size(110, 35), FlatStyle = FlatStyle.Flat,
-                BackColor = c, ForeColor = Color.White, Font = new Font("Segoe UI", 9F, FontStyle.Bold),
-                Cursor = Cursors.Hand, Margin = new Padding(0, 0, 8, 0)
-            };
-            b.FlatAppearance.BorderSize = 0;
-            return b;
+            tableContainer.Controls.Add(dgv);
+            this.Controls.Add(tableContainer);
         }
 
         private async Task LoadFiltersAsync()
@@ -130,29 +165,36 @@ namespace QuanLyNhanVien.Forms.Employee
         private async Task LoadDataAsync()
         {
             var deptId = cboDept.SelectedValue is int d && d > 0 ? d : (int?)null;
-            var result = await Program.EmployeeService.GetListAsync(_page, PageSize, txtSearch.Text.Trim(), deptId, chkActive.Checked ? true : null);
+            bool? isActive = cboStatus.SelectedIndex switch
+            {
+                1 => true,   // Đang làm
+                2 => false,  // Đã nghỉ
+                _ => null    // Tất cả
+            };
+
+            var result = await Program.EmployeeService.GetListAsync(_page, PageSize, txtSearch.Text.Trim(), deptId, isActive);
 
             dgv.DataSource = null;
             dgv.DataSource = result.Items.ToList();
 
-            // Ẩn/đổi tên cột
+            // Ẩn cột không cần
             var hideCols = new[] { "EmployeeId", "UserId", "Photo", "DepartmentId", "PositionId", "CreatedAt", "UpdatedAt",
                                    "BankAccount", "BankName", "TaxCode", "InsuranceNo", "SalaryCoefficient", "BasicSalary",
-                                   "Notes", "TerminationDate", "Address", "IdentityNo" };
+                                   "Notes", "TerminationDate", "Address", "IdentityNo", "DateOfBirth", "Gender" };
             foreach (var col in hideCols)
                 if (dgv.Columns.Contains(col)) dgv.Columns[col].Visible = false;
 
             var headers = new Dictionary<string, string>
             {
-                ["EmployeeCode"] = "Mã NV", ["FullName"] = "Họ Tên", ["Gender"] = "Giới Tính",
-                ["DateOfBirth"] = "Ngày Sinh", ["Phone"] = "SĐT", ["Email"] = "Email",
-                ["DepartmentName"] = "Phòng Ban", ["PositionName"] = "Chức Vụ",
-                ["HireDate"] = "Ngày Vào Làm", ["IsActive"] = "Trạng Thái"
+                ["EmployeeCode"] = "Mã NV", ["FullName"] = "Họ tên",
+                ["DepartmentName"] = "Phòng ban", ["PositionName"] = "Chức vụ",
+                ["Phone"] = "Điện thoại", ["Email"] = "Email",
+                ["HireDate"] = "Ngày vào làm", ["IsActive"] = "Trạng thái"
             };
-            foreach (var (col, header) in headers)
-                if (dgv.Columns.Contains(col)) dgv.Columns[col].HeaderText = header;
+            foreach (var (col, h) in headers)
+                if (dgv.Columns.Contains(col)) dgv.Columns[col].HeaderText = h;
 
-            lblCount.Text = $"📊 {result.TotalCount} nhân viên";
+            lblCount.Text = $"Hiển thị {Math.Min(_page * PageSize, result.TotalCount)}/{result.TotalCount} nhân viên";
         }
 
         private Models.Entities.Employee? GetSelected() => dgv.CurrentRow?.DataBoundItem as Models.Entities.Employee;
@@ -180,6 +222,106 @@ namespace QuanLyNhanVien.Forms.Employee
             var (ok, msg) = await Program.EmployeeService.DeleteAsync(emp.EmployeeId);
             if (ok) { FormHelper.ShowSuccess(msg); await LoadDataAsync(); }
             else FormHelper.ShowError(msg);
+        }
+
+        private void BtnExportExcel_Click(object? s, EventArgs e)
+        {
+            if (dgv.Rows.Count == 0) { FormHelper.ShowError("Không có dữ liệu để xuất."); return; }
+
+            using var dlg = new SaveFileDialog
+            {
+                Filter = "Excel Files|*.xlsx", FileName = $"DanhSachNhanVien_{DateTime.Now:yyyyMMdd}",
+                Title = "Xuất danh sách nhân viên"
+            };
+            if (dlg.ShowDialog() != DialogResult.OK) return;
+
+            try
+            {
+                using var wb = new XLWorkbook();
+                var ws = wb.AddWorksheet("Nhân Viên");
+
+                var visibleCols = new List<(string Name, string Header)>();
+                foreach (DataGridViewColumn col in dgv.Columns)
+                {
+                    if (col.Visible && col.Name != "Select")
+                        visibleCols.Add((col.Name, col.HeaderText));
+                }
+                for (int c = 0; c < visibleCols.Count; c++)
+                {
+                    ws.Cell(1, c + 1).Value = visibleCols[c].Header;
+                    ws.Cell(1, c + 1).Style.Font.Bold = true;
+                    ws.Cell(1, c + 1).Style.Fill.BackgroundColor = XLColor.FromArgb(228, 35, 19);
+                    ws.Cell(1, c + 1).Style.Font.FontColor = XLColor.White;
+                }
+
+                for (int r = 0; r < dgv.Rows.Count; r++)
+                {
+                    for (int c = 0; c < visibleCols.Count; c++)
+                    {
+                        var val = dgv.Rows[r].Cells[visibleCols[c].Name].Value;
+                        if (val != null) ws.Cell(r + 2, c + 1).Value = val.ToString();
+                    }
+                }
+
+                ws.Columns().AdjustToContents();
+                wb.SaveAs(dlg.FileName);
+                FormHelper.ShowSuccess($"Xuất thành công!\n{dlg.FileName}");
+            }
+            catch (Exception ex)
+            {
+                FormHelper.ShowError($"Lỗi xuất Excel: {ex.Message}");
+            }
+        }
+
+        private async void BtnImportExcel_Click(object? s, EventArgs e)
+        {
+            using var dlg = new OpenFileDialog
+            {
+                Filter = "Excel Files|*.xlsx", Title = "Nhập danh sách nhân viên từ Excel"
+            };
+            if (dlg.ShowDialog() != DialogResult.OK) return;
+
+            try
+            {
+                using var wb = new XLWorkbook(dlg.FileName);
+                var ws = wb.Worksheet(1);
+                var rows = ws.RangeUsed()?.RowsUsed().Skip(1);
+                if (rows == null || !rows.Any())
+                {
+                    FormHelper.ShowError("File Excel không có dữ liệu.");
+                    return;
+                }
+
+                int imported = 0, errors = 0;
+                foreach (var row in rows)
+                {
+                    try
+                    {
+                        var emp = new Models.Entities.Employee
+                        {
+                            FullName = row.Cell(1).GetString().Trim(),
+                            Gender = row.Cell(2).GetString().Trim(),
+                            DateOfBirth = row.Cell(3).IsEmpty() ? null : row.Cell(3).GetDateTime(),
+                            Phone = row.Cell(4).GetString().Trim(),
+                            Email = row.Cell(5).GetString().Trim(),
+                            Address = row.Cell(6).GetString().Trim(),
+                            IdentityNo = row.Cell(7).GetString().Trim()
+                        };
+                        if (string.IsNullOrWhiteSpace(emp.FullName)) continue;
+
+                        var (ok, _, _) = await Program.EmployeeService.CreateAsync(emp);
+                        if (ok) imported++; else errors++;
+                    }
+                    catch { errors++; }
+                }
+
+                FormHelper.ShowSuccess($"Nhập xong!\n✅ Thành công: {imported}\n❌ Lỗi: {errors}");
+                await LoadDataAsync();
+            }
+            catch (Exception ex)
+            {
+                FormHelper.ShowError($"Lỗi đọc file Excel: {ex.Message}");
+            }
         }
     }
 }

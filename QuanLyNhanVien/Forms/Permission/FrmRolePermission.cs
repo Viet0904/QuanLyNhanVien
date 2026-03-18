@@ -29,39 +29,42 @@ namespace QuanLyNhanVien.Forms.Permission
         {
             this.Text = "Phân Quyền Vai Trò";
             this.Font = new Font("Segoe UI", 10F);
-            this.BackColor = Color.FromArgb(30, 30, 46);
+            this.BackColor = ThemeColors.Background;
 
             // Top: Role selector
-            var topPanel = new Panel { Dock = DockStyle.Top, Height = 50, BackColor = Color.FromArgb(40, 40, 60), Padding = new Padding(10) };
-            topPanel.Controls.Add(new Label { Text = "Vai trò:", Location = new Point(10, 14), AutoSize = true, ForeColor = Color.FromArgb(180, 190, 220) });
-            cboRole = new ComboBox { Location = new Point(80, 10), Size = new Size(250, 30), DropDownStyle = ComboBoxStyle.DropDownList, BackColor = Color.FromArgb(55, 55, 80), ForeColor = Color.White, FlatStyle = FlatStyle.Flat };
+            var topPanel = new Panel { Dock = DockStyle.Top, Height = 50, BackColor = ThemeColors.Background, Padding = new Padding(10) };
+            topPanel.Controls.Add(new Label { Text = "Vai trò:", Location = new Point(10, 14), AutoSize = true, ForeColor = ThemeColors.MutedForeground });
+            cboRole = new ComboBox { Location = new Point(80, 10), Size = new Size(250, 30), DropDownStyle = ComboBoxStyle.DropDownList, BackColor = ThemeColors.Background, ForeColor = ThemeColors.Foreground, FlatStyle = FlatStyle.Flat };
             cboRole.SelectedIndexChanged += async (s, e) => await LoadPermissionsAsync();
             topPanel.Controls.Add(cboRole);
 
-            btnSave = new Button { Text = "💾 Lưu Quyền", Size = new Size(140, 35), Location = new Point(350, 8), FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(88, 101, 242), ForeColor = Color.White, Font = new Font("Segoe UI", 10F, FontStyle.Bold) };
+            btnSave = new Button { Text = "💾 Lưu Quyền", Size = new Size(140, 35), Location = new Point(350, 8), FlatStyle = FlatStyle.Flat, BackColor = ThemeColors.Primary, ForeColor = Color.White, Font = new Font("Segoe UI", 10F, FontStyle.Bold) };
             btnSave.FlatAppearance.BorderSize = 0;
             btnSave.Click += BtnSave_Click;
             topPanel.Controls.Add(btnSave);
-            this.Controls.Add(topPanel);
+
 
             // Left: Menu tree
             treeMenu = new TreeView
             {
-                Dock = DockStyle.Left, Width = 300, BackColor = Color.FromArgb(40, 40, 60),
-                ForeColor = Color.FromArgb(200, 210, 230), Font = new Font("Segoe UI", 10F),
+                Dock = DockStyle.Left, Width = 300, BackColor = ThemeColors.Background,
+                ForeColor = ThemeColors.Foreground, Font = new Font("Segoe UI", 10F),
                 BorderStyle = BorderStyle.None, ItemHeight = 32, ShowLines = false, FullRowSelect = true
             };
             treeMenu.AfterSelect += TreeMenu_AfterSelect;
-            this.Controls.Add(treeMenu);
+
 
             // Right: Permission checkboxes
-            panelPerms = new Panel { Dock = DockStyle.Fill, BackColor = Color.FromArgb(35, 35, 55), Padding = new Padding(20) };
-            this.Controls.Add(panelPerms);
+            panelPerms = new Panel { Dock = DockStyle.Fill, BackColor = ThemeColors.Background, Padding = new Padding(20) };
+            // WinForms dock order: Fill first, then Left, then Top
+            this.Controls.Add(panelPerms);  // Fill
+            this.Controls.Add(treeMenu);    // Left
+            this.Controls.Add(topPanel);    // Top
 
             lblMenuName = new Label
             {
                 Text = "Chọn menu bên trái để xem quyền", Dock = DockStyle.Top, Height = 40,
-                ForeColor = Color.FromArgb(200, 210, 240), Font = new Font("Segoe UI", 12F, FontStyle.Bold),
+                ForeColor = ThemeColors.Foreground, Font = new Font("Segoe UI", 12F, FontStyle.Bold),
                 TextAlign = ContentAlignment.MiddleLeft
             };
             panelPerms.Controls.Add(lblMenuName);
@@ -81,7 +84,7 @@ namespace QuanLyNhanVien.Forms.Permission
             chkPrint = CreatePermCheck("🖨️ In (Print)"); checksPanel.Controls.Add(chkPrint);
 
             // Check All / Uncheck All
-            var btnCheckAll = new Button { Text = "✅ Chọn tất cả", Size = new Size(130, 35), FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(60, 140, 80), ForeColor = Color.White, Margin = new Padding(0, 15, 0, 0) };
+            var btnCheckAll = new Button { Text = "✅ Chọn tất cả", Size = new Size(130, 35), FlatStyle = FlatStyle.Flat, BackColor = ThemeColors.Success, ForeColor = Color.White, Margin = new Padding(0, 15, 0, 0) };
             btnCheckAll.FlatAppearance.BorderSize = 0;
             btnCheckAll.Click += (s, e) => SetAllChecks(true);
             checksPanel.Controls.Add(btnCheckAll);
@@ -96,7 +99,7 @@ namespace QuanLyNhanVien.Forms.Permission
         {
             var chk = new CheckBox
             {
-                Text = text, AutoSize = true, ForeColor = Color.FromArgb(200, 210, 230),
+                Text = text, AutoSize = true, ForeColor = ThemeColors.Foreground,
                 Font = new Font("Segoe UI", 11F), Padding = new Padding(5),
                 Margin = new Padding(0, 5, 0, 5)
             };

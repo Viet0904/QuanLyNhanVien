@@ -80,5 +80,63 @@ namespace QuanLyNhanVien.DAL.Repositories
                         ORDER BY m.SortOrder";
             return await QuerySqlAsync<MenuPermissionDto>(sql, new { UserId = userId });
         }
+
+        public async Task<IEnumerable<dynamic>> GetAllUsersAsync()
+        {
+            var sql = @"SELECT u.UserId, u.Username, u.IsActive, u.FailedLoginCount, 
+                        u.LockedUntil, u.LastLogin, u.CreatedAt,
+                        ISNULL(STRING_AGG(r.RoleName, ', '), N'(Chưa gán)') AS RoleNames
+                        FROM Users u
+                        LEFT JOIN UserRoles ur ON u.UserId = ur.UserId
+                        LEFT JOIN Roles r ON ur.RoleId = r.RoleId AND r.IsActive = 1
+                        GROUP BY u.UserId, u.Username, u.IsActive, u.FailedLoginCount, 
+                                 u.LockedUntil, u.LastLogin, u.CreatedAt
+                        ORDER BY u.Username";
+            return await QuerySqlAsync<dynamic>(sql);
+        }
+
+        public async Task UpdateUserAsync(int userId, bool isActive)
+        {
+            var sql = "UPDATE Users SET IsActive = @IsActive, UpdatedAt = GETDATE() WHERE UserId = @UserId";
+            await ExecuteSqlAsync(sql, new { UserId = userId, IsActive = isActive });
+        }
+
+        public async Task ResetPasswordAsync(int userId, string passwordHash)
+        {
+            var sql = @"UPDATE Users SET PasswordHash = @PasswordHash, FailedLoginCount = 0, 
+                        LockedUntil = NULL, UpdatedAt = GETDATE() WHERE UserId = @UserId";
+            await ExecuteSqlAsync(sql, new { UserId = userId, PasswordHash = passwordHash });
+        }
+
+        public async Task<IEnumerable<int>> GetUserRoleIdsAsync(int userId)
+        {
+            var sql = "SELECT RoleId FROM UserRoles WHERE UserId = @UserId";
+            return await QuerySqlAsync<int>(sql, new { UserId = userId });
+        }
+
+        public async Task ReplaceUserRolesAsync(int userId, List<int> roleIds)
+        {
+            using var conn = _dbFactory.CreateConnection();
+            conn.Open();
+            using var tx = conn.BeginTransaction();
+            try
+            {
+                await conn.ExecuteAsync("DELETE FROM UserRoles WHERE UserId = @UserId",
+                    new { UserId = userId }, tx);
+
+                foreach (var roleId in roleIds)
+                {
+                    await conn.ExecuteAsync(
+                        "INSERT INTO UserRoles (UserId, RoleId) VALUES (@UserId, @RoleId)",
+                        new { UserId = userId, RoleId = roleId }, tx);
+                }
+                tx.Commit();
+            }
+            catch
+            {
+                tx.Rollback();
+                throw;
+            }
+        }
     }
 }

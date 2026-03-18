@@ -19,20 +19,20 @@ namespace QuanLyNhanVien.Forms.Position
         {
             this.Text = "Quản Lý Chức Vụ";
             this.Font = new Font("Segoe UI", 10F);
-            this.BackColor = Color.FromArgb(30, 30, 46);
+            this.BackColor = ThemeColors.Background;
 
             // Toolbar
             var toolbar = new FlowLayoutPanel
             {
-                Dock = DockStyle.Top, Height = 50, BackColor = Color.FromArgb(40, 40, 60),
+                Dock = DockStyle.Top, Height = 50, BackColor = ThemeColors.Background,
                 Padding = new Padding(8, 8, 0, 0)
             };
-            btnAdd = CreateBtn("➕ Thêm", "Add", Color.FromArgb(88, 101, 242));
-            btnEdit = CreateBtn("✏️ Sửa", "Edit", Color.FromArgb(87, 163, 75));
-            btnDelete = CreateBtn("🗑️ Xóa", "Delete", Color.FromArgb(200, 60, 60));
-            btnRefresh = CreateBtn("🔄 Làm mới", "", Color.FromArgb(100, 100, 140));
+            btnAdd = CreateBtn("➕ Thêm", "Add", ThemeColors.Primary);
+            btnEdit = CreateBtn("✏️ Sửa", "Edit", ThemeColors.Success);
+            btnDelete = CreateBtn("🗑️ Xóa", "Delete", ThemeColors.Error);
+            btnRefresh = CreateBtn("🔄 Làm mới", "", ThemeColors.MutedForeground);
             toolbar.Controls.AddRange(new Control[] { btnAdd, btnEdit, btnDelete, btnRefresh });
-            this.Controls.Add(toolbar);
+
 
             btnAdd.Click += BtnAdd_Click;
             btnEdit.Click += BtnEdit_Click;
@@ -45,21 +45,23 @@ namespace QuanLyNhanVien.Forms.Position
                 Dock = DockStyle.Fill, ReadOnly = true, AllowUserToAddRows = false,
                 AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
                 SelectionMode = DataGridViewSelectionMode.FullRowSelect,
-                BackgroundColor = Color.FromArgb(35, 35, 55), GridColor = Color.FromArgb(60, 60, 80),
+                BackgroundColor = ThemeColors.Background, GridColor = ThemeColors.Border,
                 DefaultCellStyle = new DataGridViewCellStyle
                 {
-                    BackColor = Color.FromArgb(40, 40, 60), ForeColor = Color.FromArgb(200, 210, 230),
-                    SelectionBackColor = Color.FromArgb(88, 101, 242), Font = new Font("Segoe UI", 10F)
+                    BackColor = ThemeColors.Background, ForeColor = ThemeColors.Foreground,
+                    SelectionBackColor = ThemeColors.Primary, Font = new Font("Segoe UI", 10F)
                 },
                 ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle
                 {
-                    BackColor = Color.FromArgb(50, 50, 75), ForeColor = Color.FromArgb(180, 190, 220),
+                    BackColor = ThemeColors.Surface, ForeColor = ThemeColors.MutedForeground,
                     Font = new Font("Segoe UI", 10F, FontStyle.Bold)
                 },
                 EnableHeadersVisualStyles = false, RowHeadersVisible = false, BorderStyle = BorderStyle.None
             };
             dgv.CellDoubleClick += (s, e) => { if (e.RowIndex >= 0) BtnEdit_Click(s, e); };
-            this.Controls.Add(dgv);
+            // WinForms dock order: Fill first, Top after
+            this.Controls.Add(dgv);       // Fill
+            this.Controls.Add(toolbar);   // Top
         }
 
         private Button CreateBtn(string text, string tag, Color c)
@@ -67,7 +69,7 @@ namespace QuanLyNhanVien.Forms.Position
             var b = new Button
             {
                 Text = text, Tag = tag, Size = new Size(120, 35), FlatStyle = FlatStyle.Flat,
-                BackColor = c, ForeColor = Color.White, Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+                BackColor = c, ForeColor = ThemeColors.Foreground, Font = new Font("Segoe UI", 9F, FontStyle.Bold),
                 Cursor = Cursors.Hand, Margin = new Padding(0, 0, 8, 0)
             };
             b.FlatAppearance.BorderSize = 0;
@@ -132,28 +134,28 @@ namespace QuanLyNhanVien.Forms.Position
             this.StartPosition = FormStartPosition.CenterParent;
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
-            this.BackColor = Color.FromArgb(40, 40, 60);
+            this.BackColor = ThemeColors.Background;
             this.Font = new Font("Segoe UI", 10F);
 
             var y = 20;
             AddLbl("Tên chức vụ:", 20, y);
-            txtName = new TextBox { Location = new Point(150, y), Size = new Size(230, 30), BackColor = Color.FromArgb(55, 55, 80), ForeColor = Color.White, BorderStyle = BorderStyle.FixedSingle };
+            txtName = new TextBox { Location = new Point(150, y), Size = new Size(230, 30), BackColor = ThemeColors.Background, ForeColor = ThemeColors.Foreground, BorderStyle = BorderStyle.FixedSingle };
             this.Controls.Add(txtName); y += 45;
 
             AddLbl("Cấp bậc:", 20, y);
-            nudLevel = new NumericUpDown { Location = new Point(150, y), Size = new Size(100, 30), Minimum = 0, Maximum = 20, BackColor = Color.FromArgb(55, 55, 80), ForeColor = Color.White };
+            nudLevel = new NumericUpDown { Location = new Point(150, y), Size = new Size(100, 30), Minimum = 0, Maximum = 20, BackColor = ThemeColors.Background, ForeColor = ThemeColors.Foreground };
             this.Controls.Add(nudLevel); y += 45;
 
             AddLbl("Phụ cấp (VNĐ):", 20, y);
-            nudAllowance = new NumericUpDown { Location = new Point(150, y), Size = new Size(180, 30), Minimum = 0, Maximum = 100000000, Increment = 500000, ThousandsSeparator = true, BackColor = Color.FromArgb(55, 55, 80), ForeColor = Color.White };
+            nudAllowance = new NumericUpDown { Location = new Point(150, y), Size = new Size(180, 30), Minimum = 0, Maximum = 100000000, Increment = 500000, ThousandsSeparator = true, BackColor = ThemeColors.Background, ForeColor = ThemeColors.Foreground };
             this.Controls.Add(nudAllowance); y += 55;
 
-            var btnSave = new Button { Text = "💾 Lưu", Size = new Size(110, 40), Location = new Point(150, y), FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(88, 101, 242), ForeColor = Color.White, Font = new Font("Segoe UI", 10F, FontStyle.Bold) };
+            var btnSave = new Button { Text = "💾 Lưu", Size = new Size(110, 40), Location = new Point(150, y), FlatStyle = FlatStyle.Flat, BackColor = ThemeColors.Primary, ForeColor = Color.White, Font = new Font("Segoe UI", 10F, FontStyle.Bold) };
             btnSave.FlatAppearance.BorderSize = 0;
             btnSave.Click += BtnSave_Click;
             this.Controls.Add(btnSave);
 
-            var btnCancel = new Button { Text = "Hủy", Size = new Size(80, 40), Location = new Point(270, y), FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(80, 80, 100), ForeColor = Color.White };
+            var btnCancel = new Button { Text = "Hủy", Size = new Size(80, 40), Location = new Point(270, y), FlatStyle = FlatStyle.Flat, BackColor = ThemeColors.MutedForeground, ForeColor = ThemeColors.Foreground };
             btnCancel.FlatAppearance.BorderSize = 0;
             btnCancel.Click += (s, e) => { this.DialogResult = DialogResult.Cancel; this.Close(); };
             this.Controls.Add(btnCancel);
@@ -168,7 +170,7 @@ namespace QuanLyNhanVien.Forms.Position
 
         private void AddLbl(string text, int x, int y)
         {
-            this.Controls.Add(new Label { Text = text, Location = new Point(x, y + 3), AutoSize = true, ForeColor = Color.FromArgb(180, 190, 220) });
+            this.Controls.Add(new Label { Text = text, Location = new Point(x, y + 3), AutoSize = true, ForeColor = ThemeColors.MutedForeground });
         }
 
         private async void BtnSave_Click(object? s, EventArgs e)

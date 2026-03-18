@@ -8,7 +8,6 @@ namespace QuanLyNhanVien.Forms.Main
         private TextBox txtPassword = null!;
         private Button btnLogin = null!;
         private Label lblMessage = null!;
-        private PictureBox picLogo = null!;
 
         public FrmLogin()
         {
@@ -17,116 +16,230 @@ namespace QuanLyNhanVien.Forms.Main
 
         private void InitializeComponent()
         {
-            this.Text = "Đăng Nhập - Quản Lý Nhân Viên";
-            this.Size = new Size(450, 400);
+            this.Text = "Đăng Nhập - Hệ thống Quản lý Nhân sự";
+            this.Size = new Size(1200, 700);
+            this.MinimumSize = new Size(900, 550);
             this.StartPosition = FormStartPosition.CenterScreen;
-            this.FormBorderStyle = FormBorderStyle.FixedDialog;
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
-            this.BackColor = Color.FromArgb(30, 30, 46);
+            this.BackColor = ThemeColors.Background;
             this.Font = new Font("Segoe UI", 10F);
 
-            // Panel chính
-            var panel = new Panel
+            // ===== BÊN TRÁI: Branding Area (tối) =====
+            var panelBrand = new Panel
             {
-                Size = new Size(380, 300),
-                Location = new Point(25, 30),
-                BackColor = Color.FromArgb(45, 45, 65)
+                Dock = DockStyle.Left, Width = 560,
+                BackColor = ThemeColors.SidebarBg,
+                Padding = new Padding(60)
             };
-            panel.Paint += (s, e) =>
+
+            // Logo area
+            var panelLogo = new Panel
             {
-                var rect = new Rectangle(0, 0, panel.Width - 1, panel.Height - 1);
-                using var pen = new Pen(Color.FromArgb(100, 100, 180), 1);
-                using var brush = new System.Drawing.Drawing2D.LinearGradientBrush(
-                    rect, Color.FromArgb(50, 50, 75), Color.FromArgb(40, 40, 60),
-                    System.Drawing.Drawing2D.LinearGradientMode.Vertical);
-                e.Graphics.FillRectangle(brush, rect);
-                e.Graphics.DrawRectangle(pen, rect);
+                Size = new Size(400, 50), Location = new Point(60, 100)
             };
-            this.Controls.Add(panel);
+            panelLogo.BackColor = Color.Transparent;
+            panelBrand.Controls.Add(panelLogo);
+
+            var iconBox = new Panel
+            {
+                Size = new Size(48, 48), Location = new Point(0, 0),
+                BackColor = ThemeColors.Primary
+            };
+            iconBox.Paint += (s, e) =>
+            {
+                using var font = new Font("Segoe UI", 18F, FontStyle.Bold);
+                var size = e.Graphics.MeasureString("HR", font);
+                e.Graphics.DrawString("HR", font, Brushes.White,
+                    (iconBox.Width - size.Width) / 2, (iconBox.Height - size.Height) / 2);
+            };
+            panelLogo.Controls.Add(iconBox);
+
+            panelLogo.Controls.Add(new Label
+            {
+                Text = "HRM System", ForeColor = Color.White,
+                Font = new Font("Segoe UI", 22F, FontStyle.Bold),
+                Location = new Point(60, 6), AutoSize = true
+            });
+
+            // Tiêu đề hệ thống
+            panelBrand.Controls.Add(new Label
+            {
+                Text = "Hệ thống\nQuản lý Nhân sự",
+                ForeColor = Color.White,
+                Font = new Font("Segoe UI", 28F, FontStyle.Bold),
+                Location = new Point(60, 180), AutoSize = false,
+                Size = new Size(440, 100)
+            });
+
+            // Mô tả
+            panelBrand.Controls.Add(new Label
+            {
+                Text = "Giải pháp toàn diện cho quản lý nhân sự, chấm công, tính lương và báo cáo doanh nghiệp.",
+                ForeColor = ThemeColors.SidebarText,
+                Font = new Font("Segoe UI", 12F),
+                Location = new Point(60, 280), AutoSize = false,
+                Size = new Size(440, 60)
+            });
+
+            // Features
+            var features = new[]
+            {
+                "Quản lý hồ sơ nhân viên toàn diện",
+                "Tích hợp chấm công và tính lương tự động",
+                "Báo cáo thống kê trực quan, realtime"
+            };
+            for (int i = 0; i < features.Length; i++)
+            {
+                var featurePanel = new Panel
+                {
+                    Size = new Size(440, 30),
+                    Location = new Point(60, 370 + i * 40),
+                    BackColor = Color.Transparent
+                };
+                featurePanel.Controls.Add(new Label
+                {
+                    Text = "✓", ForeColor = ThemeColors.Success,
+                    Font = new Font("Segoe UI", 14F, FontStyle.Bold),
+                    Location = new Point(0, 0), AutoSize = true
+                });
+                featurePanel.Controls.Add(new Label
+                {
+                    Text = features[i], ForeColor = ThemeColors.SidebarText,
+                    Font = new Font("Segoe UI", 11F),
+                    Location = new Point(28, 3), AutoSize = true
+                });
+                panelBrand.Controls.Add(featurePanel);
+            }
+
+            // ===== BÊN PHẢI: Form đăng nhập (sáng) =====
+            var panelForm = new Panel
+            {
+                Dock = DockStyle.Fill, BackColor = ThemeColors.Background,
+                Padding = new Padding(80, 60, 80, 60)
+            };
+
+            // WinForms dock order: Fill trước, Left sau
+            this.Controls.Add(panelForm);
+            this.Controls.Add(panelBrand);
+
+            // Container giữa
+            var formContainer = new Panel
+            {
+                Size = new Size(400, 380),
+                BackColor = ThemeColors.Background
+            };
+            panelForm.Controls.Add(formContainer);
+
+            // Center formContainer khi load và khi resize
+            void CenterForm()
+            {
+                formContainer.Location = new Point(
+                    Math.Max(0, (panelForm.ClientSize.Width - formContainer.Width) / 2),
+                    Math.Max(0, (panelForm.ClientSize.Height - formContainer.Height) / 2 - 20)
+                );
+            }
+            panelForm.Resize += (s, e) => CenterForm();
+            this.Load += (s, e) => CenterForm();
 
             // Title
-            var lblTitle = new Label
+            formContainer.Controls.Add(new Label
             {
-                Text = "🔐 ĐĂNG NHẬP HỆ THỐNG",
-                ForeColor = Color.FromArgb(200, 210, 255),
-                Font = new Font("Segoe UI", 14F, FontStyle.Bold),
-                TextAlign = ContentAlignment.MiddleCenter,
-                Size = new Size(340, 40),
-                Location = new Point(20, 20)
-            };
-            panel.Controls.Add(lblTitle);
+                Text = "Đăng nhập",
+                ForeColor = ThemeColors.Foreground,
+                Font = new Font("Segoe UI", 26F, FontStyle.Bold),
+                Location = new Point(0, 0), AutoSize = true
+            });
 
-            // Username
-            var lblUser = new Label
+            formContainer.Controls.Add(new Label
             {
-                Text = "Tên đăng nhập",
-                ForeColor = Color.FromArgb(180, 180, 210),
-                Location = new Point(30, 75),
-                AutoSize = true
-            };
-            panel.Controls.Add(lblUser);
+                Text = "Nhập thông tin tài khoản để truy cập hệ thống",
+                ForeColor = ThemeColors.MutedForeground,
+                Font = new Font("Segoe UI", 11F),
+                Location = new Point(0, 45), AutoSize = true
+            });
+
+            // Username field
+            formContainer.Controls.Add(new Label
+            {
+                Text = "Tên đăng nhập", ForeColor = ThemeColors.Foreground,
+                Font = new Font("Segoe UI", 10.5F, FontStyle.Bold),
+                Location = new Point(0, 100), AutoSize = true
+            });
 
             txtUsername = new TextBox
             {
-                Size = new Size(320, 35),
-                Location = new Point(30, 98),
-                Font = new Font("Segoe UI", 11F),
-                BackColor = Color.FromArgb(55, 55, 80),
-                ForeColor = Color.White,
-                BorderStyle = BorderStyle.FixedSingle
+                Size = new Size(400, 40), Location = new Point(0, 126),
+                Font = new Font("Segoe UI", 12F),
+                BackColor = ThemeColors.Background,
+                ForeColor = ThemeColors.Foreground,
+                BorderStyle = BorderStyle.FixedSingle,
+                PlaceholderText = "Nhập tên đăng nhập"
             };
-            panel.Controls.Add(txtUsername);
+            formContainer.Controls.Add(txtUsername);
 
-            // Password
+            // Password field
             var lblPass = new Label
             {
-                Text = "Mật khẩu",
-                ForeColor = Color.FromArgb(180, 180, 210),
-                Location = new Point(30, 140),
-                AutoSize = true
+                Text = "Mật khẩu", ForeColor = ThemeColors.Foreground,
+                Font = new Font("Segoe UI", 10.5F, FontStyle.Bold),
+                Location = new Point(0, 180), AutoSize = true
             };
-            panel.Controls.Add(lblPass);
+            formContainer.Controls.Add(lblPass);
+
+            var lblForgot = new Label
+            {
+                Text = "Quên mật khẩu?",
+                ForeColor = ThemeColors.Primary,
+                Font = new Font("Segoe UI", 9F),
+                Location = new Point(300, 183), AutoSize = true,
+                Cursor = Cursors.Hand
+            };
+            formContainer.Controls.Add(lblForgot);
 
             txtPassword = new TextBox
             {
-                Size = new Size(320, 35),
-                Location = new Point(30, 163),
-                Font = new Font("Segoe UI", 11F),
-                BackColor = Color.FromArgb(55, 55, 80),
-                ForeColor = Color.White,
+                Size = new Size(400, 40), Location = new Point(0, 206),
+                Font = new Font("Segoe UI", 12F),
+                BackColor = ThemeColors.Background,
+                ForeColor = ThemeColors.Foreground,
                 BorderStyle = BorderStyle.FixedSingle,
-                PasswordChar = '●'
+                PasswordChar = '●',
+                PlaceholderText = "Nhập mật khẩu"
             };
-            panel.Controls.Add(txtPassword);
+            formContainer.Controls.Add(txtPassword);
 
             // Message
             lblMessage = new Label
             {
-                Text = "",
-                ForeColor = Color.FromArgb(255, 100, 100),
-                Location = new Point(30, 205),
-                Size = new Size(320, 20),
+                Text = "", ForeColor = ThemeColors.Error,
+                Location = new Point(0, 255), Size = new Size(400, 22),
                 TextAlign = ContentAlignment.MiddleCenter,
-                Font = new Font("Segoe UI", 9F)
+                Font = new Font("Segoe UI", 9.5F)
             };
-            panel.Controls.Add(lblMessage);
+            formContainer.Controls.Add(lblMessage);
 
             // Login button
             btnLogin = new Button
             {
-                Text = "ĐĂNG NHẬP",
-                Size = new Size(320, 45),
-                Location = new Point(30, 230),
+                Text = "Đăng nhập",
+                Size = new Size(400, 44), Location = new Point(0, 285),
                 FlatStyle = FlatStyle.Flat,
-                BackColor = Color.FromArgb(88, 101, 242),
+                BackColor = ThemeColors.Primary,
                 ForeColor = Color.White,
-                Font = new Font("Segoe UI", 11F, FontStyle.Bold),
+                Font = new Font("Segoe UI", 12F, FontStyle.Bold),
                 Cursor = Cursors.Hand
             };
             btnLogin.FlatAppearance.BorderSize = 0;
             btnLogin.Click += BtnLogin_Click;
-            panel.Controls.Add(btnLogin);
+            formContainer.Controls.Add(btnLogin);
+
+            // Copyright
+            formContainer.Controls.Add(new Label
+            {
+                Text = "© 2026 HRM System. All rights reserved.",
+                ForeColor = ThemeColors.Placeholder,
+                Font = new Font("Segoe UI", 9F),
+                Location = new Point(80, 350), AutoSize = true
+            });
 
             // Enter key
             this.AcceptButton = btnLogin;
@@ -138,7 +251,7 @@ namespace QuanLyNhanVien.Forms.Main
             btnLogin.Enabled = false;
             btnLogin.Text = "Đang đăng nhập...";
             lblMessage.Text = "";
-            lblMessage.ForeColor = Color.FromArgb(255, 100, 100);
+            lblMessage.ForeColor = ThemeColors.Error;
 
             try
             {
@@ -150,7 +263,7 @@ namespace QuanLyNhanVien.Forms.Main
                     AppSession.Permissions = result.Permissions;
                     AppSession.Roles = result.Roles;
 
-                    lblMessage.ForeColor = Color.FromArgb(100, 255, 100);
+                    lblMessage.ForeColor = ThemeColors.Success;
                     lblMessage.Text = result.Message;
 
                     await Task.Delay(500);
@@ -171,7 +284,7 @@ namespace QuanLyNhanVien.Forms.Main
             finally
             {
                 btnLogin.Enabled = true;
-                btnLogin.Text = "ĐĂNG NHẬP";
+                btnLogin.Text = "Đăng nhập";
             }
         }
     }

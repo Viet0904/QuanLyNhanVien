@@ -21,9 +21,9 @@
 | 🛡️ RBAC Permissions | ✅ | 6 permissions per menu: View / Add / Edit / Delete / Export / Print |
 | ☰ Menu Management | ✅ | Dynamic menu CRUD with drag-and-drop ordering |
 | 📂 Category + Cache | ✅ | 3-tier caching: Memory → JSON File → Database |
-| ⏰ Attendance | 🔜 | Planned — Phase 4 |
-| 💰 Payroll | 🔜 | Planned — Phase 5 |
-| 📊 Reports & Dashboard | 🔜 | Planned — Phase 6 |
+| ⏰ Attendance | ✅ | Daily check-in/out, monthly report, leave requests |
+| 💰 Payroll | ✅ | Salary config, monthly calculation, payslip, PIT |
+| 📊 Reports & Dashboard | ✅ | KPI dashboard, GDI+ charts, CSV/Print export |
 
 ---
 

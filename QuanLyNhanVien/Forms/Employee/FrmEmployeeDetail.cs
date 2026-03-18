@@ -9,7 +9,7 @@ namespace QuanLyNhanVien.Forms.Employee
         private TextBox txtBankAccount = null!, txtBankName = null!, txtTaxCode = null!, txtInsurance = null!, txtNotes = null!;
         private ComboBox cboDept = null!, cboPosition = null!, cboGender = null!;
         private DateTimePicker dtpBirth = null!, dtpHire = null!;
-        private NumericUpDown nudSalary = null!, nudCoeff = null!;
+        private NumericUpDown nudSalary = null!, nudCoeff = null!, nudDependents = null!;
         private Models.Entities.Employee? _emp;
         private TabControl tabs = null!;
 
@@ -22,12 +22,12 @@ namespace QuanLyNhanVien.Forms.Employee
 
         private void InitializeComponent()
         {
-            this.Text = _emp == null ? "Thêm Nhân Viên Mới" : $"Sửa Nhân Viên - {_emp.FullName}";
+            this.Text = _emp == null ? "Thêm nhân viên mới" : $"Sửa nhân viên - {_emp.FullName}";
             this.Size = new Size(650, 520);
             this.StartPosition = FormStartPosition.CenterParent;
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
-            this.BackColor = Color.FromArgb(35, 35, 55);
+            this.BackColor = ThemeColors.Background;
             this.Font = new Font("Segoe UI", 10F);
 
             tabs = new TabControl
@@ -38,7 +38,7 @@ namespace QuanLyNhanVien.Forms.Employee
             this.Controls.Add(tabs);
 
             // == Tab 1: Thông tin chung ==
-            var tabInfo = new TabPage("📋 Thông tin chung") { BackColor = Color.FromArgb(40, 40, 60) };
+            var tabInfo = new TabPage("📋 Thông tin chung") { BackColor = ThemeColors.Background };
             tabs.TabPages.Add(tabInfo);
 
             var y = 15;
@@ -47,17 +47,17 @@ namespace QuanLyNhanVien.Forms.Employee
             AddLabel(tabInfo, "Họ và tên: *", 20, y);
             txtName = AddTextBox(tabInfo, 160, y, 250); y += 38;
             AddLabel(tabInfo, "Giới tính:", 20, y);
-            cboGender = new ComboBox { Location = new Point(160, y), Size = new Size(120, 30), DropDownStyle = ComboBoxStyle.DropDownList, BackColor = Color.FromArgb(55, 55, 80), ForeColor = Color.White, FlatStyle = FlatStyle.Flat };
+            cboGender = new ComboBox { Location = new Point(160, y), Size = new Size(120, 30), DropDownStyle = ComboBoxStyle.DropDownList, BackColor = ThemeColors.Background, ForeColor = ThemeColors.Foreground, FlatStyle = FlatStyle.Flat };
             cboGender.Items.AddRange(new[] { "Nam", "Nữ", "Khác" });
             tabInfo.Controls.Add(cboGender); y += 38;
             AddLabel(tabInfo, "Ngày sinh:", 20, y);
-            dtpBirth = new DateTimePicker { Location = new Point(160, y), Size = new Size(180, 30), Format = DateTimePickerFormat.Short, CalendarForeColor = Color.White };
+            dtpBirth = new DateTimePicker { Location = new Point(160, y), Size = new Size(180, 30), Format = DateTimePickerFormat.Short };
             tabInfo.Controls.Add(dtpBirth); y += 38;
             AddLabel(tabInfo, "CMND/CCCD:", 20, y);
             txtIdentity = AddTextBox(tabInfo, 160, y, 200); y += 38;
 
             // == Tab 2: Liên hệ ==
-            var tabContact = new TabPage("📞 Liên hệ") { BackColor = Color.FromArgb(40, 40, 60) };
+            var tabContact = new TabPage("📞 Liên hệ") { BackColor = ThemeColors.Background };
             tabs.TabPages.Add(tabContact);
             y = 15;
             AddLabel(tabContact, "Số điện thoại:", 20, y);
@@ -68,14 +68,14 @@ namespace QuanLyNhanVien.Forms.Employee
             txtAddress = AddTextBox(tabContact, 160, y, 400); y += 38;
 
             // == Tab 3: Công việc ==
-            var tabWork = new TabPage("🏢 Công việc") { BackColor = Color.FromArgb(40, 40, 60) };
+            var tabWork = new TabPage("🏢 Công việc") { BackColor = ThemeColors.Background };
             tabs.TabPages.Add(tabWork);
             y = 15;
             AddLabel(tabWork, "Phòng ban: *", 20, y);
-            cboDept = new ComboBox { Location = new Point(160, y), Size = new Size(250, 30), DropDownStyle = ComboBoxStyle.DropDownList, BackColor = Color.FromArgb(55, 55, 80), ForeColor = Color.White, FlatStyle = FlatStyle.Flat };
+            cboDept = new ComboBox { Location = new Point(160, y), Size = new Size(250, 30), DropDownStyle = ComboBoxStyle.DropDownList, BackColor = ThemeColors.Background, ForeColor = ThemeColors.Foreground, FlatStyle = FlatStyle.Flat };
             tabWork.Controls.Add(cboDept); y += 38;
             AddLabel(tabWork, "Chức vụ: *", 20, y);
-            cboPosition = new ComboBox { Location = new Point(160, y), Size = new Size(250, 30), DropDownStyle = ComboBoxStyle.DropDownList, BackColor = Color.FromArgb(55, 55, 80), ForeColor = Color.White, FlatStyle = FlatStyle.Flat };
+            cboPosition = new ComboBox { Location = new Point(160, y), Size = new Size(250, 30), DropDownStyle = ComboBoxStyle.DropDownList, BackColor = ThemeColors.Background, ForeColor = ThemeColors.Foreground, FlatStyle = FlatStyle.Flat };
             tabWork.Controls.Add(cboPosition); y += 38;
             AddLabel(tabWork, "Ngày vào làm:", 20, y);
             dtpHire = new DateTimePicker { Location = new Point(160, y), Size = new Size(180, 30), Format = DateTimePickerFormat.Short };
@@ -84,14 +84,14 @@ namespace QuanLyNhanVien.Forms.Employee
             txtNotes = AddTextBox(tabWork, 160, y, 400); txtNotes.Multiline = true; txtNotes.Height = 60;
 
             // == Tab 4: Tài chính ==
-            var tabFinance = new TabPage("💰 Tài chính") { BackColor = Color.FromArgb(40, 40, 60) };
+            var tabFinance = new TabPage("💰 Tài chính") { BackColor = ThemeColors.Background };
             tabs.TabPages.Add(tabFinance);
             y = 15;
             AddLabel(tabFinance, "Lương cơ bản:", 20, y);
-            nudSalary = new NumericUpDown { Location = new Point(180, y), Size = new Size(200, 30), Maximum = 500000000, Increment = 500000, ThousandsSeparator = true, BackColor = Color.FromArgb(55, 55, 80), ForeColor = Color.White };
+            nudSalary = new NumericUpDown { Location = new Point(180, y), Size = new Size(200, 30), Maximum = 500000000, Increment = 500000, ThousandsSeparator = true, BackColor = ThemeColors.Background, ForeColor = ThemeColors.Foreground };
             tabFinance.Controls.Add(nudSalary); y += 38;
             AddLabel(tabFinance, "Hệ số lương:", 20, y);
-            nudCoeff = new NumericUpDown { Location = new Point(180, y), Size = new Size(100, 30), Minimum = 0.5M, Maximum = 20, DecimalPlaces = 2, Increment = 0.1M, Value = 1, BackColor = Color.FromArgb(55, 55, 80), ForeColor = Color.White };
+            nudCoeff = new NumericUpDown { Location = new Point(180, y), Size = new Size(100, 30), Minimum = 0.5M, Maximum = 20, DecimalPlaces = 2, Increment = 0.1M, Value = 1, BackColor = ThemeColors.Background, ForeColor = ThemeColors.Foreground };
             tabFinance.Controls.Add(nudCoeff); y += 38;
             AddLabel(tabFinance, "Ngân hàng:", 20, y);
             txtBankName = AddTextBox(tabFinance, 180, y, 250); y += 38;
@@ -100,24 +100,26 @@ namespace QuanLyNhanVien.Forms.Employee
             AddLabel(tabFinance, "Mã số thuế:", 20, y);
             txtTaxCode = AddTextBox(tabFinance, 180, y, 200); y += 38;
             AddLabel(tabFinance, "Số BHXH:", 20, y);
-            txtInsurance = AddTextBox(tabFinance, 180, y, 200);
+            txtInsurance = AddTextBox(tabFinance, 180, y, 200); y += 38;
+            AddLabel(tabFinance, "Số người phụ thuộc:", 20, y);
+            nudDependents = new NumericUpDown { Location = new Point(180, y), Size = new Size(100, 30), Minimum = 0, Maximum = 20, Value = 0, BackColor = ThemeColors.Background, ForeColor = ThemeColors.Foreground };
+            tabFinance.Controls.Add(nudDependents);
 
             // == Buttons ==
             var btnPanel = new FlowLayoutPanel
             {
-                Dock = DockStyle.Bottom, Height = 55, BackColor = Color.FromArgb(35, 35, 55),
+                Dock = DockStyle.Bottom, Height = 55, BackColor = ThemeColors.Surface,
                 Padding = new Padding(180, 8, 0, 0), FlowDirection = FlowDirection.LeftToRight
             };
-            var btnSave = new Button { Text = "💾 Lưu", Size = new Size(120, 40), FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(88, 101, 242), ForeColor = Color.White, Font = new Font("Segoe UI", 10F, FontStyle.Bold) };
-            btnSave.FlatAppearance.BorderSize = 0;
+            var btnSave = ThemeColors.CreatePrimaryButton("💾 Lưu", 120, 40);
             btnSave.Click += BtnSave_Click;
 
-            var btnSaveNew = new Button { Text = "💾 Lưu & Thêm mới", Size = new Size(160, 40), FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(60, 140, 80), ForeColor = Color.White, Font = new Font("Segoe UI", 10F, FontStyle.Bold), Margin = new Padding(8, 0, 0, 0) };
+            var btnSaveNew = new Button { Text = "💾 Lưu & Thêm mới", Size = new Size(160, 40), FlatStyle = FlatStyle.Flat, BackColor = ThemeColors.Success, ForeColor = Color.White, Font = new Font("Segoe UI", 10F, FontStyle.Bold), Margin = new Padding(8, 0, 0, 0) };
             btnSaveNew.FlatAppearance.BorderSize = 0;
             btnSaveNew.Click += BtnSaveNew_Click;
 
-            var btnCancel = new Button { Text = "Hủy", Size = new Size(80, 40), FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(80, 80, 100), ForeColor = Color.White, Margin = new Padding(8, 0, 0, 0) };
-            btnCancel.FlatAppearance.BorderSize = 0;
+            var btnCancel = ThemeColors.CreateOutlineButton("Hủy", 80, 40);
+            btnCancel.Margin = new Padding(8, 0, 0, 0);
             btnCancel.Click += (s, e) => { this.DialogResult = DialogResult.Cancel; this.Close(); };
 
             btnPanel.Controls.AddRange(new Control[] { btnSave, btnSaveNew, btnCancel });
@@ -146,6 +148,7 @@ namespace QuanLyNhanVien.Forms.Employee
             txtBankAccount.Text = _emp.BankAccount;
             txtTaxCode.Text = _emp.TaxCode;
             txtInsurance.Text = _emp.InsuranceNo;
+            nudDependents.Value = _emp.NumberOfDependents;
         }
 
         private async Task LoadCombosAsync()
@@ -187,6 +190,7 @@ namespace QuanLyNhanVien.Forms.Employee
             emp.BankAccount = txtBankAccount.Text.Trim();
             emp.TaxCode = txtTaxCode.Text.Trim();
             emp.InsuranceNo = txtInsurance.Text.Trim();
+            emp.NumberOfDependents = (int)nudDependents.Value;
             return emp;
         }
 
@@ -220,7 +224,7 @@ namespace QuanLyNhanVien.Forms.Employee
             txtCode.Text = "(Tự động)";
             txtName.Clear(); txtIdentity.Clear(); txtPhone.Clear(); txtEmail.Clear(); txtAddress.Clear();
             txtBankAccount.Clear(); txtBankName.Clear(); txtTaxCode.Clear(); txtInsurance.Clear(); txtNotes.Clear();
-            nudSalary.Value = 0; nudCoeff.Value = 1;
+            nudSalary.Value = 0; nudCoeff.Value = 1; nudDependents.Value = 0;
             cboGender.SelectedIndex = -1;
             tabs.SelectedIndex = 0;
             txtName.Focus();
@@ -228,12 +232,12 @@ namespace QuanLyNhanVien.Forms.Employee
 
         private void AddLabel(Control parent, string text, int x, int y)
         {
-            parent.Controls.Add(new Label { Text = text, Location = new Point(x, y + 3), AutoSize = true, ForeColor = Color.FromArgb(180, 190, 220) });
+            parent.Controls.Add(new Label { Text = text, Location = new Point(x, y + 3), AutoSize = true, ForeColor = ThemeColors.MutedForeground });
         }
 
         private TextBox AddTextBox(Control parent, int x, int y, int w)
         {
-            var tb = new TextBox { Location = new Point(x, y), Size = new Size(w, 30), BackColor = Color.FromArgb(55, 55, 80), ForeColor = Color.White, BorderStyle = BorderStyle.FixedSingle };
+            var tb = new TextBox { Location = new Point(x, y), Size = new Size(w, 30), BackColor = ThemeColors.Background, ForeColor = ThemeColors.Foreground, BorderStyle = BorderStyle.FixedSingle };
             parent.Controls.Add(tb);
             return tb;
         }

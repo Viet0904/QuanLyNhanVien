@@ -5,7 +5,7 @@ namespace QuanLyNhanVien.Forms.Category
 {
     /// <summary>
     /// Quản lý danh mục: bên trái = Category list, bên phải = CategoryItems
-    /// Buttons nằm trong header bar thay vì toolbar riêng (tránh docking issues khi embed)
+    /// Theme sáng theo thiết kế Pencil
     /// </summary>
     public class FrmCategoryManager : Form
     {
@@ -28,9 +28,9 @@ namespace QuanLyNhanVien.Forms.Category
 
         private void InitializeComponent()
         {
-            this.Text = "Quản Lý Danh Mục";
+            this.Text = "Quản lý danh mục";
             this.Font = new Font("Segoe UI", 10F);
-            this.BackColor = Color.FromArgb(30, 30, 46);
+            this.BackColor = ThemeColors.Background;
 
             // ===== MAIN: SplitContainer =====
             var split = new SplitContainer
@@ -38,28 +38,33 @@ namespace QuanLyNhanVien.Forms.Category
                 Dock = DockStyle.Fill,
                 Orientation = Orientation.Vertical,
                 SplitterDistance = 450,
-                BackColor = Color.FromArgb(50, 50, 70),
-                SplitterWidth = 4,
+                BackColor = ThemeColors.Border,
+                SplitterWidth = 1,
                 BorderStyle = BorderStyle.None
             };
 
             // ————— Panel 1: Category list —————
-            split.Panel1.BackColor = Color.FromArgb(35, 35, 55);
+            split.Panel1.BackColor = ThemeColors.Background;
 
-            // Header bar trái (title + buttons)
-            var leftHeader = new Panel { Dock = DockStyle.Top, Height = 42, BackColor = Color.FromArgb(45, 45, 68), Padding = new Padding(8, 0, 0, 0) };
+            // Header bar trái
+            var leftHeader = new Panel { Dock = DockStyle.Top, Height = 50, BackColor = ThemeColors.Surface, Padding = new Padding(16, 0, 8, 0) };
+            leftHeader.Paint += (s, e) =>
+            {
+                using var pen = new Pen(ThemeColors.Border, 1);
+                e.Graphics.DrawLine(pen, 0, leftHeader.Height - 1, leftHeader.Width, leftHeader.Height - 1);
+            };
             leftHeader.Controls.Add(new Label
             {
-                Text = "📂 Danh Mục", Dock = DockStyle.Left, Width = 130,
-                ForeColor = Color.FromArgb(200, 210, 240), Font = new Font("Segoe UI", 11F, FontStyle.Bold),
+                Text = "📂 Danh mục", Dock = DockStyle.Left, Width = 150,
+                ForeColor = ThemeColors.Foreground, Font = new Font("Segoe UI", 12F, FontStyle.Bold),
                 TextAlign = ContentAlignment.MiddleLeft
             });
 
-            var leftBtnPanel = new FlowLayoutPanel { Dock = DockStyle.Right, Width = 250, FlowDirection = FlowDirection.RightToLeft, Padding = new Padding(0, 5, 5, 0) };
-            btnRefresh = SmallBtn("🔄", "", Color.FromArgb(100, 100, 140), 35);
-            btnDelCat = SmallBtn("🗑️", "Delete", Color.FromArgb(200, 60, 60), 35);
-            btnEditCat = SmallBtn("✏️", "Edit", Color.FromArgb(87, 163, 75), 35);
-            btnAddCat = SmallBtn("➕", "Add", Color.FromArgb(88, 101, 242), 35);
+            var leftBtnPanel = new FlowLayoutPanel { Dock = DockStyle.Right, Width = 200, FlowDirection = FlowDirection.RightToLeft, Padding = new Padding(0, 9, 5, 0) };
+            btnRefresh = SmallBtn("🔄", "", ThemeColors.MutedForeground, 32);
+            btnDelCat = SmallBtn("🗑️", "Delete", ThemeColors.Error, 32);
+            btnEditCat = SmallBtn("✏️", "Edit", ThemeColors.Success, 32);
+            btnAddCat = SmallBtn("➕", "Add", ThemeColors.Primary, 32);
             leftBtnPanel.Controls.AddRange(new Control[] { btnRefresh, btnDelCat, btnEditCat, btnAddCat });
             leftHeader.Controls.Add(leftBtnPanel);
 
@@ -72,27 +77,30 @@ namespace QuanLyNhanVien.Forms.Category
             dgvCategories.SelectionChanged += DgvCategories_SelectionChanged;
             dgvCategories.CellDoubleClick += (s, e) => { if (e.RowIndex >= 0) BtnEditCat_Click(s, e); };
 
-            // Docking order chuẩn: Fill trước, Top sau
-            split.Panel1.Controls.Add(dgvCategories);   // Fill
-            split.Panel1.Controls.Add(leftHeader);       // Top
+            split.Panel1.Controls.Add(dgvCategories);
+            split.Panel1.Controls.Add(leftHeader);
 
             // ————— Panel 2: Category items —————
-            split.Panel2.BackColor = Color.FromArgb(35, 35, 55);
+            split.Panel2.BackColor = ThemeColors.Background;
 
-            // Header bar phải (title + buttons)
-            var rightHeader = new Panel { Dock = DockStyle.Top, Height = 42, BackColor = Color.FromArgb(45, 45, 68), Padding = new Padding(8, 0, 0, 0) };
+            var rightHeader = new Panel { Dock = DockStyle.Top, Height = 50, BackColor = ThemeColors.Surface, Padding = new Padding(16, 0, 8, 0) };
+            rightHeader.Paint += (s, e) =>
+            {
+                using var pen = new Pen(ThemeColors.Border, 1);
+                e.Graphics.DrawLine(pen, 0, rightHeader.Height - 1, rightHeader.Width, rightHeader.Height - 1);
+            };
             lblItemTitle = new Label
             {
                 Text = "📋 Chọn danh mục bên trái", Dock = DockStyle.Left, Width = 280,
-                ForeColor = Color.FromArgb(200, 210, 240), Font = new Font("Segoe UI", 11F, FontStyle.Bold),
+                ForeColor = ThemeColors.Foreground, Font = new Font("Segoe UI", 12F, FontStyle.Bold),
                 TextAlign = ContentAlignment.MiddleLeft
             };
             rightHeader.Controls.Add(lblItemTitle);
 
-            var rightBtnPanel = new FlowLayoutPanel { Dock = DockStyle.Right, Width = 130, FlowDirection = FlowDirection.RightToLeft, Padding = new Padding(0, 5, 5, 0) };
-            btnDelItem = SmallBtn("🗑️", "Delete", Color.FromArgb(200, 60, 60), 35);
-            btnEditItem = SmallBtn("✏️", "Edit", Color.FromArgb(87, 163, 75), 35);
-            btnAddItem = SmallBtn("➕", "Add", Color.FromArgb(88, 101, 242), 35);
+            var rightBtnPanel = new FlowLayoutPanel { Dock = DockStyle.Right, Width = 130, FlowDirection = FlowDirection.RightToLeft, Padding = new Padding(0, 9, 5, 0) };
+            btnDelItem = SmallBtn("🗑️", "Delete", ThemeColors.Error, 32);
+            btnEditItem = SmallBtn("✏️", "Edit", ThemeColors.Success, 32);
+            btnAddItem = SmallBtn("➕", "Add", ThemeColors.Primary, 32);
             rightBtnPanel.Controls.AddRange(new Control[] { btnDelItem, btnEditItem, btnAddItem });
             rightHeader.Controls.Add(rightBtnPanel);
 
@@ -103,34 +111,23 @@ namespace QuanLyNhanVien.Forms.Category
             dgvItems = CreateGrid();
             dgvItems.CellDoubleClick += (s, e) => { if (e.RowIndex >= 0) BtnEditItem_Click(s, e); };
 
-            // Docking order chuẩn: Fill trước, Top sau
-            split.Panel2.Controls.Add(dgvItems);         // Fill
-            split.Panel2.Controls.Add(rightHeader);       // Top
+            split.Panel2.Controls.Add(dgvItems);
+            split.Panel2.Controls.Add(rightHeader);
 
-            // Form chỉ có 1 control duy nhất = SplitContainer (Dock=Fill)
             this.Controls.Add(split);
         }
 
         private DataGridView CreateGrid()
         {
-            return new DataGridView
+            var dgv = new DataGridView
             {
                 Dock = DockStyle.Fill, ReadOnly = true, AllowUserToAddRows = false,
                 AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
                 SelectionMode = DataGridViewSelectionMode.FullRowSelect,
-                BackgroundColor = Color.FromArgb(35, 35, 55), GridColor = Color.FromArgb(60, 60, 80),
-                DefaultCellStyle = new DataGridViewCellStyle
-                {
-                    BackColor = Color.FromArgb(40, 40, 60), ForeColor = Color.FromArgb(200, 210, 230),
-                    SelectionBackColor = Color.FromArgb(88, 101, 242), Font = new Font("Segoe UI", 10F)
-                },
-                ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle
-                {
-                    BackColor = Color.FromArgb(50, 50, 75), ForeColor = Color.FromArgb(180, 190, 220),
-                    Font = new Font("Segoe UI", 10F, FontStyle.Bold)
-                },
-                EnableHeadersVisualStyles = false, RowHeadersVisible = false, BorderStyle = BorderStyle.None
+                MultiSelect = false
             };
+            ThemeColors.StyleDataGridView(dgv);
+            return dgv;
         }
 
         private Button SmallBtn(string text, string tag, Color c, int w)
@@ -138,7 +135,7 @@ namespace QuanLyNhanVien.Forms.Category
             var b = new Button
             {
                 Text = text, Tag = tag, Size = new Size(w, 30), FlatStyle = FlatStyle.Flat,
-                BackColor = c, ForeColor = Color.White, Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+                BackColor = c, ForeColor = ThemeColors.Foreground, Font = new Font("Segoe UI", 9F, FontStyle.Bold),
                 Cursor = Cursors.Hand, Margin = new Padding(3, 0, 0, 0)
             };
             b.FlatAppearance.BorderSize = 0;
@@ -154,11 +151,10 @@ namespace QuanLyNhanVien.Forms.Category
 
             HideCol(dgvCategories, "CategoryId", "Items");
             SetHeader(dgvCategories, "CategoryCode", "Mã");
-            SetHeader(dgvCategories, "CategoryName", "Tên Danh Mục");
-            SetHeader(dgvCategories, "Description", "Mô Tả");
+            SetHeader(dgvCategories, "CategoryName", "Tên danh mục");
+            SetHeader(dgvCategories, "Description", "Mô tả");
             SetHeader(dgvCategories, "IsSystem", "HT");
 
-            // Cố định width cho cột "Mã" và "HT"
             if (dgvCategories.Columns.Contains("CategoryCode"))
             {
                 dgvCategories.Columns["CategoryCode"].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
@@ -186,7 +182,7 @@ namespace QuanLyNhanVien.Forms.Category
                 HideCol(dgvItems, "ItemId", "CategoryId", "IsActive");
                 SetHeader(dgvItems, "ItemCode", "Mã");
                 SetHeader(dgvItems, "ItemName", "Tên");
-                SetHeader(dgvItems, "ItemValue", "Giá Trị");
+                SetHeader(dgvItems, "ItemValue", "Giá trị");
                 SetHeader(dgvItems, "SortOrder", "TT");
 
                 if (dgvItems.Columns.Contains("SortOrder"))
@@ -260,12 +256,12 @@ namespace QuanLyNhanVien.Forms.Category
         public FrmCategoryDetail(Models.Entities.Category? cat)
         {
             _cat = cat;
-            this.Text = _cat == null ? "Thêm Danh Mục" : "Sửa Danh Mục";
+            this.Text = _cat == null ? "Thêm danh mục" : "Sửa danh mục";
             this.Size = new Size(420, 280);
             this.StartPosition = FormStartPosition.CenterParent;
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
-            this.BackColor = Color.FromArgb(40, 40, 60);
+            this.BackColor = ThemeColors.Background;
             this.Font = new Font("Segoe UI", 10F);
 
             var y = 15;
@@ -273,18 +269,18 @@ namespace QuanLyNhanVien.Forms.Category
             Lbl("Tên danh mục:", 20, y); txtName = Txt(150, y, 220); y += 40;
             Lbl("Mô tả:", 20, y); txtDesc = Txt(150, y, 220); txtDesc.Multiline = true; txtDesc.Height = 50; y += 65;
 
-            var btnSave = new Button { Text = "💾 Lưu", Location = new Point(150, y), Size = new Size(110, 38), FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(88, 101, 242), ForeColor = Color.White, Font = new Font("Segoe UI", 10F, FontStyle.Bold) };
-            btnSave.FlatAppearance.BorderSize = 0;
+            var btnSave = ThemeColors.CreatePrimaryButton("💾 Lưu", 110, 38);
+            btnSave.Location = new Point(150, y);
             btnSave.Click += BtnSave_Click;
             this.Controls.Add(btnSave);
 
             if (_cat != null) { txtCode.Text = _cat.CategoryCode; txtName.Text = _cat.CategoryName; txtDesc.Text = _cat.Description; }
         }
 
-        private void Lbl(string t, int x, int y) { this.Controls.Add(new Label { Text = t, Location = new Point(x, y + 3), AutoSize = true, ForeColor = Color.FromArgb(180, 190, 220) }); }
+        private void Lbl(string t, int x, int y) { this.Controls.Add(new Label { Text = t, Location = new Point(x, y + 3), AutoSize = true, ForeColor = ThemeColors.MutedForeground }); }
         private TextBox Txt(int x, int y, int w)
         {
-            var tb = new TextBox { Location = new Point(x, y), Size = new Size(w, 28), BackColor = Color.FromArgb(55, 55, 80), ForeColor = Color.White, BorderStyle = BorderStyle.FixedSingle };
+            var tb = new TextBox { Location = new Point(x, y), Size = new Size(w, 28), BackColor = ThemeColors.Background, ForeColor = ThemeColors.Foreground, BorderStyle = BorderStyle.FixedSingle };
             this.Controls.Add(tb); return tb;
         }
 
@@ -316,12 +312,12 @@ namespace QuanLyNhanVien.Forms.Category
         public FrmItemDetail(CategoryItem? item, int catId)
         {
             _item = item; _catId = catId;
-            this.Text = _item == null ? "Thêm Mục" : "Sửa Mục";
+            this.Text = _item == null ? "Thêm mục" : "Sửa mục";
             this.Size = new Size(400, 300);
             this.StartPosition = FormStartPosition.CenterParent;
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
-            this.BackColor = Color.FromArgb(40, 40, 60);
+            this.BackColor = ThemeColors.Background;
             this.Font = new Font("Segoe UI", 10F);
 
             var y = 15;
@@ -329,21 +325,21 @@ namespace QuanLyNhanVien.Forms.Category
             Lbl("Tên:", 20, y); txtName = Txt(120, y, 230); y += 38;
             Lbl("Giá trị:", 20, y); txtValue = Txt(120, y, 230); y += 38;
             Lbl("Thứ tự:", 20, y);
-            nudOrder = new NumericUpDown { Location = new Point(120, y), Size = new Size(80, 28), BackColor = Color.FromArgb(55, 55, 80), ForeColor = Color.White, Minimum = 0, Maximum = 100 };
+            nudOrder = new NumericUpDown { Location = new Point(120, y), Size = new Size(80, 28), BackColor = ThemeColors.Background, ForeColor = ThemeColors.Foreground, Minimum = 0, Maximum = 100 };
             this.Controls.Add(nudOrder); y += 48;
 
-            var btnSave = new Button { Text = "💾 Lưu", Location = new Point(120, y), Size = new Size(110, 38), FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(88, 101, 242), ForeColor = Color.White, Font = new Font("Segoe UI", 10F, FontStyle.Bold) };
-            btnSave.FlatAppearance.BorderSize = 0;
+            var btnSave = ThemeColors.CreatePrimaryButton("💾 Lưu", 110, 38);
+            btnSave.Location = new Point(120, y);
             btnSave.Click += BtnSave_Click;
             this.Controls.Add(btnSave);
 
             if (_item != null) { txtCode.Text = _item.ItemCode; txtName.Text = _item.ItemName; txtValue.Text = _item.ItemValue; nudOrder.Value = _item.SortOrder; }
         }
 
-        private void Lbl(string t, int x, int y) { this.Controls.Add(new Label { Text = t, Location = new Point(x, y + 3), AutoSize = true, ForeColor = Color.FromArgb(180, 190, 220) }); }
+        private void Lbl(string t, int x, int y) { this.Controls.Add(new Label { Text = t, Location = new Point(x, y + 3), AutoSize = true, ForeColor = ThemeColors.MutedForeground }); }
         private TextBox Txt(int x, int y, int w)
         {
-            var tb = new TextBox { Location = new Point(x, y), Size = new Size(w, 28), BackColor = Color.FromArgb(55, 55, 80), ForeColor = Color.White, BorderStyle = BorderStyle.FixedSingle };
+            var tb = new TextBox { Location = new Point(x, y), Size = new Size(w, 28), BackColor = ThemeColors.Background, ForeColor = ThemeColors.Foreground, BorderStyle = BorderStyle.FixedSingle };
             this.Controls.Add(tb); return tb;
         }
 
