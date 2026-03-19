@@ -9,6 +9,7 @@ namespace QuanLyNhanVien.Models.Entities
         public DateTime SignDate { get; set; } = DateTime.Now;
         public DateTime StartDate { get; set; } = DateTime.Now;
         public DateTime? EndDate { get; set; }
+        public decimal ContractSalary { get; set; }  // Mức lương ghi trên HĐ
         public string Notes { get; set; } = string.Empty;
         public bool IsActive { get; set; } = true;
         public DateTime CreatedAt { get; set; } = DateTime.Now;

@@ -6,6 +6,7 @@
 ![WinForms](https://img.shields.io/badge/UI-WinForms-0078D4?logo=windows)
 ![SQL Server](https://img.shields.io/badge/DB-SQL%20Server-CC2927?logo=microsoftsqlserver)
 ![Dapper](https://img.shields.io/badge/ORM-Dapper-FF6F00)
+![xUnit](https://img.shields.io/badge/Tests-xUnit-512BD4)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
 ---
@@ -17,9 +18,8 @@
 - [Kiến trúc dự án](#-kiến-trúc-dự-án)
 - [Yêu cầu hệ thống](#-yêu-cầu-hệ-thống)
 - [Cài đặt & Chạy local](#-cài-đặt--chạy-local)
-- [Chạy kiểm thử (Build Test)](#-chạy-kiểm-thử-build-test)
+- [Chạy kiểm thử](#-chạy-kiểm-thử)
 - [Bảo mật](#-bảo-mật)
-- [Ảnh chụp màn hình](#-ảnh-chụp-màn-hình)
 - [Giấy phép](#-giấy-phép)
 
 ---
@@ -29,17 +29,18 @@
 | Module | Trạng thái | Mô tả |
 |--------|:----------:|-------|
 | 🔐 Xác thực & Phân quyền | ✅ | Đăng nhập BCrypt, khóa tài khoản sau 5 lần sai, RBAC 6 quyền/menu |
-| 👥 Quản lý Nhân viên | ✅ | CRUD, tìm kiếm, lọc phòng ban, import/export Excel, xóa hàng loạt |
+| 👥 Quản lý Nhân viên | ✅ | CRUD, tìm kiếm, lọc phòng ban, import/export Excel, xóa/sửa hàng loạt |
 | 🏢 Phòng ban & Chức vụ | ✅ | CRUD phòng ban, tổ nhóm, chức vụ với hệ số & phụ cấp |
-| 📂 Danh mục | ✅ | Quản lý danh mục chung (trình độ, loại HĐ, ca làm việc...) + 3-tier cache |
-| 📝 Hợp đồng lao động | ✅ | CRUD hợp đồng, cảnh báo hết hạn |
+| 📂 Danh mục & Ngày lễ | ✅ | Quản lý danh mục chung + 3-tier cache + CRUD ngày lễ VN |
+| 📝 Hợp đồng lao động | ✅ | CRUD hợp đồng, mức lương HĐ, cảnh báo hết hạn, auto-deactivate NV |
 | 📅 Biến động nhân sự | ✅ | Khen thưởng, kỷ luật, thăng chức, điều chuyển |
-| ⏰ Chấm công | ✅ | Chấm công ngày (giờ vào/ra), bảng công tháng, quản lý nghỉ phép |
-| 💰 Tính lương | ✅ | Công thức lương, BHXH/BHYT/BHTN, thuế TNCN 7 bậc, tạm ứng, phiếu lương |
-| 📊 Dashboard & Báo cáo | ✅ | KPI cards, biểu đồ GDI+, 7 loại báo cáo, xuất CSV/Excel, in ấn |
+| ⏰ Chấm công | ✅ | Chấm công ngày, bảng công tháng, quản lý nghỉ phép (giới hạn 12 ngày/năm), auto chấm công khi duyệt phép |
+| 💰 Tính lương | ✅ | BHXH/BHYT/BHTN, thuế TNCN 7 bậc, tạm ứng, phạt đi muộn, phiếu lương, hủy duyệt |
+| 📊 Dashboard & Báo cáo | ✅ | KPI cards, biểu đồ GDI+, 8 loại báo cáo (kể cả BHXH phần DN), xuất CSV/Excel, in ấn |
 | ⚙️ Hệ thống | ✅ | Quản lý user, menu, vai trò, audit log, sao lưu/phục hồi DB, thiết lập công ty |
+| 🧪 Unit Tests | ✅ | xUnit + Moq, test thuế TNCN 7 bậc |
 
-> 📄 Xem chi tiết 64 tính năng tại [BaoCaoTinhNang.md](BaoCaoTinhNang.md)
+> 📄 Xem chi tiết **72 tính năng** tại [BaoCaoTinhNang.md](BaoCaoTinhNang.md)
 
 ---
 
@@ -54,32 +55,35 @@
 | Database | SQL Server | 2019+ | Lưu trữ dữ liệu (hỗ trợ Express / LocalDB) |
 | Micro-ORM | Dapper | 2.1.35 | Truy vấn database hiệu năng cao |
 | DB Driver | Microsoft.Data.SqlClient | 5.2.2 | Kết nối SQL Server |
+| Testing | xUnit + Moq | 2.5+ | Unit testing framework |
 
 ### NuGet Packages
 
-| Package | Phiên bản | Layer | Mục đích |
-|---------|:---------:|:-----:|---------|
-| `Dapper` | 2.1.35 | DAL | Micro-ORM, mapping SQL ↔ Object |
-| `Microsoft.Data.SqlClient` | 5.2.2 | DAL | ADO.NET provider cho SQL Server |
-| `BCrypt.Net-Next` | 4.0.3 | BLL | Hash mật khẩu an toàn (work factor 12) |
-| `Newtonsoft.Json` | 13.0.3 | BLL, UI | Serialize/deserialize JSON (cache, config) |
-| `ClosedXML` | 0.105.0 | UI | Import/Export file Excel (.xlsx) |
-| `Microsoft.Extensions.Configuration` | 8.0.0 | UI | Đọc file `appsettings.json` |
-| `Microsoft.Extensions.Configuration.Json` | 8.0.1 | UI | JSON configuration provider |
-| `Microsoft.Extensions.DependencyInjection` | 8.0.1 | UI | Dependency Injection container |
-| `Serilog` | 4.0.0 | UI | Structured logging framework |
-| `Serilog.Sinks.File` | 5.0.0 | UI | Ghi log ra file |
+| Package | Layer | Mục đích |
+|---------|:-----:|---------|
+| `Dapper` | DAL | Micro-ORM, mapping SQL ↔ Object |
+| `Microsoft.Data.SqlClient` | DAL | ADO.NET provider cho SQL Server |
+| `BCrypt.Net-Next` | BLL | Hash mật khẩu an toàn (work factor 12) |
+| `Newtonsoft.Json` | BLL, UI | Serialize/deserialize JSON (cache, config) |
+| `ClosedXML` | UI | Import/Export file Excel (.xlsx) |
+| `Microsoft.Extensions.DependencyInjection` | UI | Dependency Injection container |
+| `Serilog` + `Serilog.Sinks.File` | UI | Structured logging |
+| `Moq` | Tests | Mocking framework cho unit tests |
 
-### Design Patterns
+### Design Patterns & Architecture
 
 | Pattern | Áp dụng |
 |---------|---------|
 | **3-Layer Architecture** | UI → BLL (Business Logic) → DAL (Data Access) |
-| **Repository Pattern** | `BaseRepository<T>` + 16 repository classes với Dapper |
-| **Service Layer** | 17 service classes cách ly business logic |
-| **Dependency Injection** | `Microsoft.Extensions.DependencyInjection` đăng ký services |
-| **JSON File Caching** | 3-tier cache: Memory → JSON File → Database (qua `JsonCacheManager`) |
+| **Repository Pattern** | `BaseRepository<T>` + 17 repository classes với Dapper |
+| **Service Layer** | 18 service classes, 4 service interfaces (`ISalaryService`, `ILeaveService`, `IAttendanceService`, `IContractService`) |
+| **Dependency Injection** | `Microsoft.Extensions.DependencyInjection` đăng ký services + repositories |
+| **JSON File Caching** | 3-tier cache: Memory → JSON File → Database (`JsonCacheManager`) |
 | **RBAC Authorization** | Role → Menu → 6 Actions (View/Add/Edit/Delete/Export/Print) |
+| **Result Pattern** | `Result<T>` cho response thống nhất (sẵn dùng cho features mới) |
+| **Constants Pattern** | `StatusConstants` — centralized status strings, loại bỏ magic strings |
+| **Guard Clauses** | `Guard.cs` — validation utility (NotNull, PositiveId, ValidMonth...) |
+| **Batch Query** | `GetConfigDictionaryAsync()` — load tất cả configs trong 1 query |
 
 ---
 
@@ -95,7 +99,7 @@ QuanLyNhanVien.sln
 │   │   │                              # FrmContractManager, FrmEmployeeEvents
 │   │   ├── Department/                # FrmDepartmentList
 │   │   ├── Position/                  # FrmPositionList
-│   │   ├── Category/                  # FrmCategoryManager
+│   │   ├── Category/                  # FrmCategoryManager, FrmHolidayManager
 │   │   ├── Permission/                # FrmMenuManager, FrmRoleList, FrmRolePermission
 │   │   ├── Attendance/                # FrmAttendanceDaily, FrmAttendanceMonthly,
 │   │   │                              # FrmLeaveRequest
@@ -108,57 +112,57 @@ QuanLyNhanVien.sln
 │   │   ├── AppSession.cs              # Session & user context hiện tại
 │   │   ├── FormHelper.cs              # RBAC helper — kiểm tra quyền trên form
 │   │   └── ThemeColors.cs             # Dark theme & color palette
-│   ├── Data/                          # JSON cache files (gitignored)
-│   ├── appsettings.json               # Config (gitignored)
 │   ├── appsettings.example.json       # Template config
 │   └── Program.cs                     # Entry point + DI registration
 │
 ├── QuanLyNhanVien.BLL/                # ⚙️ Business Logic Layer
-│   ├── Services/                      # 17 service classes
-│   │   ├── AuthService.cs             # Đăng nhập, BCrypt, khóa tài khoản
-│   │   ├── EmployeeService.cs         # CRUD nhân viên
-│   │   ├── SalaryService.cs           # Tính lương, BHXH, thuế TNCN
-│   │   ├── AttendanceService.cs       # Chấm công, OT
-│   │   ├── LeaveService.cs            # Quản lý nghỉ phép
-│   │   ├── ReportService.cs           # Báo cáo tổng hợp
-│   │   └── ... (11 services khác)
+│   ├── Interfaces/                    # Service interfaces (ISalaryService, ...)
+│   ├── Services/                      # 18 service classes
+│   │   ├── SalaryService.cs           # Tính lương, BHXH, thuế TNCN, batch config
+│   │   ├── AttendanceService.cs       # Chấm công, OT, DetermineStatus
+│   │   ├── LeaveService.cs            # Nghỉ phép, giới hạn 12 ngày, auto chấm công
+│   │   ├── ContractService.cs         # Hợp đồng, auto-deactivate NV hết hạn
+│   │   ├── ReportService.cs           # Báo cáo NLĐ + NSDLĐ
+│   │   └── ... (13 services khác)
 │   └── Cache/
 │       └── JsonCacheManager.cs        # 3-tier cache: Memory → JSON → DB
 │
 ├── QuanLyNhanVien.DAL/                # 💾 Data Access Layer
 │   ├── Context/
 │   │   └── DbConnectionFactory.cs     # Tạo kết nối SQL Server
-│   └── Repositories/                  # 16 repository classes
-│       ├── BaseRepository.cs          # Base repository với Dapper (generic CRUD)
-│       ├── EmployeeRepository.cs      # Truy vấn nhân viên
-│       ├── SalaryRepository.cs        # Truy vấn lương
-│       ├── ReportRepository.cs        # Truy vấn báo cáo
-│       └── ... (12 repositories khác)
+│   └── Repositories/                  # 17 repository classes
+│       ├── BaseRepository.cs          # Base repository (generic CRUD)
+│       ├── SalaryRepository.cs        # Lương + GetConfigDictionaryAsync (batch)
+│       ├── HolidayRepository.cs       # Ngày lễ (mới)
+│       └── ... (14 repositories khác)
 │
 ├── QuanLyNhanVien.Models/             # 📦 Shared Models
-│   ├── Entities/                      # 15 entity classes
+│   ├── Entities/                      # 17 entity classes
 │   │   ├── Employee.cs, Department.cs, Position.cs
-│   │   ├── SalaryRecord.cs, AttendanceRecord.cs
+│   │   ├── SalaryRecord.cs, SalaryConfig.cs, AttendanceRecord.cs
 │   │   ├── Contract.cs, LeaveRequest.cs, Advance.cs
 │   │   ├── User.cs, Role.cs, MenuNode.cs
 │   │   ├── AuditLog.cs, Category.cs, CompanySetting.cs
-│   │   └── EmployeeEvent.cs
-│   ├── DTOs/                          # CommonDtos, LoginDtos
-│   ├── Enums/                         # PermissionType, AttendanceStatus,
-│   │                                  # LeaveType, SalaryStatus
-│   └── Constants/                     # AppConstants
+│   │   ├── EmployeeEvent.cs
+│   │   └── Holiday.cs                # Ngày lễ (mới)
+│   ├── Common/                        # Architecture improvements
+│   │   ├── Result.cs                  # Result<T> pattern
+│   │   ├── StatusConstants.cs         # Status constants (loại bỏ magic strings)
+│   │   └── Guard.cs                   # Guard clauses validation
+│   └── DTOs/                          # CommonDtos, LoginDtos, PaginationResult
+│
+├── QuanLyNhanVien.Tests/              # 🧪 Unit Tests (xUnit + Moq)
+│   └── SalaryServiceTests.cs          # 8 tests cho thuế TNCN 7 bậc
 │
 └── Database/                          # 🗄️ SQL Scripts (chạy theo thứ tự)
     ├── 01_CreateDatabase.sql          # Tạo database
-    ├── 02_Tables.sql                  # Tạo bảng (15+ tables)
+    ├── 02_Tables.sql                  # Tạo bảng (17+ tables)
     ├── 04_SeedData.sql                # Dữ liệu gốc (admin, roles, menus)
-    ├── 05_Phase4_AttendanceMenus.sql  # Menu chấm công
-    ├── 06_Phase5_SalaryMenus.sql      # Menu lương + tables
-    ├── 07_Phase6_ReportMenus.sql      # Menu báo cáo
-    ├── 08_Phase7_SystemMenus.sql      # Menu hệ thống
-    ├── 09_Phase8_CategorySeed.sql     # Seed danh mục
-    ├── 10_Phase9_ContractsEventsAdvances.sql  # Hợp đồng, biến động, tạm ứng
-    └── 11_SampleData.sql              # Dữ liệu mẫu (50+ nhân viên)
+    ├── 05–10 Phase migrations         # Menu + tables theo giai đoạn
+    ├── 11_SampleData.sql              # Dữ liệu mẫu (50+ nhân viên)
+    ├── 12_SalaryConfigFix.sql         # Fix EffectiveFrom/EffectiveTo
+    ├── 13_BugFixes_AdvanceHoliday.sql # Cột AdvanceAmount + Bảng Holidays
+    └── 14_MissFeatures.sql            # Cột ContractSalary
 ```
 
 ---
@@ -166,10 +170,10 @@ QuanLyNhanVien.sln
 ## 📋 Yêu Cầu Hệ Thống
 
 | Yêu cầu | Chi tiết |
-|---------|---------|
+|---------|---------:|
 | **Hệ điều hành** | Windows 10+ (x64) |
 | **.NET SDK** | [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) trở lên |
-| **SQL Server** | [SQL Server 2019+](https://www.microsoft.com/en-us/sql-server/sql-server-downloads) — hỗ trợ Express, LocalDB, hoặc Full |
+| **SQL Server** | [SQL Server 2019+](https://www.microsoft.com/en-us/sql-server/sql-server-downloads) — Express, LocalDB, hoặc Full |
 | **IDE (tùy chọn)** | Visual Studio 2022+ / VS Code / Rider |
 
 ---
@@ -185,13 +189,11 @@ cd QuanLyNhanVien
 
 ### Bước 2: Cấu hình Connection String
 
-Sao chép file cấu hình mẫu:
-
 ```bash
 copy QuanLyNhanVien\appsettings.example.json QuanLyNhanVien\appsettings.json
 ```
 
-Mở `QuanLyNhanVien\appsettings.json` và sửa connection string theo SQL Server của bạn:
+Mở `QuanLyNhanVien\appsettings.json` và sửa connection string:
 
 ```json
 {
@@ -206,7 +208,7 @@ Mở `QuanLyNhanVien\appsettings.json` và sửa connection string theo SQL Serv
 }
 ```
 
-**Ví dụ connection string theo từng loại SQL Server:**
+**Ví dụ connection string:**
 
 | Loại | Connection String |
 |------|-------------------|
@@ -217,19 +219,17 @@ Mở `QuanLyNhanVien\appsettings.json` và sửa connection string theo SQL Serv
 
 ### Bước 3: Tạo Database & Seed dữ liệu
 
-Chạy lần lượt các file SQL trong thư mục `Database/`. Có thể dùng **SSMS**, **Azure Data Studio**, hoặc **sqlcmd**:
+Chạy lần lượt các file SQL trong thư mục `Database/`:
 
 ```bash
-# Tạo database
+# Tạo database + tables
 sqlcmd -S YOUR_SERVER -i Database\01_CreateDatabase.sql
-
-# Tạo tables (15+ bảng)
 sqlcmd -S YOUR_SERVER -d QuanLyNhanVien -i Database\02_Tables.sql
 
-# Seed dữ liệu gốc (admin, roles, menus, permissions)
+# Seed data (admin, roles, menus, permissions)
 sqlcmd -S YOUR_SERVER -d QuanLyNhanVien -i Database\04_SeedData.sql
 
-# (Tuỳ chọn) Chạy các migration bổ sung
+# Phase migrations (05 → 10)
 sqlcmd -S YOUR_SERVER -d QuanLyNhanVien -i Database\05_Phase4_AttendanceMenus.sql
 sqlcmd -S YOUR_SERVER -d QuanLyNhanVien -i Database\06_Phase5_SalaryMenus.sql
 sqlcmd -S YOUR_SERVER -d QuanLyNhanVien -i Database\07_Phase6_ReportMenus.sql
@@ -237,11 +237,16 @@ sqlcmd -S YOUR_SERVER -d QuanLyNhanVien -i Database\08_Phase7_SystemMenus.sql
 sqlcmd -S YOUR_SERVER -d QuanLyNhanVien -i Database\09_Phase8_CategorySeed.sql
 sqlcmd -S YOUR_SERVER -d QuanLyNhanVien -i Database\10_Phase9_ContractsEventsAdvances.sql
 
-# (Tuỳ chọn) Thêm dữ liệu mẫu (50+ nhân viên để test)
+# Bug fixes & new features migrations
+sqlcmd -S YOUR_SERVER -d QuanLyNhanVien -i Database\12_SalaryConfigFix.sql
+sqlcmd -S YOUR_SERVER -d QuanLyNhanVien -i Database\13_BugFixes_AdvanceHoliday.sql
+sqlcmd -S YOUR_SERVER -d QuanLyNhanVien -i Database\14_MissFeatures.sql
+
+# (Tùy chọn) Dữ liệu mẫu 50+ nhân viên
 sqlcmd -S YOUR_SERVER -d QuanLyNhanVien -i Database\11_SampleData.sql
 ```
 
-> **💡 Mẹo:** Nếu dùng SSMS, mở từng file SQL và nhấn **F5** (Execute) theo thứ tự từ `01` → `11`.
+> 💡 **Mẹo:** Nếu dùng SSMS, mở từng file SQL và nhấn **F5** (Execute) theo thứ tự.
 
 ### Bước 4: Restore NuGet packages
 
@@ -261,20 +266,16 @@ dotnet run --project QuanLyNhanVien
 |----------|----------|---------|
 | `admin` | `admin123` | Administrator (toàn quyền) |
 
-> ⚠️ **Quan trọng:** Hãy đổi mật khẩu admin ngay sau lần đăng nhập đầu tiên qua menu **Hệ thống → Đổi mật khẩu**.
+> ⚠️ **Quan trọng:** Hãy đổi mật khẩu admin ngay sau lần đăng nhập đầu tiên.
 
 ---
 
-## ✅ Chạy Kiểm Thử (Build Test)
+## ✅ Chạy Kiểm Thử
 
 ### Build toàn bộ solution
 
 ```bash
-# Build ở chế độ Debug
 dotnet build QuanLyNhanVien.sln
-
-# Build ở chế độ Release
-dotnet build QuanLyNhanVien.sln -c Release
 ```
 
 **Kết quả mong đợi:**
@@ -284,21 +285,28 @@ Build succeeded.
     0 Error(s)
 ```
 
-### Kiểm tra từng project riêng lẻ
+### Chạy Unit Tests
 
 ```bash
-# Build Models (không phụ thuộc gì)
-dotnet build QuanLyNhanVien.Models
-
-# Build DAL (phụ thuộc Models)
-dotnet build QuanLyNhanVien.DAL
-
-# Build BLL (phụ thuộc DAL + Models)
-dotnet build QuanLyNhanVien.BLL
-
-# Build UI (phụ thuộc tất cả)
-dotnet build QuanLyNhanVien
+dotnet test QuanLyNhanVien.Tests --verbosity normal
 ```
+
+**Kết quả mong đợi:**
+```
+Passed!  - Failed: 0, Passed: 8, Skipped: 0, Total: 8
+```
+
+**Test cases:**
+
+| Test | Mô tả |
+|------|-------|
+| `CalculatePIT_ZeroIncome` | Thu nhập 0 → thuế 0 |
+| `CalculatePIT_NegativeIncome` | Thu nhập âm → thuế 0 |
+| `CalculatePIT_Bracket1_5Percent` | Bậc 1: 1M → 50K, 5M → 250K |
+| `CalculatePIT_Bracket2_10Percent` | Bậc 2: 7M → 450K, 10M → 750K |
+| `CalculatePIT_HigherBrackets` | Bậc 3-6: 18M/32M/52M/80M |
+| `CalculatePIT_Bracket7_35Percent` | Bậc 7: 100M → 25.15M |
+| `CalculatePIT_SmallAmount` | Rounding: 3.5M → 175K |
 
 ### Publish (đóng gói)
 
@@ -319,15 +327,16 @@ Sau khi build thành công và chạy ứng dụng, kiểm tra các chức năng
 - [ ] Thêm / sửa / xóa nhân viên
 - [ ] Import Excel → kiểm tra dữ liệu nhập
 - [ ] Export danh sách nhân viên ra Excel
-- [ ] Quản lý phòng ban, chức vụ
+- [ ] Quản lý phòng ban, chức vụ, **ngày lễ**
 - [ ] Chấm công ngày → xem bảng công tháng
-- [ ] Tạo đơn nghỉ phép → phê duyệt
-- [ ] Tính lương tháng → xem phiếu lương
+- [ ] Tạo đơn nghỉ phép → phê duyệt → **kiểm tra auto chấm công**
+- [ ] Tạo đơn phép > 12 ngày → **kiểm tra giới hạn**
+- [ ] Tính lương tháng → xem phiếu lương → **kiểm tra trừ tạm ứng**
+- [ ] Duyệt bảng lương → **kiểm tra hủy duyệt**
 - [ ] Xem dashboard KPI, biểu đồ
-- [ ] Xuất báo cáo CSV / Excel
+- [ ] Xuất báo cáo CSV / Excel, **báo cáo BHXH phần DN**
 - [ ] Quản lý user, phân quyền theo vai trò
 - [ ] Sao lưu & phục hồi database
-- [ ] Đổi mật khẩu
 
 ---
 
@@ -342,12 +351,8 @@ Sau khi build thành công và chạy ứng dụng, kiểm tra các chức năng
 | **Audit Log** | Ghi log mọi thao tác quan trọng (ai, làm gì, lúc nào) |
 | **Sensitive Files** | `.pfx`, `.key`, `.pem`, `secrets.json` bị gitignore |
 | **Logging** | Serilog ghi structured log ra file, hỗ trợ debug & truy vết |
-
----
-
-## 📸 Ảnh Chụp Màn Hình
-
-> *Sẽ cập nhật sau*
+| **StatusConstants** | Loại bỏ magic strings, tránh lỗi typo trong status |
+| **Guard Clauses** | Validate input đầu vào ở service layer |
 
 ---
 

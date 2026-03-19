@@ -33,8 +33,8 @@ namespace QuanLyNhanVien.DAL.Repositories
 
         public async Task<int> InsertAsync(Contract contract)
         {
-            var sql = @"INSERT INTO Contracts (EmployeeId, ContractCode, ContractType, SignDate, StartDate, EndDate, Notes, IsActive)
-                        VALUES (@EmployeeId, @ContractCode, @ContractType, @SignDate, @StartDate, @EndDate, @Notes, @IsActive);
+            var sql = @"INSERT INTO Contracts (EmployeeId, ContractCode, ContractType, SignDate, StartDate, EndDate, ContractSalary, Notes, IsActive)
+                        VALUES (@EmployeeId, @ContractCode, @ContractType, @SignDate, @StartDate, @EndDate, @ContractSalary, @Notes, @IsActive);
                         SELECT CAST(SCOPE_IDENTITY() AS INT);";
             using var conn = _dbFactory.CreateConnection();
             return await conn.ExecuteScalarAsync<int>(sql, contract);
@@ -43,7 +43,8 @@ namespace QuanLyNhanVien.DAL.Repositories
         public async Task UpdateAsync(Contract contract)
         {
             var sql = @"UPDATE Contracts SET ContractType = @ContractType, SignDate = @SignDate,
-                        StartDate = @StartDate, EndDate = @EndDate, Notes = @Notes, IsActive = @IsActive
+                        StartDate = @StartDate, EndDate = @EndDate, ContractSalary = @ContractSalary,
+                        Notes = @Notes, IsActive = @IsActive
                         WHERE ContractId = @ContractId";
             await ExecuteSqlAsync(sql, contract);
         }
@@ -68,6 +69,27 @@ namespace QuanLyNhanVien.DAL.Repositories
                         AND c.EndDate BETWEEN GETDATE() AND DATEADD(DAY, @Days, GETDATE())
                         ORDER BY c.EndDate";
             return await QuerySqlAsync<Contract>(sql, new { Days = daysAhead });
+        }
+
+        /// <summary>
+        /// MISS-4: Lấy HĐ đã hết hạn nhưng NV vẫn active
+        /// </summary>
+        public async Task<IEnumerable<Contract>> GetExpiredActiveAsync()
+        {
+            var sql = @"SELECT c.*, e.FullName AS EmployeeName, e.EmployeeCode
+                        FROM Contracts c
+                        INNER JOIN Employees e ON c.EmployeeId = e.EmployeeId
+                        WHERE c.IsActive = 1 AND c.EndDate IS NOT NULL
+                        AND c.EndDate < GETDATE()
+                        AND e.IsActive = 1
+                        AND NOT EXISTS (
+                            SELECT 1 FROM Contracts c2 
+                            WHERE c2.EmployeeId = c.EmployeeId 
+                            AND c2.IsActive = 1 AND c2.ContractId != c.ContractId
+                            AND (c2.EndDate IS NULL OR c2.EndDate >= GETDATE())
+                        )
+                        ORDER BY c.EndDate";
+            return await QuerySqlAsync<Contract>(sql);
         }
     }
 }

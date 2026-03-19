@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuanLyNhanVien.DAL", "QuanL
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuanLyNhanVien.Models", "QuanLyNhanVien.Models\QuanLyNhanVien.Models.csproj", "{9D3BBAB4-A175-4192-B281-7D560324C1B9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuanLyNhanVien.Tests", "QuanLyNhanVien.Tests\QuanLyNhanVien.Tests.csproj", "{E7A0E3B0-7FF7-474C-B154-C9C65C8CA5C4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +38,9 @@ Global
 		{9D3BBAB4-A175-4192-B281-7D560324C1B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9D3BBAB4-A175-4192-B281-7D560324C1B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9D3BBAB4-A175-4192-B281-7D560324C1B9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E7A0E3B0-7FF7-474C-B154-C9C65C8CA5C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E7A0E3B0-7FF7-474C-B154-C9C65C8CA5C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E7A0E3B0-7FF7-474C-B154-C9C65C8CA5C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E7A0E3B0-7FF7-474C-B154-C9C65C8CA5C4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

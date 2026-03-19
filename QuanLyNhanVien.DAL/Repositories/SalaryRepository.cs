@@ -16,10 +16,36 @@ namespace QuanLyNhanVien.DAL.Repositories
             return await QuerySqlAsync<SalaryConfig>(sql);
         }
 
-        public async Task<SalaryConfig?> GetConfigByCodeAsync(string code)
+        /// <summary>
+        /// ARCH-2: Lấy tất cả configs active theo ngày hiệu lực trong 1 lần query
+        /// Trả về Dictionary cho O(1) lookup
+        /// </summary>
+        public async Task<Dictionary<string, decimal>> GetConfigDictionaryAsync(DateTime referenceDate)
         {
-            var sql = "SELECT TOP 1 * FROM SalaryConfigs WHERE ConfigCode = @Code AND IsActive = 1";
-            var result = await QuerySqlAsync<SalaryConfig>(sql, new { Code = code });
+            var sql = @"SELECT c1.ConfigCode, c1.ConfigValue 
+                        FROM SalaryConfigs c1
+                        WHERE c1.IsActive = 1
+                        AND c1.EffectiveFrom <= @RefDate 
+                        AND (c1.EffectiveTo IS NULL OR c1.EffectiveTo >= @RefDate)
+                        AND c1.EffectiveFrom = (
+                            SELECT MAX(c2.EffectiveFrom) FROM SalaryConfigs c2 
+                            WHERE c2.ConfigCode = c1.ConfigCode AND c2.IsActive = 1
+                            AND c2.EffectiveFrom <= @RefDate
+                            AND (c2.EffectiveTo IS NULL OR c2.EffectiveTo >= @RefDate)
+                        )";
+            var results = await QuerySqlAsync<SalaryConfig>(sql, new { RefDate = referenceDate });
+            return results.ToDictionary(c => c.ConfigCode, c => c.ConfigValue);
+        }
+
+        public async Task<SalaryConfig?> GetConfigByCodeAsync(string code, DateTime? referenceDate = null)
+        {
+            var refDate = referenceDate ?? DateTime.Today;
+            var sql = @"SELECT TOP 1 * FROM SalaryConfigs 
+                        WHERE ConfigCode = @Code AND IsActive = 1
+                        AND EffectiveFrom <= @RefDate 
+                        AND (EffectiveTo IS NULL OR EffectiveTo >= @RefDate)
+                        ORDER BY EffectiveFrom DESC";
+            var result = await QuerySqlAsync<SalaryConfig>(sql, new { Code = code, RefDate = refDate });
             return result.FirstOrDefault();
         }
 
@@ -82,13 +108,13 @@ namespace QuanLyNhanVien.DAL.Repositories
                          PositionAllowance, OtherAllowance, OvertimePay, GrossIncome,
                          SocialInsurance, HealthInsurance, UnemploymentInsurance,
                          PersonalDeduction, DependentDeduction, TaxableIncome, PersonalIncomeTax,
-                         OtherDeductions, NetSalary, [Status], Notes)
+                         AdvanceAmount, OtherDeductions, NetSalary, [Status], Notes)
                         VALUES 
                         (@EmployeeId, @Month, @Year, @WorkingDays, @StandardDays, @BasicSalary, @SalaryCoefficient,
                          @PositionAllowance, @OtherAllowance, @OvertimePay, @GrossIncome,
                          @SocialInsurance, @HealthInsurance, @UnemploymentInsurance,
                          @PersonalDeduction, @DependentDeduction, @TaxableIncome, @PersonalIncomeTax,
-                         @OtherDeductions, @NetSalary, @Status, @Notes);
+                         @AdvanceAmount, @OtherDeductions, @NetSalary, @Status, @Notes);
                         SELECT CAST(SCOPE_IDENTITY() AS BIGINT);";
             using var conn = _dbFactory.CreateConnection();
             return await conn.ExecuteScalarAsync<long>(sql, record);

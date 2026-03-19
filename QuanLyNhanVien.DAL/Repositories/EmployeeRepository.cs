@@ -96,6 +96,15 @@ namespace QuanLyNhanVien.DAL.Repositories
             await ExecuteSqlAsync(sql, new { EmployeeId = employeeId });
         }
 
+        /// <summary>
+        /// MISS-4: Deactivate NV khi HĐ hết hạn (giữ TerminationDate = ngày hết HĐ)
+        /// </summary>
+        public async Task DeactivateAsync(int employeeId)
+        {
+            var sql = "UPDATE Employees SET IsActive = 0, UpdatedAt = GETDATE() WHERE EmployeeId = @EmployeeId";
+            await ExecuteSqlAsync(sql, new { EmployeeId = employeeId });
+        }
+
         public async Task<string> GenerateNextCodeAsync()
         {
             // Dùng transaction + lock hint để tránh race condition

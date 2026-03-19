@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 using QuanLyNhanVien.DAL.Context;
 
 namespace QuanLyNhanVien.DAL.Repositories
@@ -179,6 +179,34 @@ namespace QuanLyNhanVien.DAL.Repositories
                            sr.BasicSalary, sr.SalaryCoefficient,
                            sr.SocialInsurance, sr.HealthInsurance, sr.UnemploymentInsurance,
                            (sr.SocialInsurance + sr.HealthInsurance + sr.UnemploymentInsurance) AS TotalInsurance
+                         FROM SalaryRecords sr
+                         WHERE sr.Month = @Month AND sr.Year = @Year
+                         ORDER BY sr.DepartmentName, sr.EmployeeName";
+            using var conn = _dbFactory.CreateConnection();
+            return await conn.QueryAsync(sql, new { Month = month, Year = year });
+        }
+
+        /// <summary>
+        /// MISS-6: Báo cáo BHXH phần doanh nghiệp (17.5% BHXH + 3% BHYT + 1% BHTN)
+        /// </summary>
+        public async Task<IEnumerable<dynamic>> GetEmployerInsuranceReportAsync(int month, int year)
+        {
+            var sql = @"SELECT sr.EmployeeCode, sr.EmployeeName, sr.DepartmentName,
+                           sr.BasicSalary, sr.SalaryCoefficient,
+                           (sr.BasicSalary * sr.SalaryCoefficient) AS InsuranceBase,
+                           -- Phần người lao động
+                           sr.SocialInsurance AS EmpBHXH,
+                           sr.HealthInsurance AS EmpBHYT,
+                           sr.UnemploymentInsurance AS EmpBHTN,
+                           (sr.SocialInsurance + sr.HealthInsurance + sr.UnemploymentInsurance) AS EmpTotal,
+                           -- Phần doanh nghiệp (17.5% + 3% + 1%)
+                           ROUND((sr.BasicSalary * sr.SalaryCoefficient) * 0.175, 0) AS CorpBHXH,
+                           ROUND((sr.BasicSalary * sr.SalaryCoefficient) * 0.03, 0) AS CorpBHYT,
+                           ROUND((sr.BasicSalary * sr.SalaryCoefficient) * 0.01, 0) AS CorpBHTN,
+                           ROUND((sr.BasicSalary * sr.SalaryCoefficient) * 0.215, 0) AS CorpTotal,
+                           -- Tổng cả hai bên
+                           (sr.SocialInsurance + sr.HealthInsurance + sr.UnemploymentInsurance) +
+                           ROUND((sr.BasicSalary * sr.SalaryCoefficient) * 0.215, 0) AS GrandTotal
                          FROM SalaryRecords sr
                          WHERE sr.Month = @Month AND sr.Year = @Year
                          ORDER BY sr.DepartmentName, sr.EmployeeName";

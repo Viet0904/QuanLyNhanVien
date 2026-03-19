@@ -1,22 +1,27 @@
+using QuanLyNhanVien.BLL.Interfaces;
 using QuanLyNhanVien.DAL.Repositories;
 using QuanLyNhanVien.Models.Entities;
+using static QuanLyNhanVien.Models.Common.StatusConstants;
 
 namespace QuanLyNhanVien.BLL.Services
 {
-    public class SalaryService
+    public class SalaryService : ISalaryService
     {
         private readonly SalaryRepository _salaryRepo;
         private readonly AttendanceRepository _attendanceRepo;
         private readonly EmployeeRepository _empRepo;
         private readonly PositionRepository _posRepo;
+        private readonly AdvanceRepository _advanceRepo;
 
         public SalaryService(SalaryRepository salaryRepo, AttendanceRepository attendanceRepo,
-                             EmployeeRepository empRepo, PositionRepository posRepo)
+                             EmployeeRepository empRepo, PositionRepository posRepo,
+                             AdvanceRepository advanceRepo)
         {
             _salaryRepo = salaryRepo;
             _attendanceRepo = attendanceRepo;
             _empRepo = empRepo;
             _posRepo = posRepo;
+            _advanceRepo = advanceRepo;
         }
 
         // ===== CONFIG =====
@@ -37,11 +42,11 @@ namespace QuanLyNhanVien.BLL.Services
         // ===== TÍNH LƯƠNG =====
 
         /// <summary>
-        /// Lấy giá trị config, trả về 0 nếu không tìm thấy
+        /// Lấy giá trị config theo ngày hiệu lực, trả về 0 nếu không tìm thấy
         /// </summary>
-        private async Task<decimal> GetConfigValueAsync(string code)
+        private async Task<decimal> GetConfigValueAsync(string code, DateTime? referenceDate = null)
         {
-            var config = await _salaryRepo.GetConfigByCodeAsync(code);
+            var config = await _salaryRepo.GetConfigByCodeAsync(code, referenceDate);
             return config?.ConfigValue ?? 0;
         }
 
@@ -50,43 +55,48 @@ namespace QuanLyNhanVien.BLL.Services
         /// </summary>
         public async Task<SalaryRecord> CalculateForEmployeeAsync(Employee emp, int month, int year)
         {
-            // 1. Lấy configs bảo hiểm & thuế
-            var bhxhRate = await GetConfigValueAsync("BHXH") / 100;
-            var bhytRate = await GetConfigValueAsync("BHYT") / 100;
-            var bhtnRate = await GetConfigValueAsync("BHTN") / 100;
-            var personalDeduction = await GetConfigValueAsync("GIAMTRU_BT");
-            var dependentDeduction = await GetConfigValueAsync("GIAMTRU_NPT");
-            var standardDays = await GetConfigValueAsync("NGAY_CONG");
-            var otRate = await GetConfigValueAsync("OT_RATE");
-            if (standardDays <= 0) standardDays = 26;
-            if (otRate <= 0) otRate = 1.5m;
+            // Ngày tham chiếu để lấy config đúng kỳ
+            var refDate = new DateTime(year, month, 1);
+
+            // ARCH-2: Lấy TẤT CẢ configs trong 1 query thay vì 12 query riêng lẻ
+            var cfg = await _salaryRepo.GetConfigDictionaryAsync(refDate);
+            decimal C(string key, decimal fallback = 0) => cfg.TryGetValue(key, out var v) ? v : fallback;
+
+            var bhxhRate = C("BHXH") / 100;
+            var bhytRate = C("BHYT") / 100;
+            var bhtnRate = C("BHTN") / 100;
+            var personalDeduction = C("GIAMTRU_BT");
+            var dependentDeduction = C("GIAMTRU_NPT");
+            var standardDays = C("NGAY_CONG", 26);
+            var otRate = C("OT_RATE", 1.5m);
 
             // 2. Lấy phụ cấp chức vụ
             var positions = await _posRepo.GetAllAsync();
             var position = positions.FirstOrDefault(p => p.PositionId == emp.PositionId);
             var positionAllowance = position?.AllowanceAmount ?? 0;
 
-            // 3. Lấy phụ cấp khác (ăn trưa, xăng xe, đi lại) từ SalaryConfigs
-            var lunchAllowance = await GetConfigValueAsync("PC_ANTRUOI");
-            var petrolAllowance = await GetConfigValueAsync("PC_XANGXE");
-            var travelAllowance = await GetConfigValueAsync("PC_DILAI");
-            var otherAllowance = lunchAllowance + petrolAllowance + travelAllowance;
+            // 3. Lấy phụ cấp khác (1 lần đã load ở trên)
+            var otherAllowance = C("PC_ANTRUOI") + C("PC_XANGXE") + C("PC_DILAI");
 
             // 4. Đếm ngày công từ chấm công
             var attendanceRecords = await _attendanceRepo.GetMonthlyAsync(month, year);
             var empAttendance = attendanceRecords.Where(a => a.EmployeeId == emp.EmployeeId).ToList();
-            // Chỉ tính ngày có mặt, đi trễ, về sớm, nghỉ phép CÓ LƯƠNG
-            // Nghỉ không lương (UnpaidLeave) KHÔNG được tính lương
+
+            // ARCH-4: Dùng StatusConstants thay magic strings
             var workingDays = empAttendance.Count(a =>
-                a.Status == "Present" || a.Status == "Late" || a.Status == "EarlyLeave" || a.Status == "OnLeave");
+                a.Status == Present || a.Status == Late || a.Status == EarlyLeave
+                || a.Status == LateAndEarlyLeave || a.Status == OnLeave);
             var totalOvertimeHours = empAttendance.Sum(a => a.OvertimeHours);
 
-            // 5. Tính khấu trừ phạt đi muộn
-            var latePenaltyAmount = await GetConfigValueAsync("PHAT_DIMUON_MUC");   // VNĐ/lần
-            var latePenaltyThreshold = await GetConfigValueAsync("PHAT_DIMUON_NGUONG"); // Số lần miễn phạt
-            var lateCount = empAttendance.Count(a => a.Status == "Late" || a.Status == "EarlyLeave");
-            var penalizableLateCount = Math.Max(0, lateCount - (int)latePenaltyThreshold);
-            var otherDeductions = penalizableLateCount * latePenaltyAmount;
+            // 5. Tính khấu trừ phạt đi muộn/về sớm
+            var latePenaltyAmount = C("PHAT_DIMUON_MUC");
+            var latePenaltyThreshold = C("PHAT_DIMUON_NGUONG");
+            var lateCount = empAttendance.Count(a => a.Status == Late);
+            var earlyCount = empAttendance.Count(a => a.Status == EarlyLeave);
+            var bothCount = empAttendance.Count(a => a.Status == LateAndEarlyLeave);
+            var totalViolations = lateCount + earlyCount + (bothCount * 2);
+            var penalizableCount = Math.Max(0, totalViolations - (int)latePenaltyThreshold);
+            var otherDeductions = penalizableCount * latePenaltyAmount;
 
             // 6. Tính thu nhập
             var basicSalary = emp.BasicSalary;
@@ -109,8 +119,11 @@ namespace QuanLyNhanVien.BLL.Services
             if (taxableIncome < 0) taxableIncome = 0;
             var pit = CalculatePIT(taxableIncome);
 
-            // 9. Lương thực lĩnh
-            var netSalary = grossIncome - totalInsurance - pit - otherDeductions;
+            // 9. Lấy tổng tạm ứng đã duyệt trong tháng
+            var totalAdvance = await _advanceRepo.GetTotalAdvanceAsync(emp.EmployeeId, month, year);
+
+            // 10. Lương thực lĩnh = Thu nhập - Bảo hiểm - Thuế - Khấu trừ - Tạm ứng
+            var netSalary = grossIncome - totalInsurance - pit - otherDeductions - totalAdvance;
 
             return new SalaryRecord
             {
@@ -132,9 +145,10 @@ namespace QuanLyNhanVien.BLL.Services
                 DependentDeduction = depDeduction,
                 TaxableIncome = taxableIncome,
                 PersonalIncomeTax = pit,
+                AdvanceAmount = totalAdvance,
                 OtherDeductions = Math.Round(otherDeductions),
                 NetSalary = Math.Round(netSalary),
-                Status = "Draft",
+                Status = Draft,
                 EmployeeName = emp.FullName,
                 EmployeeCode = emp.EmployeeCode,
                 DepartmentName = emp.DepartmentName
@@ -181,7 +195,7 @@ namespace QuanLyNhanVien.BLL.Services
 
         public async Task<(bool Ok, string Msg)> ApproveAllAsync(int month, int year, int approvedByUserId)
         {
-            await _salaryRepo.BulkUpdateStatusAsync(month, year, "Approved", approvedByUserId);
+            await _salaryRepo.BulkUpdateStatusAsync(month, year, Approved, approvedByUserId);
             return (true, "Đã duyệt tất cả phiếu lương!");
         }
 
@@ -189,10 +203,23 @@ namespace QuanLyNhanVien.BLL.Services
         {
             var record = await _salaryRepo.GetByIdAsync(salaryId);
             if (record == null) return (false, "Không tìm thấy phiếu lương.");
-            if (record.Status == "Approved") return (false, "Phiếu lương đã được duyệt.");
+            if (record.Status == Approved) return (false, "Phiếu lương đã được duyệt.");
 
-            await _salaryRepo.UpdateStatusAsync(salaryId, "Approved", approvedByUserId);
+            await _salaryRepo.UpdateStatusAsync(salaryId, Approved, approvedByUserId);
             return (true, "Duyệt phiếu lương thành công!");
+        }
+
+        /// <summary>
+        /// Hủy duyệt phiếu lương — cho phép tính lại (BUG-5 fix)
+        /// </summary>
+        public async Task<(bool Ok, string Msg)> UnapproveAsync(long salaryId)
+        {
+            var record = await _salaryRepo.GetByIdAsync(salaryId);
+            if (record == null) return (false, "Không tìm thấy phiếu lương.");
+            if (record.Status != Approved) return (false, "Chỉ có thể hủy duyệt phiếu đã duyệt.");
+
+            await _salaryRepo.UpdateStatusAsync(salaryId, Draft, null);
+            return (true, "Đã hủy duyệt phiếu lương. Bạn có thể tính lại.");
         }
 
         // ===== QUERY =====
@@ -211,7 +238,7 @@ namespace QuanLyNhanVien.BLL.Services
         /// <summary>
         /// Tính thuế TNCN theo biểu lũy tiến 7 bậc (Việt Nam)
         /// </summary>
-        private static decimal CalculatePIT(decimal taxableIncome)
+        internal static decimal CalculatePIT(decimal taxableIncome)
         {
             if (taxableIncome <= 0) return 0;
 

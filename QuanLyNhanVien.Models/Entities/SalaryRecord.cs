@@ -35,6 +35,7 @@ namespace QuanLyNhanVien.Models.Entities
         public decimal DependentDeduction { get; set; }
         public decimal TaxableIncome { get; set; }
         public decimal PersonalIncomeTax { get; set; }
+        public decimal AdvanceAmount { get; set; }
         public decimal OtherDeductions { get; set; }
         public decimal NetSalary { get; set; }
         public string Status { get; set; } = "Draft";

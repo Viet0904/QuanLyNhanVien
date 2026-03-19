@@ -1,9 +1,11 @@
+using QuanLyNhanVien.BLL.Interfaces;
 using QuanLyNhanVien.DAL.Repositories;
 using QuanLyNhanVien.Models.Entities;
+using static QuanLyNhanVien.Models.Common.StatusConstants;
 
 namespace QuanLyNhanVien.BLL.Services
 {
-    public class AttendanceService
+    public class AttendanceService : IAttendanceService
     {
         private readonly AttendanceRepository _attendanceRepo;
         private readonly EmployeeRepository _empRepo;
@@ -178,9 +180,10 @@ namespace QuanLyNhanVien.BLL.Services
                 }
             }
 
-            if (isLate) return "Late";
-            if (isEarlyLeave) return "EarlyLeave";
-            return "Present";
+            if (isLate && isEarlyLeave) return LateAndEarlyLeave;
+            if (isLate) return Late;
+            if (isEarlyLeave) return EarlyLeave;
+            return Present;
         }
 
         /// <summary>

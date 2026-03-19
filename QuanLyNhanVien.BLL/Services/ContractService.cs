@@ -1,15 +1,18 @@
+using QuanLyNhanVien.BLL.Interfaces;
 using QuanLyNhanVien.DAL.Repositories;
 using QuanLyNhanVien.Models.Entities;
 
 namespace QuanLyNhanVien.BLL.Services
 {
-    public class ContractService
+    public class ContractService : IContractService
     {
         private readonly ContractRepository _repo;
+        private readonly EmployeeRepository _empRepo;
 
-        public ContractService(ContractRepository repo)
+        public ContractService(ContractRepository repo, EmployeeRepository empRepo)
         {
             _repo = repo;
+            _empRepo = empRepo;
         }
 
         public async Task<IEnumerable<Contract>> GetAllAsync(int? employeeId = null, bool? isActive = null)
@@ -17,6 +20,32 @@ namespace QuanLyNhanVien.BLL.Services
 
         public async Task<IEnumerable<Contract>> GetExpiringAsync(int daysAhead = 30)
             => await _repo.GetExpiringAsync(daysAhead);
+
+        /// <summary>
+        /// MISS-4: Lấy danh sách HĐ đã hết hạn mà NV vẫn active (không có HĐ mới)
+        /// </summary>
+        public async Task<IEnumerable<Contract>> GetExpiredActiveContractsAsync()
+            => await _repo.GetExpiredActiveAsync();
+
+        /// <summary>
+        /// MISS-4: Tự động deactivate NV có HĐ hết hạn mà không có HĐ mới
+        /// </summary>
+        public async Task<(bool Ok, string Msg, int Count)> DeactivateExpiredEmployeesAsync()
+        {
+            var expired = (await _repo.GetExpiredActiveAsync()).ToList();
+            if (!expired.Any())
+                return (true, "Không có nhân viên nào cần cập nhật.", 0);
+
+            int count = 0;
+            foreach (var contract in expired)
+            {
+                await _empRepo.DeactivateAsync(contract.EmployeeId);
+                contract.IsActive = false;
+                await _repo.UpdateAsync(contract);
+                count++;
+            }
+            return (true, $"Đã deactivate {count} nhân viên hết hạn hợp đồng.", count);
+        }
 
         public async Task<(bool Ok, string Msg)> CreateAsync(Contract contract)
         {

@@ -40,5 +40,9 @@ namespace QuanLyNhanVien.BLL.Services
         // Báo cáo tần suất đi muộn
         public async Task<IEnumerable<dynamic>> GetLateFrequencyReportAsync(int month, int year)
             => await _reportRepo.GetLateFrequencyReportAsync(month, year);
+
+        // MISS-6: Báo cáo BHXH phần doanh nghiệp
+        public async Task<IEnumerable<dynamic>> GetEmployerInsuranceReportAsync(int month, int year)
+            => await _reportRepo.GetEmployerInsuranceReportAsync(month, year);
     }
 }

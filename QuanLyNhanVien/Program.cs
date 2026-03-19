@@ -54,6 +54,7 @@ namespace QuanLyNhanVien
         public static ContractRepository ContractRepo => Services.GetRequiredService<ContractRepository>();
         public static EmployeeEventRepository EmployeeEventRepo => Services.GetRequiredService<EmployeeEventRepository>();
         public static AdvanceRepository AdvanceRepo => Services.GetRequiredService<AdvanceRepository>();
+        public static HolidayRepository HolidayRepo => Services.GetRequiredService<HolidayRepository>();
 
         [STAThread]
         static void Main()
@@ -105,6 +106,7 @@ namespace QuanLyNhanVien
             services.AddSingleton<ContractRepository>();
             services.AddSingleton<EmployeeEventRepository>();
             services.AddSingleton<AdvanceRepository>();
+            services.AddSingleton<HolidayRepository>();
 
             // Cache
             services.AddSingleton(sp => new JsonCacheManager(
@@ -128,12 +130,16 @@ namespace QuanLyNhanVien
             services.AddSingleton(sp => new AttendanceService(
                 sp.GetRequiredService<AttendanceRepository>(),
                 sp.GetRequiredService<EmployeeRepository>()));
-            services.AddSingleton<LeaveService>();
+            services.AddSingleton(sp => new LeaveService(
+                sp.GetRequiredService<LeaveRequestRepository>(),
+                sp.GetRequiredService<HolidayRepository>(),
+                sp.GetRequiredService<AttendanceRepository>()));
             services.AddSingleton(sp => new SalaryService(
                 sp.GetRequiredService<SalaryRepository>(),
                 sp.GetRequiredService<AttendanceRepository>(),
                 sp.GetRequiredService<EmployeeRepository>(),
-                sp.GetRequiredService<PositionRepository>()));
+                sp.GetRequiredService<PositionRepository>(),
+                sp.GetRequiredService<AdvanceRepository>()));
             services.AddSingleton<ReportService>();
             services.AddSingleton(sp => new UserService(
                 sp.GetRequiredService<UserRepository>(),
@@ -143,7 +149,9 @@ namespace QuanLyNhanVien
                 sp.GetRequiredService<DbConnectionFactory>(),
                 sp.GetRequiredService<AuditService>()));
             services.AddSingleton<CompanySettingsService>();
-            services.AddSingleton<ContractService>();
+            services.AddSingleton(sp => new ContractService(
+                sp.GetRequiredService<ContractRepository>(),
+                sp.GetRequiredService<EmployeeRepository>()));
             services.AddSingleton<EmployeeEventService>();
             services.AddSingleton<AdvanceService>();
             services.AddSingleton<AuditService>();
