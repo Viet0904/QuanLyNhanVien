@@ -11,7 +11,7 @@ namespace QuanLyNhanVien.DAL.Repositories
         /// <summary>
         /// Lấy tất cả ngày lễ active
         /// </summary>
-        public async Task<IEnumerable<Holiday>> GetAllAsync(int? year = null)
+        public virtual async Task<IEnumerable<Holiday>> GetAllAsync(int? year = null)
         {
             var sql = "SELECT * FROM Holidays WHERE IsActive = 1";
             if (year.HasValue) sql += " AND [Year] = @Year";
@@ -22,7 +22,7 @@ namespace QuanLyNhanVien.DAL.Repositories
         /// <summary>
         /// Lấy tất cả ngày lễ trong 1 khoảng thời gian (để check nghỉ phép)
         /// </summary>
-        public async Task<HashSet<DateTime>> GetHolidayDatesAsync(DateTime startDate, DateTime endDate)
+        public virtual async Task<HashSet<DateTime>> GetHolidayDatesAsync(DateTime startDate, DateTime endDate)
         {
             var sql = @"SELECT HolidayDate FROM Holidays 
                         WHERE IsActive = 1 AND HolidayDate BETWEEN @Start AND @End";
@@ -30,7 +30,7 @@ namespace QuanLyNhanVien.DAL.Repositories
             return new HashSet<DateTime>(dates.Select(d => d.Date));
         }
 
-        public async Task<int> InsertAsync(Holiday holiday)
+        public virtual async Task<int> InsertAsync(Holiday holiday)
         {
             var sql = @"INSERT INTO Holidays (HolidayName, HolidayDate, [Year], IsRecurring, IsActive, Notes)
                         VALUES (@HolidayName, @HolidayDate, @Year, @IsRecurring, @IsActive, @Notes);
@@ -39,7 +39,7 @@ namespace QuanLyNhanVien.DAL.Repositories
             return await conn.ExecuteScalarAsync<int>(sql, holiday);
         }
 
-        public async Task UpdateAsync(Holiday holiday)
+        public virtual async Task UpdateAsync(Holiday holiday)
         {
             var sql = @"UPDATE Holidays SET HolidayName = @HolidayName, HolidayDate = @HolidayDate, 
                         [Year] = @Year, IsRecurring = @IsRecurring, IsActive = @IsActive, Notes = @Notes
@@ -47,7 +47,7 @@ namespace QuanLyNhanVien.DAL.Repositories
             await ExecuteSqlAsync(sql, holiday);
         }
 
-        public async Task DeleteAsync(int holidayId)
+        public virtual async Task DeleteAsync(int holidayId)
         {
             var sql = "DELETE FROM Holidays WHERE HolidayId = @Id";
             await ExecuteSqlAsync(sql, new { Id = holidayId });

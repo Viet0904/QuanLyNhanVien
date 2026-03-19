@@ -11,7 +11,7 @@ namespace QuanLyNhanVien.DAL.Repositories
         /// <summary>
         /// Lấy danh sách chấm công theo ngày, có thể filter theo phòng ban
         /// </summary>
-        public async Task<IEnumerable<AttendanceRecord>> GetByDateAsync(DateTime workDate, int? departmentId = null)
+        public virtual async Task<IEnumerable<AttendanceRecord>> GetByDateAsync(DateTime workDate, int? departmentId = null)
         {
             var where = "WHERE a.WorkDate = @WorkDate";
             if (departmentId.HasValue)
@@ -29,7 +29,7 @@ namespace QuanLyNhanVien.DAL.Repositories
         /// <summary>
         /// Lấy bảng chấm công tháng — trả về tất cả records trong tháng
         /// </summary>
-        public async Task<IEnumerable<AttendanceRecord>> GetMonthlyAsync(int month, int year, int? departmentId = null)
+        public virtual async Task<IEnumerable<AttendanceRecord>> GetMonthlyAsync(int month, int year, int? departmentId = null)
         {
             var where = "WHERE MONTH(a.WorkDate) = @Month AND YEAR(a.WorkDate) = @Year";
             if (departmentId.HasValue)
@@ -47,7 +47,7 @@ namespace QuanLyNhanVien.DAL.Repositories
         /// <summary>
         /// Kiểm tra đã chấm công cho NV trong ngày chưa
         /// </summary>
-        public async Task<AttendanceRecord?> GetByEmployeeAndDateAsync(int employeeId, DateTime workDate)
+        public virtual async Task<AttendanceRecord?> GetByEmployeeAndDateAsync(int employeeId, DateTime workDate)
         {
             var sql = @"SELECT a.*, e.FullName AS EmployeeName, e.EmployeeCode
                         FROM AttendanceRecords a
@@ -57,7 +57,7 @@ namespace QuanLyNhanVien.DAL.Repositories
             return result.FirstOrDefault();
         }
 
-        public async Task<long> InsertAsync(AttendanceRecord record)
+        public virtual async Task<long> InsertAsync(AttendanceRecord record)
         {
             var sql = @"INSERT INTO AttendanceRecords (EmployeeId, WorkDate, CheckIn, CheckOut, ShiftType, [Status], OvertimeHours, Notes, CreatedBy)
                         VALUES (@EmployeeId, @WorkDate, @CheckIn, @CheckOut, @ShiftType, @Status, @OvertimeHours, @Notes, @CreatedBy);
@@ -66,7 +66,7 @@ namespace QuanLyNhanVien.DAL.Repositories
             return await conn.ExecuteScalarAsync<long>(sql, record);
         }
 
-        public async Task UpdateAsync(AttendanceRecord record)
+        public virtual async Task UpdateAsync(AttendanceRecord record)
         {
             var sql = @"UPDATE AttendanceRecords SET 
                         CheckIn = @CheckIn, CheckOut = @CheckOut, ShiftType = @ShiftType,
@@ -75,7 +75,7 @@ namespace QuanLyNhanVien.DAL.Repositories
             await ExecuteSqlAsync(sql, record);
         }
 
-        public async Task DeleteAsync(long recordId)
+        public virtual async Task DeleteAsync(long recordId)
         {
             var sql = "DELETE FROM AttendanceRecords WHERE RecordId = @RecordId";
             await ExecuteSqlAsync(sql, new { RecordId = recordId });
@@ -84,7 +84,7 @@ namespace QuanLyNhanVien.DAL.Repositories
         /// <summary>
         /// Chấm công hàng loạt — insert nhiều records cùng lúc
         /// </summary>
-        public async Task<int> BulkInsertAsync(List<AttendanceRecord> records)
+        public virtual async Task<int> BulkInsertAsync(List<AttendanceRecord> records)
         {
             var sql = @"INSERT INTO AttendanceRecords (EmployeeId, WorkDate, CheckIn, CheckOut, ShiftType, [Status], OvertimeHours, Notes, CreatedBy)
                         VALUES (@EmployeeId, @WorkDate, @CheckIn, @CheckOut, @ShiftType, @Status, @OvertimeHours, @Notes, @CreatedBy)";
@@ -95,7 +95,7 @@ namespace QuanLyNhanVien.DAL.Repositories
         /// <summary>
         /// Lấy danh sách NV chưa chấm công ngày hôm đó (dùng cho bulk)
         /// </summary>
-        public async Task<IEnumerable<Models.Entities.Employee>> GetEmployeesNotCheckedAsync(DateTime workDate, int? departmentId = null)
+        public virtual async Task<IEnumerable<Models.Entities.Employee>> GetEmployeesNotCheckedAsync(DateTime workDate, int? departmentId = null)
         {
             var where = "WHERE e.IsActive = 1 AND e.EmployeeId NOT IN (SELECT EmployeeId FROM AttendanceRecords WHERE WorkDate = @WorkDate)";
             if (departmentId.HasValue)

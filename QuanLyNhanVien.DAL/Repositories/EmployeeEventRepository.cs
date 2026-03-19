@@ -8,7 +8,7 @@ namespace QuanLyNhanVien.DAL.Repositories
     {
         public EmployeeEventRepository(DbConnectionFactory dbFactory) : base(dbFactory) { }
 
-        public async Task<IEnumerable<EmployeeEvent>> GetAllAsync(int? employeeId = null, string? eventType = null)
+        public virtual async Task<IEnumerable<EmployeeEvent>> GetAllAsync(int? employeeId = null, string? eventType = null)
         {
             var sql = @"SELECT ev.*, e.FullName AS EmployeeName, e.EmployeeCode
                         FROM EmployeeEvents ev
@@ -20,7 +20,7 @@ namespace QuanLyNhanVien.DAL.Repositories
             return await QuerySqlAsync<EmployeeEvent>(sql, new { EmployeeId = employeeId, EventType = eventType });
         }
 
-        public async Task<int> InsertAsync(EmployeeEvent ev)
+        public virtual async Task<int> InsertAsync(EmployeeEvent ev)
         {
             var sql = @"INSERT INTO EmployeeEvents (EmployeeId, EventType, EventDate, [Description], Amount, CreatedBy)
                         VALUES (@EmployeeId, @EventType, @EventDate, @Description, @Amount, @CreatedBy);
@@ -29,14 +29,14 @@ namespace QuanLyNhanVien.DAL.Repositories
             return await conn.ExecuteScalarAsync<int>(sql, ev);
         }
 
-        public async Task UpdateAsync(EmployeeEvent ev)
+        public virtual async Task UpdateAsync(EmployeeEvent ev)
         {
             var sql = @"UPDATE EmployeeEvents SET EventType = @EventType, EventDate = @EventDate,
                         [Description] = @Description, Amount = @Amount WHERE EventId = @EventId";
             await ExecuteSqlAsync(sql, ev);
         }
 
-        public async Task DeleteAsync(int eventId)
+        public virtual async Task DeleteAsync(int eventId)
         {
             var sql = "DELETE FROM EmployeeEvents WHERE EventId = @Id";
             await ExecuteSqlAsync(sql, new { Id = eventId });

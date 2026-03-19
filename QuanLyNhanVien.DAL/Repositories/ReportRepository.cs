@@ -10,7 +10,7 @@ namespace QuanLyNhanVien.DAL.Repositories
         /// <summary>
         /// Tổng quan: NV active, phòng ban, NV mới tháng này
         /// </summary>
-        public async Task<(int TotalEmployees, int TotalDepts, int NewThisMonth, int TotalPositions)> GetDashboardStatsAsync()
+        public virtual async Task<(int TotalEmployees, int TotalDepts, int NewThisMonth, int TotalPositions)> GetDashboardStatsAsync()
         {
             using var conn = _dbFactory.CreateConnection();
             var totalEmp = await conn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM Employees WHERE IsActive = 1");
@@ -25,7 +25,7 @@ namespace QuanLyNhanVien.DAL.Repositories
         /// <summary>
         /// Số NV theo phòng ban
         /// </summary>
-        public async Task<IEnumerable<(string DeptName, int Count)>> GetDepartmentDistributionAsync()
+        public virtual async Task<IEnumerable<(string DeptName, int Count)>> GetDepartmentDistributionAsync()
         {
             var sql = @"SELECT d.DepartmentName AS DeptName, COUNT(e.EmployeeId) AS [Count]
                         FROM Departments d
@@ -41,7 +41,7 @@ namespace QuanLyNhanVien.DAL.Repositories
         /// <summary>
         /// Tổng chi lương theo tháng trong năm
         /// </summary>
-        public async Task<IEnumerable<(int Month, decimal TotalNet, int RecordCount)>> GetMonthlySalarySummaryAsync(int year)
+        public virtual async Task<IEnumerable<(int Month, decimal TotalNet, int RecordCount)>> GetMonthlySalarySummaryAsync(int year)
         {
             var sql = @"SELECT Month, SUM(NetSalary) AS TotalNet, COUNT(*) AS RecordCount
                         FROM SalaryRecords WHERE Year = @Year AND Status = 'Approved'
@@ -54,7 +54,7 @@ namespace QuanLyNhanVien.DAL.Repositories
         /// <summary>
         /// Top NV lương cao nhất
         /// </summary>
-        public async Task<IEnumerable<dynamic>> GetTopSalaryAsync(int month, int year, int top = 5)
+        public virtual async Task<IEnumerable<dynamic>> GetTopSalaryAsync(int month, int year, int top = 5)
         {
             var sql = @"SELECT TOP(@Top) e.EmployeeCode, e.FullName AS EmployeeName, d.DepartmentName,
                           sr.GrossIncome, sr.NetSalary, sr.WorkingDays
@@ -70,7 +70,7 @@ namespace QuanLyNhanVien.DAL.Repositories
         /// <summary>
         /// Thống kê nghỉ phép theo trạng thái
         /// </summary>
-        public async Task<IEnumerable<(string Status, int Count)>> GetLeaveStatisticsAsync(int year)
+        public virtual async Task<IEnumerable<(string Status, int Count)>> GetLeaveStatisticsAsync(int year)
         {
             var sql = @"SELECT Status, COUNT(*) AS [Count]
                         FROM LeaveRequests
@@ -84,7 +84,7 @@ namespace QuanLyNhanVien.DAL.Repositories
         /// <summary>
         /// Tóm tắt chấm công tháng
         /// </summary>
-        public async Task<IEnumerable<dynamic>> GetAttendanceSummaryAsync(int month, int year)
+        public virtual async Task<IEnumerable<dynamic>> GetAttendanceSummaryAsync(int month, int year)
         {
             var sql = @"SELECT e.EmployeeCode, e.FullName,
                           COUNT(CASE WHEN a.Status = 'Present' THEN 1 END) AS PresentDays,
@@ -105,7 +105,7 @@ namespace QuanLyNhanVien.DAL.Repositories
         /// <summary>
         /// Báo cáo danh sách nhân viên đầy đủ
         /// </summary>
-        public async Task<IEnumerable<dynamic>> GetEmployeeReportAsync(int? deptId = null)
+        public virtual async Task<IEnumerable<dynamic>> GetEmployeeReportAsync(int? deptId = null)
         {
             var where = deptId.HasValue ? "AND e.DepartmentId = @DeptId" : "";
             var sql = $@"SELECT e.EmployeeCode, e.FullName, e.Gender, e.DateOfBirth, e.Phone, e.Email,
@@ -123,7 +123,7 @@ namespace QuanLyNhanVien.DAL.Repositories
         /// <summary>
         /// Báo cáo lương tháng chi tiết
         /// </summary>
-        public async Task<IEnumerable<dynamic>> GetSalaryReportAsync(int month, int year, int? deptId = null)
+        public virtual async Task<IEnumerable<dynamic>> GetSalaryReportAsync(int month, int year, int? deptId = null)
         {
             var where = deptId.HasValue ? "AND sr.EmployeeId IN (SELECT EmployeeId FROM Employees WHERE DepartmentId = @DeptId)" : "";
             var sql = $@"SELECT sr.EmployeeCode, sr.EmployeeName, sr.DepartmentName,
@@ -141,7 +141,7 @@ namespace QuanLyNhanVien.DAL.Repositories
         /// <summary>
         /// Báo cáo NV mới / nghỉ việc theo khoảng thời gian
         /// </summary>
-        public async Task<IEnumerable<dynamic>> GetNewTerminatedReportAsync(int month, int year)
+        public virtual async Task<IEnumerable<dynamic>> GetNewTerminatedReportAsync(int month, int year)
         {
             var sql = @"SELECT e.EmployeeCode, e.FullName, d.DepartmentName,
                            e.HireDate, e.TerminationDate,
@@ -158,7 +158,7 @@ namespace QuanLyNhanVien.DAL.Repositories
         /// <summary>
         /// Sinh nhật trong tháng
         /// </summary>
-        public async Task<IEnumerable<dynamic>> GetBirthdayReportAsync(int month)
+        public virtual async Task<IEnumerable<dynamic>> GetBirthdayReportAsync(int month)
         {
             var sql = @"SELECT e.EmployeeCode, e.FullName, e.DateOfBirth, d.DepartmentName,
                            DAY(e.DateOfBirth) AS BirthDay
@@ -173,7 +173,7 @@ namespace QuanLyNhanVien.DAL.Repositories
         /// <summary>
         /// Báo cáo BHXH
         /// </summary>
-        public async Task<IEnumerable<dynamic>> GetInsuranceReportAsync(int month, int year)
+        public virtual async Task<IEnumerable<dynamic>> GetInsuranceReportAsync(int month, int year)
         {
             var sql = @"SELECT sr.EmployeeCode, sr.EmployeeName, sr.DepartmentName,
                            sr.BasicSalary, sr.SalaryCoefficient,
@@ -189,7 +189,7 @@ namespace QuanLyNhanVien.DAL.Repositories
         /// <summary>
         /// MISS-6: Báo cáo BHXH phần doanh nghiệp (17.5% BHXH + 3% BHYT + 1% BHTN)
         /// </summary>
-        public async Task<IEnumerable<dynamic>> GetEmployerInsuranceReportAsync(int month, int year)
+        public virtual async Task<IEnumerable<dynamic>> GetEmployerInsuranceReportAsync(int month, int year)
         {
             var sql = @"SELECT sr.EmployeeCode, sr.EmployeeName, sr.DepartmentName,
                            sr.BasicSalary, sr.SalaryCoefficient,
@@ -217,7 +217,7 @@ namespace QuanLyNhanVien.DAL.Repositories
         /// <summary>
         /// Báo cáo thuế TNCN
         /// </summary>
-        public async Task<IEnumerable<dynamic>> GetTaxReportAsync(int month, int year)
+        public virtual async Task<IEnumerable<dynamic>> GetTaxReportAsync(int month, int year)
         {
             var sql = @"SELECT sr.EmployeeCode, sr.EmployeeName, sr.DepartmentName,
                            sr.GrossIncome, sr.PersonalIncomeTax, sr.NetSalary,
@@ -233,7 +233,7 @@ namespace QuanLyNhanVien.DAL.Repositories
         /// <summary>
         /// Biến động nhân sự (tỷ lệ vào/ra theo tháng trong năm)
         /// </summary>
-        public async Task<IEnumerable<(int Month, int NewHires, int Terminations)>> GetTurnoverAsync(int year)
+        public virtual async Task<IEnumerable<(int Month, int NewHires, int Terminations)>> GetTurnoverAsync(int year)
         {
             var sql = @"SELECT m.Month,
                            ISNULL(h.NewHires, 0) AS NewHires,
@@ -255,7 +255,7 @@ namespace QuanLyNhanVien.DAL.Repositories
         /// <summary>
         /// Báo cáo tần suất đi muộn/về sớm theo tháng
         /// </summary>
-        public async Task<IEnumerable<dynamic>> GetLateFrequencyReportAsync(int month, int year)
+        public virtual async Task<IEnumerable<dynamic>> GetLateFrequencyReportAsync(int month, int year)
         {
             var sql = @"SELECT e.EmployeeCode, e.FullName AS EmployeeName, d.DepartmentName,
                            COUNT(*) AS TotalWorkDays,

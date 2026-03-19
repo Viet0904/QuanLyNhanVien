@@ -9,7 +9,7 @@ namespace QuanLyNhanVien.DAL.Repositories
     {
         public EmployeeRepository(DbConnectionFactory dbFactory) : base(dbFactory) { }
 
-        public async Task<PaginationResult<Employee>> GetAllAsync(
+        public virtual async Task<PaginationResult<Employee>> GetAllAsync(
             int pageIndex = 1, int pageSize = 50,
             string? search = null, int? departmentId = null, bool? isActive = null)
         {
@@ -48,7 +48,7 @@ namespace QuanLyNhanVien.DAL.Repositories
             return result;
         }
 
-        public async Task<Employee?> GetByIdAsync(int employeeId)
+        public virtual async Task<Employee?> GetByIdAsync(int employeeId)
         {
             var sql = @"SELECT e.*, d.DepartmentName, p.PositionName
                         FROM Employees e
@@ -59,7 +59,7 @@ namespace QuanLyNhanVien.DAL.Repositories
             return result.FirstOrDefault();
         }
 
-        public async Task<int> InsertAsync(Employee emp)
+        public virtual async Task<int> InsertAsync(Employee emp)
         {
             var sql = @"INSERT INTO Employees (EmployeeCode, UserId, FullName, Gender, DateOfBirth, 
                         IdentityNo, Phone, Email, [Address], Photo, DepartmentId, PositionId, 
@@ -74,7 +74,7 @@ namespace QuanLyNhanVien.DAL.Repositories
             return await conn.ExecuteScalarAsync<int>(sql, emp);
         }
 
-        public async Task UpdateAsync(Employee emp)
+        public virtual async Task UpdateAsync(Employee emp)
         {
             var sql = @"UPDATE Employees SET 
                         FullName = @FullName, Gender = @Gender, DateOfBirth = @DateOfBirth,
@@ -89,7 +89,7 @@ namespace QuanLyNhanVien.DAL.Repositories
             await ExecuteSqlAsync(sql, emp);
         }
 
-        public async Task DeleteAsync(int employeeId)
+        public virtual async Task DeleteAsync(int employeeId)
         {
             // Soft delete
             var sql = "UPDATE Employees SET IsActive = 0, TerminationDate = GETDATE(), UpdatedAt = GETDATE() WHERE EmployeeId = @EmployeeId";
@@ -99,13 +99,13 @@ namespace QuanLyNhanVien.DAL.Repositories
         /// <summary>
         /// MISS-4: Deactivate NV khi HĐ hết hạn (giữ TerminationDate = ngày hết HĐ)
         /// </summary>
-        public async Task DeactivateAsync(int employeeId)
+        public virtual async Task DeactivateAsync(int employeeId)
         {
             var sql = "UPDATE Employees SET IsActive = 0, UpdatedAt = GETDATE() WHERE EmployeeId = @EmployeeId";
             await ExecuteSqlAsync(sql, new { EmployeeId = employeeId });
         }
 
-        public async Task<string> GenerateNextCodeAsync()
+        public virtual async Task<string> GenerateNextCodeAsync()
         {
             // Dùng transaction + lock hint để tránh race condition
             var sql = @"SELECT TOP 1 EmployeeCode FROM Employees WITH (UPDLOCK, HOLDLOCK)
@@ -141,7 +141,7 @@ namespace QuanLyNhanVien.DAL.Repositories
             }
         }
 
-        public async Task<IEnumerable<Employee>> GetByDepartmentAsync(int departmentId)
+        public virtual async Task<IEnumerable<Employee>> GetByDepartmentAsync(int departmentId)
         {
             var sql = @"SELECT e.*, d.DepartmentName, p.PositionName
                         FROM Employees e
@@ -155,7 +155,7 @@ namespace QuanLyNhanVien.DAL.Repositories
         /// <summary>
         /// Cập nhật hàng loạt 1 trường cho nhiều nhân viên
         /// </summary>
-        public async Task<int> BatchUpdateFieldAsync(List<int> employeeIds, string fieldName, object value)
+        public virtual async Task<int> BatchUpdateFieldAsync(List<int> employeeIds, string fieldName, object value)
         {
             // Whitelist fields cho phép batch update (chống SQL injection)
             var allowedFields = new HashSet<string>(StringComparer.OrdinalIgnoreCase)

@@ -8,20 +8,20 @@ namespace QuanLyNhanVien.DAL.Repositories
     {
         public CompanySettingsRepository(DbConnectionFactory dbFactory) : base(dbFactory) { }
 
-        public async Task<IEnumerable<CompanySetting>> GetAllAsync()
+        public virtual async Task<IEnumerable<CompanySetting>> GetAllAsync()
         {
             var sql = "SELECT * FROM CompanySettings ORDER BY SettingKey";
             return await QuerySqlAsync<CompanySetting>(sql);
         }
 
-        public async Task<string?> GetByKeyAsync(string key)
+        public virtual async Task<string?> GetByKeyAsync(string key)
         {
             var sql = "SELECT SettingValue FROM CompanySettings WHERE SettingKey = @Key";
             var results = await QuerySqlAsync<string>(sql, new { Key = key });
             return results.FirstOrDefault();
         }
 
-        public async Task UpsertAsync(string key, string value)
+        public virtual async Task UpsertAsync(string key, string value)
         {
             var sql = @"IF EXISTS (SELECT 1 FROM CompanySettings WHERE SettingKey = @Key)
                         UPDATE CompanySettings SET SettingValue = @Value, UpdatedAt = GETDATE() WHERE SettingKey = @Key
@@ -33,7 +33,7 @@ namespace QuanLyNhanVien.DAL.Repositories
         /// <summary>
         /// Lưu hàng loạt settings
         /// </summary>
-        public async Task SaveAllAsync(Dictionary<string, string> settings)
+        public virtual async Task SaveAllAsync(Dictionary<string, string> settings)
         {
             using var conn = _dbFactory.CreateConnection();
             conn.Open();

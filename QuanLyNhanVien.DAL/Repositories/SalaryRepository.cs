@@ -10,7 +10,7 @@ namespace QuanLyNhanVien.DAL.Repositories
 
         // ===== SALARY CONFIGS =====
 
-        public async Task<IEnumerable<SalaryConfig>> GetAllConfigsAsync()
+        public virtual async Task<IEnumerable<SalaryConfig>> GetAllConfigsAsync()
         {
             var sql = "SELECT * FROM SalaryConfigs WHERE IsActive = 1 ORDER BY ConfigCode";
             return await QuerySqlAsync<SalaryConfig>(sql);
@@ -20,7 +20,7 @@ namespace QuanLyNhanVien.DAL.Repositories
         /// ARCH-2: Lấy tất cả configs active theo ngày hiệu lực trong 1 lần query
         /// Trả về Dictionary cho O(1) lookup
         /// </summary>
-        public async Task<Dictionary<string, decimal>> GetConfigDictionaryAsync(DateTime referenceDate)
+        public virtual async Task<Dictionary<string, decimal>> GetConfigDictionaryAsync(DateTime referenceDate)
         {
             var sql = @"SELECT c1.ConfigCode, c1.ConfigValue 
                         FROM SalaryConfigs c1
@@ -37,7 +37,7 @@ namespace QuanLyNhanVien.DAL.Repositories
             return results.ToDictionary(c => c.ConfigCode, c => c.ConfigValue);
         }
 
-        public async Task<SalaryConfig?> GetConfigByCodeAsync(string code, DateTime? referenceDate = null)
+        public virtual async Task<SalaryConfig?> GetConfigByCodeAsync(string code, DateTime? referenceDate = null)
         {
             var refDate = referenceDate ?? DateTime.Today;
             var sql = @"SELECT TOP 1 * FROM SalaryConfigs 
@@ -49,7 +49,7 @@ namespace QuanLyNhanVien.DAL.Repositories
             return result.FirstOrDefault();
         }
 
-        public async Task UpsertConfigAsync(SalaryConfig config)
+        public virtual async Task UpsertConfigAsync(SalaryConfig config)
         {
             if (config.ConfigId > 0)
             {
@@ -68,7 +68,7 @@ namespace QuanLyNhanVien.DAL.Repositories
 
         // ===== SALARY RECORDS =====
 
-        public async Task<IEnumerable<SalaryRecord>> GetSalaryRecordsAsync(int month, int year, int? deptId = null)
+        public virtual async Task<IEnumerable<SalaryRecord>> GetSalaryRecordsAsync(int month, int year, int? deptId = null)
         {
             var where = "WHERE s.[Month] = @Month AND s.[Year] = @Year";
             if (deptId.HasValue)
@@ -83,7 +83,7 @@ namespace QuanLyNhanVien.DAL.Repositories
             return await QuerySqlAsync<SalaryRecord>(sql, new { Month = month, Year = year, DeptId = deptId });
         }
 
-        public async Task<SalaryRecord?> GetByIdAsync(long salaryId)
+        public virtual async Task<SalaryRecord?> GetByIdAsync(long salaryId)
         {
             var sql = @"SELECT s.*, e.FullName AS EmployeeName, e.EmployeeCode, d.DepartmentName
                         FROM SalaryRecords s
@@ -94,14 +94,14 @@ namespace QuanLyNhanVien.DAL.Repositories
             return result.FirstOrDefault();
         }
 
-        public async Task<SalaryRecord?> GetByEmployeeMonthAsync(int empId, int month, int year)
+        public virtual async Task<SalaryRecord?> GetByEmployeeMonthAsync(int empId, int month, int year)
         {
             var sql = "SELECT * FROM SalaryRecords WHERE EmployeeId = @EmpId AND [Month] = @Month AND [Year] = @Year";
             var result = await QuerySqlAsync<SalaryRecord>(sql, new { EmpId = empId, Month = month, Year = year });
             return result.FirstOrDefault();
         }
 
-        public async Task<long> InsertAsync(SalaryRecord record)
+        public virtual async Task<long> InsertAsync(SalaryRecord record)
         {
             var sql = @"INSERT INTO SalaryRecords 
                         (EmployeeId, [Month], [Year], WorkingDays, StandardDays, BasicSalary, SalaryCoefficient,
@@ -120,26 +120,26 @@ namespace QuanLyNhanVien.DAL.Repositories
             return await conn.ExecuteScalarAsync<long>(sql, record);
         }
 
-        public async Task<int> DeleteDraftByMonthAsync(int month, int year)
+        public virtual async Task<int> DeleteDraftByMonthAsync(int month, int year)
         {
             var sql = "DELETE FROM SalaryRecords WHERE [Month] = @Month AND [Year] = @Year AND [Status] = 'Draft'";
             return await ExecuteSqlAsync(sql, new { Month = month, Year = year });
         }
 
-        public async Task UpdateStatusAsync(long salaryId, string status, int? approvedBy)
+        public virtual async Task UpdateStatusAsync(long salaryId, string status, int? approvedBy)
         {
             var sql = "UPDATE SalaryRecords SET [Status] = @Status, ApprovedBy = @ApprovedBy WHERE SalaryId = @SalaryId";
             await ExecuteSqlAsync(sql, new { SalaryId = salaryId, Status = status, ApprovedBy = approvedBy });
         }
 
-        public async Task BulkUpdateStatusAsync(int month, int year, string status, int approvedBy)
+        public virtual async Task BulkUpdateStatusAsync(int month, int year, string status, int approvedBy)
         {
             var sql = @"UPDATE SalaryRecords SET [Status] = @Status, ApprovedBy = @ApprovedBy 
                         WHERE [Month] = @Month AND [Year] = @Year AND [Status] = 'Draft'";
             await ExecuteSqlAsync(sql, new { Month = month, Year = year, Status = status, ApprovedBy = approvedBy });
         }
 
-        public async Task<IEnumerable<SalaryRecord>> GetHistoryAsync(int empId)
+        public virtual async Task<IEnumerable<SalaryRecord>> GetHistoryAsync(int empId)
         {
             var sql = @"SELECT s.*, e.FullName AS EmployeeName, e.EmployeeCode, d.DepartmentName
                         FROM SalaryRecords s

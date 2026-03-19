@@ -12,7 +12,7 @@ namespace QuanLyNhanVien.DAL.Repositories
         /// <summary>
         /// Danh sách đơn phép — phân trang, filter theo NV và trạng thái
         /// </summary>
-        public async Task<PaginationResult<LeaveRequest>> GetAllAsync(
+        public virtual async Task<PaginationResult<LeaveRequest>> GetAllAsync(
             int? employeeId = null, string? status = null,
             int pageIndex = 1, int pageSize = 50)
         {
@@ -48,7 +48,7 @@ namespace QuanLyNhanVien.DAL.Repositories
             return result;
         }
 
-        public async Task<LeaveRequest?> GetByIdAsync(int leaveId)
+        public virtual async Task<LeaveRequest?> GetByIdAsync(int leaveId)
         {
             var sql = @"SELECT lr.*, e.FullName AS EmployeeName, u.Username AS ApprovedByName
                         FROM LeaveRequests lr
@@ -59,7 +59,7 @@ namespace QuanLyNhanVien.DAL.Repositories
             return result.FirstOrDefault();
         }
 
-        public async Task<int> InsertAsync(LeaveRequest req)
+        public virtual async Task<int> InsertAsync(LeaveRequest req)
         {
             var sql = @"INSERT INTO LeaveRequests (EmployeeId, LeaveType, StartDate, EndDate, TotalDays, Reason, [Status])
                         VALUES (@EmployeeId, @LeaveType, @StartDate, @EndDate, @TotalDays, @Reason, @Status);
@@ -71,14 +71,14 @@ namespace QuanLyNhanVien.DAL.Repositories
         /// <summary>
         /// Duyệt hoặc từ chối đơn phép
         /// </summary>
-        public async Task UpdateStatusAsync(int leaveId, string status, int approvedBy)
+        public virtual async Task UpdateStatusAsync(int leaveId, string status, int approvedBy)
         {
             var sql = @"UPDATE LeaveRequests SET [Status] = @Status, ApprovedBy = @ApprovedBy, ApprovedAt = GETDATE()
                         WHERE LeaveId = @LeaveId";
             await ExecuteSqlAsync(sql, new { LeaveId = leaveId, Status = status, ApprovedBy = approvedBy });
         }
 
-        public async Task DeleteAsync(int leaveId)
+        public virtual async Task DeleteAsync(int leaveId)
         {
             var sql = "DELETE FROM LeaveRequests WHERE LeaveId = @LeaveId AND [Status] = 'Pending'";
             await ExecuteSqlAsync(sql, new { LeaveId = leaveId });
@@ -87,7 +87,7 @@ namespace QuanLyNhanVien.DAL.Repositories
         /// <summary>
         /// Tính tổng số ngày phép đã dùng trong năm
         /// </summary>
-        public async Task<decimal> GetUsedLeaveDaysAsync(int employeeId, int year)
+        public virtual async Task<decimal> GetUsedLeaveDaysAsync(int employeeId, int year)
         {
             var sql = @"SELECT ISNULL(SUM(TotalDays), 0) FROM LeaveRequests 
                         WHERE EmployeeId = @EmployeeId AND YEAR(StartDate) = @Year AND [Status] = 'Approved'";
@@ -98,7 +98,7 @@ namespace QuanLyNhanVien.DAL.Repositories
         /// <summary>
         /// Kiểm tra trùng khoảng ngày nghỉ
         /// </summary>
-        public async Task<bool> HasOverlappingLeaveAsync(int employeeId, DateTime startDate, DateTime endDate, int? excludeLeaveId = null)
+        public virtual async Task<bool> HasOverlappingLeaveAsync(int employeeId, DateTime startDate, DateTime endDate, int? excludeLeaveId = null)
         {
             var sql = @"SELECT COUNT(*) FROM LeaveRequests 
                         WHERE EmployeeId = @EmployeeId 

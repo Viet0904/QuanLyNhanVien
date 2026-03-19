@@ -8,7 +8,7 @@ namespace QuanLyNhanVien.DAL.Repositories
     {
         public AdvanceRepository(DbConnectionFactory dbFactory) : base(dbFactory) { }
 
-        public async Task<IEnumerable<Advance>> GetAllAsync(int? month = null, int? year = null)
+        public virtual async Task<IEnumerable<Advance>> GetAllAsync(int? month = null, int? year = null)
         {
             var sql = @"SELECT a.*, e.FullName AS EmployeeName, e.EmployeeCode
                         FROM Advances a
@@ -20,7 +20,7 @@ namespace QuanLyNhanVien.DAL.Repositories
             return await QuerySqlAsync<Advance>(sql, new { Month = month, Year = year });
         }
 
-        public async Task<decimal> GetTotalAdvanceAsync(int employeeId, int month, int year)
+        public virtual async Task<decimal> GetTotalAdvanceAsync(int employeeId, int month, int year)
         {
             var sql = @"SELECT ISNULL(SUM(Amount), 0) FROM Advances
                         WHERE EmployeeId = @EmpId AND Month = @Month AND Year = @Year AND Status IN ('Approved','Deducted')";
@@ -28,7 +28,7 @@ namespace QuanLyNhanVien.DAL.Repositories
             return await conn.ExecuteScalarAsync<decimal>(sql, new { EmpId = employeeId, Month = month, Year = year });
         }
 
-        public async Task<int> InsertAsync(Advance advance)
+        public virtual async Task<int> InsertAsync(Advance advance)
         {
             var sql = @"INSERT INTO Advances (EmployeeId, Amount, AdvanceDate, Month, Year, Status, Notes)
                         VALUES (@EmployeeId, @Amount, @AdvanceDate, @Month, @Year, @Status, @Notes);
@@ -37,7 +37,7 @@ namespace QuanLyNhanVien.DAL.Repositories
             return await conn.ExecuteScalarAsync<int>(sql, advance);
         }
 
-        public async Task UpdateAsync(Advance advance)
+        public virtual async Task UpdateAsync(Advance advance)
         {
             var sql = @"UPDATE Advances SET Amount = @Amount, AdvanceDate = @AdvanceDate,
                         Month = @Month, Year = @Year, Status = @Status, Notes = @Notes
@@ -45,7 +45,7 @@ namespace QuanLyNhanVien.DAL.Repositories
             await ExecuteSqlAsync(sql, advance);
         }
 
-        public async Task DeleteAsync(int advanceId)
+        public virtual async Task DeleteAsync(int advanceId)
         {
             var sql = "DELETE FROM Advances WHERE AdvanceId = @Id";
             await ExecuteSqlAsync(sql, new { Id = advanceId });

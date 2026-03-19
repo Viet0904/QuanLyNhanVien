@@ -8,7 +8,7 @@ namespace QuanLyNhanVien.DAL.Repositories
     {
         public ContractRepository(DbConnectionFactory dbFactory) : base(dbFactory) { }
 
-        public async Task<IEnumerable<Contract>> GetAllAsync(int? employeeId = null, bool? isActive = null)
+        public virtual async Task<IEnumerable<Contract>> GetAllAsync(int? employeeId = null, bool? isActive = null)
         {
             var sql = @"SELECT c.*, e.FullName AS EmployeeName, e.EmployeeCode,
                         ci.ItemName AS ContractTypeName
@@ -22,7 +22,7 @@ namespace QuanLyNhanVien.DAL.Repositories
             return await QuerySqlAsync<Contract>(sql, new { EmployeeId = employeeId, IsActive = isActive });
         }
 
-        public async Task<Contract?> GetByIdAsync(int contractId)
+        public virtual async Task<Contract?> GetByIdAsync(int contractId)
         {
             var sql = @"SELECT c.*, e.FullName AS EmployeeName, e.EmployeeCode
                         FROM Contracts c
@@ -31,7 +31,7 @@ namespace QuanLyNhanVien.DAL.Repositories
             return (await QuerySqlAsync<Contract>(sql, new { Id = contractId })).FirstOrDefault();
         }
 
-        public async Task<int> InsertAsync(Contract contract)
+        public virtual async Task<int> InsertAsync(Contract contract)
         {
             var sql = @"INSERT INTO Contracts (EmployeeId, ContractCode, ContractType, SignDate, StartDate, EndDate, ContractSalary, Notes, IsActive)
                         VALUES (@EmployeeId, @ContractCode, @ContractType, @SignDate, @StartDate, @EndDate, @ContractSalary, @Notes, @IsActive);
@@ -40,7 +40,7 @@ namespace QuanLyNhanVien.DAL.Repositories
             return await conn.ExecuteScalarAsync<int>(sql, contract);
         }
 
-        public async Task UpdateAsync(Contract contract)
+        public virtual async Task UpdateAsync(Contract contract)
         {
             var sql = @"UPDATE Contracts SET ContractType = @ContractType, SignDate = @SignDate,
                         StartDate = @StartDate, EndDate = @EndDate, ContractSalary = @ContractSalary,
@@ -49,7 +49,7 @@ namespace QuanLyNhanVien.DAL.Repositories
             await ExecuteSqlAsync(sql, contract);
         }
 
-        public async Task DeleteAsync(int contractId)
+        public virtual async Task DeleteAsync(int contractId)
         {
             var sql = "UPDATE Contracts SET IsActive = 0 WHERE ContractId = @Id";
             await ExecuteSqlAsync(sql, new { Id = contractId });
@@ -58,7 +58,7 @@ namespace QuanLyNhanVien.DAL.Repositories
         /// <summary>
         /// Lấy HĐ sắp hết hạn (trong vòng N ngày)
         /// </summary>
-        public async Task<IEnumerable<Contract>> GetExpiringAsync(int daysAhead = 30)
+        public virtual async Task<IEnumerable<Contract>> GetExpiringAsync(int daysAhead = 30)
         {
             var sql = @"SELECT c.*, e.FullName AS EmployeeName, e.EmployeeCode,
                         ci.ItemName AS ContractTypeName
@@ -74,7 +74,7 @@ namespace QuanLyNhanVien.DAL.Repositories
         /// <summary>
         /// MISS-4: Lấy HĐ đã hết hạn nhưng NV vẫn active
         /// </summary>
-        public async Task<IEnumerable<Contract>> GetExpiredActiveAsync()
+        public virtual async Task<IEnumerable<Contract>> GetExpiredActiveAsync()
         {
             var sql = @"SELECT c.*, e.FullName AS EmployeeName, e.EmployeeCode
                         FROM Contracts c

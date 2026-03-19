@@ -8,13 +8,13 @@ namespace QuanLyNhanVien.DAL.Repositories
     {
         public MenuRepository(DbConnectionFactory dbFactory) : base(dbFactory) { }
 
-        public async Task<IEnumerable<MenuNode>> GetAllAsync()
+        public virtual async Task<IEnumerable<MenuNode>> GetAllAsync()
         {
             var sql = "SELECT * FROM Menus WHERE IsActive = 1 ORDER BY SortOrder";
             return await QuerySqlAsync<MenuNode>(sql);
         }
 
-        public async Task<int> InsertAsync(MenuNode menu)
+        public virtual async Task<int> InsertAsync(MenuNode menu)
         {
             var sql = @"INSERT INTO Menus (MenuCode, MenuName, ParentId, FormName, IconName, SortOrder, IsVisible, IsActive, [Description])
                         VALUES (@MenuCode, @MenuName, @ParentId, @FormName, @IconName, @SortOrder, @IsVisible, @IsActive, @Description);
@@ -23,7 +23,7 @@ namespace QuanLyNhanVien.DAL.Repositories
             return await conn.ExecuteScalarAsync<int>(sql, menu);
         }
 
-        public async Task UpdateAsync(MenuNode menu)
+        public virtual async Task UpdateAsync(MenuNode menu)
         {
             var sql = @"UPDATE Menus SET MenuCode = @MenuCode, MenuName = @MenuName, ParentId = @ParentId,
                         FormName = @FormName, IconName = @IconName, SortOrder = @SortOrder,
@@ -32,13 +32,13 @@ namespace QuanLyNhanVien.DAL.Repositories
             await ExecuteSqlAsync(sql, menu);
         }
 
-        public async Task DeleteAsync(int menuId)
+        public virtual async Task DeleteAsync(int menuId)
         {
             var sql = "UPDATE Menus SET IsActive = 0 WHERE MenuId = @MenuId";
             await ExecuteSqlAsync(sql, new { MenuId = menuId });
         }
 
-        public async Task UpdateSortOrderAsync(int menuId, int sortOrder)
+        public virtual async Task UpdateSortOrderAsync(int menuId, int sortOrder)
         {
             var sql = "UPDATE Menus SET SortOrder = @SortOrder WHERE MenuId = @MenuId";
             await ExecuteSqlAsync(sql, new { MenuId = menuId, SortOrder = sortOrder });
@@ -49,13 +49,13 @@ namespace QuanLyNhanVien.DAL.Repositories
     {
         public RoleRepository(DbConnectionFactory dbFactory) : base(dbFactory) { }
 
-        public async Task<IEnumerable<Role>> GetAllAsync()
+        public virtual async Task<IEnumerable<Role>> GetAllAsync()
         {
             var sql = "SELECT * FROM Roles WHERE IsActive = 1 ORDER BY RoleName";
             return await QuerySqlAsync<Role>(sql);
         }
 
-        public async Task<int> InsertAsync(Role role)
+        public virtual async Task<int> InsertAsync(Role role)
         {
             var sql = @"INSERT INTO Roles (RoleName, [Description], IsSystem, IsActive)
                         VALUES (@RoleName, @Description, @IsSystem, @IsActive);
@@ -64,14 +64,14 @@ namespace QuanLyNhanVien.DAL.Repositories
             return await conn.ExecuteScalarAsync<int>(sql, role);
         }
 
-        public async Task UpdateAsync(Role role)
+        public virtual async Task UpdateAsync(Role role)
         {
             var sql = @"UPDATE Roles SET RoleName = @RoleName, [Description] = @Description, IsActive = @IsActive
                         WHERE RoleId = @RoleId";
             await ExecuteSqlAsync(sql, role);
         }
 
-        public async Task<IEnumerable<RolePermission>> GetPermissionsAsync(int roleId)
+        public virtual async Task<IEnumerable<RolePermission>> GetPermissionsAsync(int roleId)
         {
             var sql = @"SELECT rp.*, m.MenuName, m.MenuCode
                         FROM RolePermissions rp
@@ -81,7 +81,7 @@ namespace QuanLyNhanVien.DAL.Repositories
             return await QuerySqlAsync<RolePermission>(sql, new { RoleId = roleId });
         }
 
-        public async Task SavePermissionsAsync(int roleId, List<RolePermission> permissions)
+        public virtual async Task SavePermissionsAsync(int roleId, List<RolePermission> permissions)
         {
             using var conn = _dbFactory.CreateConnection();
             conn.Open();
@@ -110,14 +110,14 @@ namespace QuanLyNhanVien.DAL.Repositories
             }
         }
 
-        public async Task AssignUserRoleAsync(int userId, int roleId)
+        public virtual async Task AssignUserRoleAsync(int userId, int roleId)
         {
             var sql = @"IF NOT EXISTS (SELECT 1 FROM UserRoles WHERE UserId = @UserId AND RoleId = @RoleId)
                         INSERT INTO UserRoles (UserId, RoleId) VALUES (@UserId, @RoleId)";
             await ExecuteSqlAsync(sql, new { UserId = userId, RoleId = roleId });
         }
 
-        public async Task RemoveUserRoleAsync(int userId, int roleId)
+        public virtual async Task RemoveUserRoleAsync(int userId, int roleId)
         {
             var sql = "DELETE FROM UserRoles WHERE UserId = @UserId AND RoleId = @RoleId";
             await ExecuteSqlAsync(sql, new { UserId = userId, RoleId = roleId });

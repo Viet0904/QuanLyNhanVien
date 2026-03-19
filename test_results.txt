@@ -1,0 +1,290 @@
+﻿Build started 19/03/2026 9:25:34 AM.
+     1>Project "C:\QuanLyNhanVien\QuanLyNhanVien.Tests\QuanLyNhanVien.Tests.csproj" on node 1 (VSTest target(s)).
+     1>BuildProject:
+         Build started, please wait...
+     1>Project "C:\QuanLyNhanVien\QuanLyNhanVien.Tests\QuanLyNhanVien.Tests.csproj" (1) is building "C:\QuanLyNhanVien\QuanLyNhanVien.Tests\QuanLyNhanVien.Tests.csproj" (1:2) on node 1 (default targets).
+   1:2>Project "C:\QuanLyNhanVien\QuanLyNhanVien.Tests\QuanLyNhanVien.Tests.csproj" (1:2) is building "C:\QuanLyNhanVien\QuanLyNhanVien.Models\QuanLyNhanVien.Models.csproj" (3:2) on node 2 (default targets).
+     3>GenerateTargetFrameworkMonikerAttribute:
+       Skipping target "GenerateTargetFrameworkMonikerAttribute" because all output files are up-to-date with respect to the input files.
+       CoreGenerateAssemblyInfo:
+       Skipping target "CoreGenerateAssemblyInfo" because all output files are up-to-date with respect to the input files.
+       _GenerateSourceLinkFile:
+         Source Link file 'obj\Debug\net8.0\QuanLyNhanVien.Models.sourcelink.json' is up-to-date.
+       CoreCompile:
+       Skipping target "CoreCompile" because all output files are up-to-date with respect to the input files.
+       GenerateBuildDependencyFile:
+       Skipping target "GenerateBuildDependencyFile" because all output files are up-to-date with respect to the input files.
+       CopyFilesToOutputDirectory:
+         QuanLyNhanVien.Models -> C:\QuanLyNhanVien\QuanLyNhanVien.Models\bin\Debug\net8.0\QuanLyNhanVien.Models.dll
+     3>Done Building Project "C:\QuanLyNhanVien\QuanLyNhanVien.Models\QuanLyNhanVien.Models.csproj" (default targets).
+   1:2>Project "C:\QuanLyNhanVien\QuanLyNhanVien.Tests\QuanLyNhanVien.Tests.csproj" (1:2) is building "C:\QuanLyNhanVien\QuanLyNhanVien.DAL\QuanLyNhanVien.DAL.csproj" (4:2) on node 3 (default targets).
+     4>GenerateTargetFrameworkMonikerAttribute:
+       Skipping target "GenerateTargetFrameworkMonikerAttribute" because all output files are up-to-date with respect to the input files.
+       CoreGenerateAssemblyInfo:
+       Skipping target "CoreGenerateAssemblyInfo" because all output files are up-to-date with respect to the input files.
+       _GenerateSourceLinkFile:
+         Source Link file 'obj\Debug\net8.0\QuanLyNhanVien.DAL.sourcelink.json' is up-to-date.
+       CoreCompile:
+       Skipping target "CoreCompile" because all output files are up-to-date with respect to the input files.
+       GenerateBuildDependencyFile:
+       Skipping target "GenerateBuildDependencyFile" because all output files are up-to-date with respect to the input files.
+       CopyFilesToOutputDirectory:
+         QuanLyNhanVien.DAL -> C:\QuanLyNhanVien\QuanLyNhanVien.DAL\bin\Debug\net8.0\QuanLyNhanVien.DAL.dll
+     4>Done Building Project "C:\QuanLyNhanVien\QuanLyNhanVien.DAL\QuanLyNhanVien.DAL.csproj" (default targets).
+   1:2>Project "C:\QuanLyNhanVien\QuanLyNhanVien.Tests\QuanLyNhanVien.Tests.csproj" (1:2) is building "C:\QuanLyNhanVien\QuanLyNhanVien.BLL\QuanLyNhanVien.BLL.csproj" (2:2) on node 1 (default targets).
+     2>GenerateTargetFrameworkMonikerAttribute:
+       Skipping target "GenerateTargetFrameworkMonikerAttribute" because all output files are up-to-date with respect to the input files.
+       CoreGenerateAssemblyInfo:
+       Skipping target "CoreGenerateAssemblyInfo" because all output files are up-to-date with respect to the input files.
+       _GenerateSourceLinkFile:
+         Source Link file 'obj\Debug\net8.0\QuanLyNhanVien.BLL.sourcelink.json' is up-to-date.
+       CoreCompile:
+       Skipping target "CoreCompile" because all output files are up-to-date with respect to the input files.
+       GenerateBuildDependencyFile:
+       Skipping target "GenerateBuildDependencyFile" because all output files are up-to-date with respect to the input files.
+       CopyFilesToOutputDirectory:
+         QuanLyNhanVien.BLL -> C:\QuanLyNhanVien\QuanLyNhanVien.BLL\bin\Debug\net8.0\QuanLyNhanVien.BLL.dll
+     2>Done Building Project "C:\QuanLyNhanVien\QuanLyNhanVien.BLL\QuanLyNhanVien.BLL.csproj" (default targets).
+     1>GenerateTargetFrameworkMonikerAttribute:
+       Skipping target "GenerateTargetFrameworkMonikerAttribute" because all output files are up-to-date with respect to the input files.
+       CoreGenerateAssemblyInfo:
+       Skipping target "CoreGenerateAssemblyInfo" because all output files are up-to-date with respect to the input files.
+       _GenerateSourceLinkFile:
+         Source Link file 'obj\Debug\net8.0\QuanLyNhanVien.Tests.sourcelink.json' is up-to-date.
+       CoreCompile:
+       Skipping target "CoreCompile" because all output files are up-to-date with respect to the input files.
+       _CopyOutOfDateSourceItemsToOutputDirectory:
+       Skipping target "_CopyOutOfDateSourceItemsToOutputDirectory" because all output files are up-to-date with respect to the input files.
+       GenerateBuildDependencyFile:
+       Skipping target "GenerateBuildDependencyFile" because all output files are up-to-date with respect to the input files.
+       GenerateBuildRuntimeConfigurationFiles:
+       Skipping target "GenerateBuildRuntimeConfigurationFiles" because all output files are up-to-date with respect to the input files.
+       CopyFilesToOutputDirectory:
+         QuanLyNhanVien.Tests -> C:\QuanLyNhanVien\QuanLyNhanVien.Tests\bin\Debug\net8.0\QuanLyNhanVien.Tests.dll
+     1>Done Building Project "C:\QuanLyNhanVien\QuanLyNhanVien.Tests\QuanLyNhanVien.Tests.csproj" (default targets).
+     1>BuildProject:
+         Build completed.
+         
+Test run for C:\QuanLyNhanVien\QuanLyNhanVien.Tests\bin\Debug\net8.0\QuanLyNhanVien.Tests.dll (.NETCoreApp,Version=v8.0)
+VSTest version 17.11.1 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v2.5.3.1+6b60a9e56a (64-bit .NET 8.0.25)
+[xUnit.net 00:00:03.19]   Discovering: QuanLyNhanVien.Tests
+[xUnit.net 00:00:03.54]   Discovered:  QuanLyNhanVien.Tests
+[xUnit.net 00:00:03.58]   Starting:    QuanLyNhanVien.Tests
+  Passed QuanLyNhanVien.Tests.EmployeeServiceTests.BatchUpdateAsync_NullList_Fails [4 s]
+  Passed QuanLyNhanVien.Tests.SalaryServiceTests.CalculatePIT_HigherBrackets(income: 52000000, expectedTax: 9750000) [4 s]
+  Passed QuanLyNhanVien.Tests.SalaryServiceTests.CalculatePIT_HigherBrackets(income: 80000000, expectedTax: 18150000) [4 ms]
+  Passed QuanLyNhanVien.Tests.SalaryServiceTests.CalculatePIT_HigherBrackets(income: 32000000, expectedTax: 4750000) [< 1 ms]
+  Passed QuanLyNhanVien.Tests.SalaryServiceTests.CalculatePIT_HigherBrackets(income: 18000000, expectedTax: 1950000) [< 1 ms]
+  Passed QuanLyNhanVien.Tests.LeaveServiceTests.RejectAsync_NotFound_Fails [4 s]
+  Passed QuanLyNhanVien.Tests.DepartmentServiceTests.CreateAsync_Valid_Succeeds [4 s]
+  Passed QuanLyNhanVien.Tests.DepartmentServiceTests.UpdateAsync_EmptyName_Fails [8 ms]
+  Passed QuanLyNhanVien.Tests.ContractServiceTests.CreateAsync_EmptyContractType_Fails [4 s]
+  Passed QuanLyNhanVien.Tests.AdvanceServiceTests.CreateAsync_ZeroAmount_Fails [4 s]
+  Passed QuanLyNhanVien.Tests.PositionServiceTests.CreateAsync_EmptyName_Fails [4 s]
+  Passed QuanLyNhanVien.Tests.AdvanceServiceTests.DeleteAsync_Success [13 ms]
+  Passed QuanLyNhanVien.Tests.AttendanceServiceTests.AddAsync_WithOvertime_CalculatesCorrectly [4 s]
+  Passed QuanLyNhanVien.Tests.PositionServiceTests.DeleteAsync_HasEmployees_Fails [16 ms]
+  Passed QuanLyNhanVien.Tests.AdvanceServiceTests.CreateAsync_InvalidEmployeeId_Fails [5 ms]
+  Passed QuanLyNhanVien.Tests.EmployeeServiceTests.CreateAsync_ValidEmployee_Succeeds [119 ms]
+  Passed QuanLyNhanVien.Tests.EmployeeServiceTests.BatchUpdateAsync_EmptyList_Fails [4 ms]
+  Passed QuanLyNhanVien.Tests.PositionServiceTests.DeleteAsync_NoEmployees_Succeeds [14 ms]
+  Passed QuanLyNhanVien.Tests.AdvanceServiceTests.CreateAsync_ValidAdvance_Succeeds [14 ms]
+  Passed QuanLyNhanVien.Tests.AttendanceServiceTests.AddAsync_EarlyLeave_StatusIsEarlyLeave [23 ms]
+  Passed QuanLyNhanVien.Tests.EmployeeServiceTests.UpdateAsync_EmptyFullName_Fails [6 ms]
+  Passed QuanLyNhanVien.Tests.AdvanceServiceTests.CreateAsync_NegativeAmount_Fails [6 ms]
+  Passed QuanLyNhanVien.Tests.EmployeeServiceTests.CreateAsync_InvalidDepartmentId_Fails [3 ms]
+  Passed QuanLyNhanVien.Tests.AttendanceServiceTests.AddAsync_AfternoonShift_OnTime [10 ms]
+  Passed QuanLyNhanVien.Tests.PositionServiceTests.UpdateAsync_Valid_Succeeds [14 ms]
+  Passed QuanLyNhanVien.Tests.DepartmentServiceTests.CreateAsync_EmptyName_Fails [54 ms]
+  Passed QuanLyNhanVien.Tests.SalaryServiceTests.ApproveAsync_AlreadyApproved_ReturnsFalse [137 ms]
+  Passed QuanLyNhanVien.Tests.SalaryServiceTests.CalculatePIT_Bracket1_5Percent(income: 5000000, expectedTax: 250000) [< 1 ms]
+  Passed QuanLyNhanVien.Tests.ContractServiceTests.CreateAsync_ValidContract_Succeeds [56 ms]
+  Passed QuanLyNhanVien.Tests.SalaryServiceTests.CalculatePIT_Bracket1_5Percent(income: 1000000, expectedTax: 50000) [5 ms]
+  Passed QuanLyNhanVien.Tests.LeaveServiceTests.ApproveAsync_PendingRequest_Succeeds [70 ms]
+  Passed QuanLyNhanVien.Tests.PositionServiceTests.CreateAsync_ValidPosition_Succeeds [16 ms]
+  Passed QuanLyNhanVien.Tests.AttendanceServiceTests.AddAsync_ValidRecord_ReturnsSuccess [16 ms]
+  Passed QuanLyNhanVien.Tests.EmployeeServiceTests.BatchUpdateAsync_DisallowedField_Fails [22 ms]
+  Passed QuanLyNhanVien.Tests.AttendanceServiceTests.AddAsync_InvalidEmployeeId_Fails [2 ms]
+  Passed QuanLyNhanVien.Tests.PositionServiceTests.UpdateAsync_EmptyName_Fails [2 ms]
+  Passed QuanLyNhanVien.Tests.DepartmentServiceTests.DeleteAsync_NotFound_Fails [19 ms]
+  Passed QuanLyNhanVien.Tests.LeaveServiceTests.CreateAsync_InvalidEmployeeId_Fails [12 ms]
+  Passed QuanLyNhanVien.Tests.ContractServiceTests.DeactivateExpiredEmployeesAsync_NoExpired_ReturnsZero [16 ms]
+  Passed QuanLyNhanVien.Tests.EmployeeServiceTests.DeleteAsync_NotFound_Fails [7 ms]
+  Passed QuanLyNhanVien.Tests.LeaveServiceTests.CreateAsync_StartAfterEnd_Fails [3 ms]
+  Passed QuanLyNhanVien.Tests.AttendanceServiceTests.AddAsync_LateAndEarlyLeave_StatusIsLateAndEarlyLeave [7 ms]
+  Passed QuanLyNhanVien.Tests.DepartmentServiceTests.DeleteAsync_NoEmployees_Succeeds [42 ms]
+  Passed QuanLyNhanVien.Tests.LeaveServiceTests.ApproveAsync_NotFound_Fails [37 ms]
+  Passed QuanLyNhanVien.Tests.EmployeeServiceTests.BatchUpdateAsync_ValidUpdate_Succeeds [39 ms]
+  Passed QuanLyNhanVien.Tests.LeaveServiceTests.RejectAsync_NotPending_Fails [2 ms]
+  Passed QuanLyNhanVien.Tests.AttendanceServiceTests.DeleteAsync_Success [39 ms]
+  Passed QuanLyNhanVien.Tests.EmployeeServiceTests.CreateAsync_EmptyFullName_Fails [1 ms]
+  Passed QuanLyNhanVien.Tests.EmployeeServiceTests.CreateAsync_InvalidPositionId_Fails [1 ms]
+  Passed QuanLyNhanVien.Tests.DepartmentServiceTests.UpdateAsync_Valid_Succeeds [5 ms]
+  Passed QuanLyNhanVien.Tests.DepartmentServiceTests.CreateAsync_EmptyCode_Fails [2 ms]
+  Passed QuanLyNhanVien.Tests.ContractServiceTests.DeactivateExpiredEmployeesAsync_HasExpired_DeactivatesAll [48 ms]
+  Passed QuanLyNhanVien.Tests.AttendanceServiceTests.AddAsync_NoOvertime_ReturnsZero [5 ms]
+  Passed QuanLyNhanVien.Tests.LeaveServiceTests.DeleteAsync_NotPending_Fails [6 ms]
+  Passed QuanLyNhanVien.Tests.EmployeeServiceTests.DeleteAsync_Found_Succeeds [4 ms]
+  Passed QuanLyNhanVien.Tests.LeaveServiceTests.DeleteAsync_NotFound_Fails [1 ms]
+  Passed QuanLyNhanVien.Tests.ContractServiceTests.CreateAsync_InvalidEmployeeId_Fails [2 ms]
+  Passed QuanLyNhanVien.Tests.DepartmentServiceTests.DeleteAsync_HasEmployees_Fails [3 ms]
+  Passed QuanLyNhanVien.Tests.ContractServiceTests.DeleteAsync_ReturnsSuccess [3 ms]
+  Passed QuanLyNhanVien.Tests.AttendanceServiceTests.UpdateAsync_RecalculatesStatusAndOvertime [7 ms]
+  Passed QuanLyNhanVien.Tests.EmployeeServiceTests.UpdateAsync_ValidEmployee_Succeeds [6 ms]
+  Passed QuanLyNhanVien.Tests.ContractServiceTests.UpdateAsync_ReturnsSuccess [7 ms]
+  Passed QuanLyNhanVien.Tests.AttendanceServiceTests.AddAsync_DuplicateRecord_Fails [6 ms]
+  Passed QuanLyNhanVien.Tests.AttendanceServiceTests.AddAsync_OnTime_StatusIsPresent [6 ms]
+  Passed QuanLyNhanVien.Tests.LeaveServiceTests.CreateAsync_ValidRequest_Success [29 ms]
+  Passed QuanLyNhanVien.Tests.AttendanceServiceTests.AddAsync_LateCheckIn_StatusIsLate [13 ms]
+  Passed QuanLyNhanVien.Tests.LeaveServiceTests.CreateAsync_OverlappingLeave_Fails [10 ms]
+  Passed QuanLyNhanVien.Tests.AttendanceServiceTests.AddAsync_MorningShift_LateCheckIn [6 ms]
+  Passed QuanLyNhanVien.Tests.SalaryServiceTests.CalculateForEmployeeAsync_BasicScenario_CalculatesCorrectly [111 ms]
+  Passed QuanLyNhanVien.Tests.SalaryServiceTests.CalculatePIT_ZeroIncome_ReturnsZero [1 ms]
+  Passed QuanLyNhanVien.Tests.SalaryServiceTests.CalculatePIT_Bracket2_10Percent(income: 10000000, expectedTax: 750000) [1 ms]
+  Passed QuanLyNhanVien.Tests.SalaryServiceTests.CalculatePIT_Bracket2_10Percent(income: 7000000, expectedTax: 450000) [1 ms]
+  Passed QuanLyNhanVien.Tests.LeaveServiceTests.CreateAsync_ExceedsAnnualLeave_Fails [18 ms]
+  Passed QuanLyNhanVien.Tests.SalaryServiceTests.ApproveAllAsync_Success [8 ms]
+  Passed QuanLyNhanVien.Tests.LeaveServiceTests.CreateAsync_EmptyLeaveType_Fails [2 ms]
+  Passed QuanLyNhanVien.Tests.LeaveServiceTests.RejectAsync_Pending_Succeeds [6 ms]
+  Passed QuanLyNhanVien.Tests.UserServiceTests.CreateAsync_EmptyUsername_Fails [4 s]
+  Passed QuanLyNhanVien.Tests.LeaveServiceTests.DeleteAsync_Pending_Succeeds [5 ms]
+  Passed QuanLyNhanVien.Tests.AuthServiceTests.LoginAsync_EmptyPassword_Fails [4 s]
+  Passed QuanLyNhanVien.Tests.LeaveServiceTests.ApproveAsync_AlreadyApproved_Fails [2 ms]
+  Passed QuanLyNhanVien.Tests.SalaryServiceTests.CalculateMonthlyAsync_NoEmployees_ReturnsFalse [23 ms]
+  Passed QuanLyNhanVien.Tests.AuthServiceTests.ChangePasswordAsync_WeakPassword_Fails [6 ms]
+  Passed QuanLyNhanVien.Tests.SalaryServiceTests.CalculatePIT_NegativeIncome_ReturnsZero [< 1 ms]
+  Passed QuanLyNhanVien.Tests.SalaryServiceTests.SaveConfigAsync_EmptyCode_ReturnsFalse [3 ms]
+  Passed QuanLyNhanVien.Tests.SalaryServiceTests.SaveConfigAsync_EmptyName_ReturnsFalse [2 ms]
+  Passed QuanLyNhanVien.Tests.SalaryServiceTests.UnapproveAsync_Approved_ReturnsTrue [7 ms]
+[xUnit.net 00:00:08.71]     QuanLyNhanVien.Tests.CategoryServiceTests.CreateItemAsync_Valid_SucceedsAndInvalidatesCache [FAIL]
+[xUnit.net 00:00:08.71]       System.NotSupportedException : Unsupported expression: c => c.InvalidateAndRefreshAsync()
+[xUnit.net 00:00:08.71]       Non-overridable members (here: JsonCacheManager.InvalidateAndRefreshAsync) may not be used in setup / verification expressions.
+[xUnit.net 00:00:08.71]       Stack Trace:
+[xUnit.net 00:00:08.71]         /_/src/Moq/Guard.cs(99,0): at Moq.Guard.IsOverridable(MethodInfo method, Expression expression)
+[xUnit.net 00:00:08.71]         /_/src/Moq/MethodExpectation.cs(87,0): at Moq.MethodExpectation..ctor(LambdaExpression expression, MethodInfo method, IReadOnlyList`1 arguments, Boolean exactGenericTypeArguments, Boolean skipMatcherInitialization, Boolean allowNonOverridable)
+[xUnit.net 00:00:08.71]         /_/src/Moq/ExpressionExtensions.cs(219,0): at Moq.ExpressionExtensions.<Split>g__Split|5_0(Expression e, Expression& r, MethodExpectation& p, Boolean assignment, Boolean allowNonOverridableLastProperty)
+[xUnit.net 00:00:08.71]         /_/src/Moq/ExpressionExtensions.cs(149,0): at Moq.ExpressionExtensions.Split(LambdaExpression expression, Boolean allowNonOverridableLastProperty)
+[xUnit.net 00:00:08.71]         /_/src/Moq/Mock.cs(645,0): at Moq.Mock.SetupRecursive[TSetup](Mock mock, LambdaExpression expression, Func`4 setupLast, Boolean allowNonOverridableLastProperty)
+[xUnit.net 00:00:08.71]         /_/src/Moq/Mock.cs(500,0): at Moq.Mock.Setup(Mock mock, LambdaExpression expression, Condition condition)
+[xUnit.net 00:00:08.71]         /_/src/Moq/Mock`1.cs(452,0): at Moq.Mock`1.Setup[TResult](Expression`1 expression)
+[xUnit.net 00:00:08.72]         C:\QuanLyNhanVien\QuanLyNhanVien.Tests\CategoryServiceTests.cs(84,0): at QuanLyNhanVien.Tests.CategoryServiceTests.CreateItemAsync_Valid_SucceedsAndInvalidatesCache()
+[xUnit.net 00:00:08.72]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:08.72]     QuanLyNhanVien.Tests.CategoryServiceTests.CreateCategoryAsync_Valid_SucceedsAndInvalidatesCache [FAIL]
+[xUnit.net 00:00:08.72]       System.NotSupportedException : Unsupported expression: c => c.InvalidateAndRefreshAsync()
+[xUnit.net 00:00:08.72]       Non-overridable members (here: JsonCacheManager.InvalidateAndRefreshAsync) may not be used in setup / verification expressions.
+[xUnit.net 00:00:08.72]       Stack Trace:
+[xUnit.net 00:00:08.72]         /_/src/Moq/Guard.cs(99,0): at Moq.Guard.IsOverridable(MethodInfo method, Expression expression)
+[xUnit.net 00:00:08.72]         /_/src/Moq/MethodExpectation.cs(87,0): at Moq.MethodExpectation..ctor(LambdaExpression expression, MethodInfo method, IReadOnlyList`1 arguments, Boolean exactGenericTypeArguments, Boolean skipMatcherInitialization, Boolean allowNonOverridable)
+[xUnit.net 00:00:08.72]         /_/src/Moq/ExpressionExtensions.cs(219,0): at Moq.ExpressionExtensions.<Split>g__Split|5_0(Expression e, Expression& r, MethodExpectation& p, Boolean assignment, Boolean allowNonOverridableLastProperty)
+[xUnit.net 00:00:08.72]         /_/src/Moq/ExpressionExtensions.cs(149,0): at Moq.ExpressionExtensions.Split(LambdaExpression expression, Boolean allowNonOverridableLastProperty)
+[xUnit.net 00:00:08.72]         /_/src/Moq/Mock.cs(645,0): at Moq.Mock.SetupRecursive[TSetup](Mock mock, LambdaExpression expression, Func`4 setupLast, Boolean allowNonOverridableLastProperty)
+[xUnit.net 00:00:08.72]         /_/src/Moq/Mock.cs(500,0): at Moq.Mock.Setup(Mock mock, LambdaExpression expression, Condition condition)
+[xUnit.net 00:00:08.72]         /_/src/Moq/Mock`1.cs(452,0): at Moq.Mock`1.Setup[TResult](Expression`1 expression)
+[xUnit.net 00:00:08.72]         C:\QuanLyNhanVien\QuanLyNhanVien.Tests\CategoryServiceTests.cs(51,0): at QuanLyNhanVien.Tests.CategoryServiceTests.CreateCategoryAsync_Valid_SucceedsAndInvalidatesCache()
+[xUnit.net 00:00:08.72]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:08.73]     QuanLyNhanVien.Tests.CategoryServiceTests.DeleteCategoryAsync_Success [FAIL]
+[xUnit.net 00:00:08.73]       System.NotSupportedException : Unsupported expression: c => c.InvalidateAndRefreshAsync()
+[xUnit.net 00:00:08.73]       Non-overridable members (here: JsonCacheManager.InvalidateAndRefreshAsync) may not be used in setup / verification expressions.
+[xUnit.net 00:00:08.73]       Stack Trace:
+[xUnit.net 00:00:08.73]         /_/src/Moq/Guard.cs(99,0): at Moq.Guard.IsOverridable(MethodInfo method, Expression expression)
+[xUnit.net 00:00:08.73]         /_/src/Moq/MethodExpectation.cs(87,0): at Moq.MethodExpectation..ctor(LambdaExpression expression, MethodInfo method, IReadOnlyList`1 arguments, Boolean exactGenericTypeArguments, Boolean skipMatcherInitialization, Boolean allowNonOverridable)
+[xUnit.net 00:00:08.73]         /_/src/Moq/ExpressionExtensions.cs(219,0): at Moq.ExpressionExtensions.<Split>g__Split|5_0(Expression e, Expression& r, MethodExpectation& p, Boolean assignment, Boolean allowNonOverridableLastProperty)
+[xUnit.net 00:00:08.73]         /_/src/Moq/ExpressionExtensions.cs(149,0): at Moq.ExpressionExtensions.Split(LambdaExpression expression, Boolean allowNonOverridableLastProperty)
+[xUnit.net 00:00:08.73]         /_/src/Moq/Mock.cs(645,0): at Moq.Mock.SetupRecursive[TSetup](Mock mock, LambdaExpression expression, Func`4 setupLast, Boolean allowNonOverridableLastProperty)
+[xUnit.net 00:00:08.73]         /_/src/Moq/Mock.cs(500,0): at Moq.Mock.Setup(Mock mock, LambdaExpression expression, Condition condition)
+[xUnit.net 00:00:08.73]         /_/src/Moq/Mock`1.cs(452,0): at Moq.Mock`1.Setup[TResult](Expression`1 expression)
+[xUnit.net 00:00:08.73]         C:\QuanLyNhanVien\QuanLyNhanVien.Tests\CategoryServiceTests.cs(98,0): at QuanLyNhanVien.Tests.CategoryServiceTests.DeleteCategoryAsync_Success()
+[xUnit.net 00:00:08.73]         --- End of stack trace from previous location ---
+  Passed QuanLyNhanVien.Tests.SalaryServiceTests.UnapproveAsync_NotApproved_ReturnsFalse [4 ms]
+  Failed QuanLyNhanVien.Tests.CategoryServiceTests.CreateItemAsync_Valid_SucceedsAndInvalidatesCache [4 s]
+  Error Message:
+   System.NotSupportedException : Unsupported expression: c => c.InvalidateAndRefreshAsync()
+Non-overridable members (here: JsonCacheManager.InvalidateAndRefreshAsync) may not be used in setup / verification expressions.
+  Stack Trace:
+     at Moq.Guard.IsOverridable(MethodInfo method, Expression expression) in /_/src/Moq/Guard.cs:line 99
+   at Moq.MethodExpectation..ctor(LambdaExpression expression, MethodInfo method, IReadOnlyList`1 arguments, Boolean exactGenericTypeArguments, Boolean skipMatcherInitialization, Boolean allowNonOverridable) in /_/src/Moq/MethodExpectation.cs:line 87
+   at Moq.ExpressionExtensions.<Split>g__Split|5_0(Expression e, Expression& r, MethodExpectation& p, Boolean assignment, Boolean allowNonOverridableLastProperty) in /_/src/Moq/ExpressionExtensions.cs:line 219
+   at Moq.ExpressionExtensions.Split(LambdaExpression expression, Boolean allowNonOverridableLastProperty) in /_/src/Moq/ExpressionExtensions.cs:line 149
+   at Moq.Mock.SetupRecursive[TSetup](Mock mock, LambdaExpression expression, Func`4 setupLast, Boolean allowNonOverridableLastProperty) in /_/src/Moq/Mock.cs:line 645
+   at Moq.Mock.Setup(Mock mock, LambdaExpression expression, Condition condition) in /_/src/Moq/Mock.cs:line 500
+   at Moq.Mock`1.Setup[TResult](Expression`1 expression) in /_/src/Moq/Mock`1.cs:line 452
+   at QuanLyNhanVien.Tests.CategoryServiceTests.CreateItemAsync_Valid_SucceedsAndInvalidatesCache() in C:\QuanLyNhanVien\QuanLyNhanVien.Tests\CategoryServiceTests.cs:line 84
+--- End of stack trace from previous location ---
+  Passed QuanLyNhanVien.Tests.SalaryServiceTests.UnapproveAsync_NotFound_ReturnsFalse [3 ms]
+  Failed QuanLyNhanVien.Tests.CategoryServiceTests.CreateCategoryAsync_Valid_SucceedsAndInvalidatesCache [10 ms]
+  Error Message:
+   System.NotSupportedException : Unsupported expression: c => c.InvalidateAndRefreshAsync()
+Non-overridable members (here: JsonCacheManager.InvalidateAndRefreshAsync) may not be used in setup / verification expressions.
+  Stack Trace:
+     at Moq.Guard.IsOverridable(MethodInfo method, Expression expression) in /_/src/Moq/Guard.cs:line 99
+   at Moq.MethodExpectation..ctor(LambdaExpression expression, MethodInfo method, IReadOnlyList`1 arguments, Boolean exactGenericTypeArguments, Boolean skipMatcherInitialization, Boolean allowNonOverridable) in /_/src/Moq/MethodExpectation.cs:line 87
+   at Moq.ExpressionExtensions.<Split>g__Split|5_0(Expression e, Expression& r, MethodExpectation& p, Boolean assignment, Boolean allowNonOverridableLastProperty) in /_/src/Moq/ExpressionExtensions.cs:line 219
+   at Moq.ExpressionExtensions.Split(LambdaExpression expression, Boolean allowNonOverridableLastProperty) in /_/src/Moq/ExpressionExtensions.cs:line 149
+   at Moq.Mock.SetupRecursive[TSetup](Mock mock, LambdaExpression expression, Func`4 setupLast, Boolean allowNonOverridableLastProperty) in /_/src/Moq/Mock.cs:line 645
+   at Moq.Mock.Setup(Mock mock, LambdaExpression expression, Condition condition) in /_/src/Moq/Mock.cs:line 500
+   at Moq.Mock`1.Setup[TResult](Expression`1 expression) in /_/src/Moq/Mock`1.cs:line 452
+   at QuanLyNhanVien.Tests.CategoryServiceTests.CreateCategoryAsync_Valid_SucceedsAndInvalidatesCache() in C:\QuanLyNhanVien\QuanLyNhanVien.Tests\CategoryServiceTests.cs:line 51
+--- End of stack trace from previous location ---
+  Passed QuanLyNhanVien.Tests.SalaryServiceTests.SaveConfigAsync_Valid_ReturnsTrue [8 ms]
+  Passed QuanLyNhanVien.Tests.SalaryServiceTests.CalculatePIT_Bracket7_35Percent [< 1 ms]
+  Passed QuanLyNhanVien.Tests.SalaryServiceTests.ApproveAsync_NotFound_ReturnsFalse [2 ms]
+  Failed QuanLyNhanVien.Tests.CategoryServiceTests.DeleteCategoryAsync_Success [4 ms]
+  Error Message:
+   System.NotSupportedException : Unsupported expression: c => c.InvalidateAndRefreshAsync()
+Non-overridable members (here: JsonCacheManager.InvalidateAndRefreshAsync) may not be used in setup / verification expressions.
+  Stack Trace:
+     at Moq.Guard.IsOverridable(MethodInfo method, Expression expression) in /_/src/Moq/Guard.cs:line 99
+   at Moq.MethodExpectation..ctor(LambdaExpression expression, MethodInfo method, IReadOnlyList`1 arguments, Boolean exactGenericTypeArguments, Boolean skipMatcherInitialization, Boolean allowNonOverridable) in /_/src/Moq/MethodExpectation.cs:line 87
+   at Moq.ExpressionExtensions.<Split>g__Split|5_0(Expression e, Expression& r, MethodExpectation& p, Boolean assignment, Boolean allowNonOverridableLastProperty) in /_/src/Moq/ExpressionExtensions.cs:line 219
+   at Moq.ExpressionExtensions.Split(LambdaExpression expression, Boolean allowNonOverridableLastProperty) in /_/src/Moq/ExpressionExtensions.cs:line 149
+   at Moq.Mock.SetupRecursive[TSetup](Mock mock, LambdaExpression expression, Func`4 setupLast, Boolean allowNonOverridableLastProperty) in /_/src/Moq/Mock.cs:line 645
+   at Moq.Mock.Setup(Mock mock, LambdaExpression expression, Condition condition) in /_/src/Moq/Mock.cs:line 500
+   at Moq.Mock`1.Setup[TResult](Expression`1 expression) in /_/src/Moq/Mock`1.cs:line 452
+   at QuanLyNhanVien.Tests.CategoryServiceTests.DeleteCategoryAsync_Success() in C:\QuanLyNhanVien\QuanLyNhanVien.Tests\CategoryServiceTests.cs:line 98
+--- End of stack trace from previous location ---
+  Passed QuanLyNhanVien.Tests.SalaryServiceTests.ApproveAsync_DraftRecord_ReturnsTrue [6 ms]
+  Passed QuanLyNhanVien.Tests.CategoryServiceTests.CreateCategoryAsync_EmptyCode_Fails [4 ms]
+  Passed QuanLyNhanVien.Tests.SalaryServiceTests.CalculatePIT_SmallAmount_CorrectRounding [1 ms]
+  Passed QuanLyNhanVien.Tests.CategoryServiceTests.CreateItemAsync_EmptyCode_Fails [4 ms]
+  Passed QuanLyNhanVien.Tests.CategoryServiceTests.CreateItemAsync_EmptyName_Fails [2 ms]
+  Passed QuanLyNhanVien.Tests.CategoryServiceTests.CreateCategoryAsync_EmptyName_Fails [1 ms]
+  Passed QuanLyNhanVien.Tests.AuthServiceTests.LoginAsync_LockedUser_Fails [638 ms]
+  Passed QuanLyNhanVien.Tests.UserServiceTests.CreateAsync_ValidInput_Succeeds [1 s]
+  Passed QuanLyNhanVien.Tests.AuthServiceTests.LoginAsync_InactiveUser_Fails [681 ms]
+  Passed QuanLyNhanVien.Tests.UserServiceTests.CreateAsync_DuplicateUsername_Fails [7 ms]
+  Passed QuanLyNhanVien.Tests.UserServiceTests.ResetPasswordAsync_UserNotFound_Fails [6 ms]
+  Passed QuanLyNhanVien.Tests.AuthServiceTests.CreateUserAsync_ValidInput_Succeeds [1 s]
+  Passed QuanLyNhanVien.Tests.UserServiceTests.ResetPasswordAsync_ValidUser_Succeeds [1 s]
+  Passed QuanLyNhanVien.Tests.UserServiceTests.DeactivateAsync_UserNotFound_Fails [5 ms]
+  Passed QuanLyNhanVien.Tests.UserServiceTests.DeactivateAsync_AdminUser_Fails [6 ms]
+  Passed QuanLyNhanVien.Tests.UserServiceTests.CreateAsync_WeakPassword_Fails [2 ms]
+  Passed QuanLyNhanVien.Tests.UserServiceTests.DeactivateAsync_ValidUser_Succeeds [4 ms]
+  Passed QuanLyNhanVien.Tests.AuthServiceTests.ChangePasswordAsync_ValidChange_Succeeds [1 s]
+  Passed QuanLyNhanVien.Tests.AuthServiceTests.LoginAsync_WrongPassword_IncrementsFailed [900 ms]
+  Passed QuanLyNhanVien.Tests.AuthServiceTests.LoginAsync_UserNotFound_Fails [751 ms]
+  Passed QuanLyNhanVien.Tests.AuthServiceTests.LoginAsync_CorrectPassword_Succeeds [906 ms]
+[xUnit.net 00:00:15.97]   Finished:    QuanLyNhanVien.Tests
+  Passed QuanLyNhanVien.Tests.AuthServiceTests.ChangePasswordAsync_WrongOldPassword_Fails [689 ms]
+  Passed QuanLyNhanVien.Tests.AuthServiceTests.CreateUserAsync_DuplicateUsername_Fails [3 ms]
+  Passed QuanLyNhanVien.Tests.AuthServiceTests.CreateUserAsync_EmptyInput_Fails [2 ms]
+  Passed QuanLyNhanVien.Tests.AuthServiceTests.LoginAsync_EmptyUsername_Fails [2 ms]
+  Passed QuanLyNhanVien.Tests.AuthServiceTests.ChangePasswordAsync_UserNotFound_Fails [2 ms]
+
+Test Run Failed.
+Total tests: 120
+     Passed: 117
+     Failed: 3
+ Total time: 19.0890 Seconds
+       _VSTestConsole:
+         MSB4181: The "VSTestTask" task returned false but did not log an error.
+     1>Done Building Project "C:\QuanLyNhanVien\QuanLyNhanVien.Tests\QuanLyNhanVien.Tests.csproj" (VSTest target(s)) -- FAILED.
+
+Build FAILED.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:30.42

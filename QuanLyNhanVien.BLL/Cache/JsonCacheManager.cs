@@ -25,7 +25,7 @@ namespace QuanLyNhanVien.BLL.Cache
         /// <summary>
         /// Lấy tất cả danh mục (từ cache hoặc DB)
         /// </summary>
-        public async Task<IEnumerable<Category>> GetAllCategoriesAsync(bool forceRefresh = false)
+        public virtual async Task<IEnumerable<Category>> GetAllCategoriesAsync(bool forceRefresh = false)
         {
             if (!forceRefresh && _memoryCache != null && !IsCacheExpired(_memoryCache))
             {
@@ -58,7 +58,7 @@ namespace QuanLyNhanVien.BLL.Cache
         /// <summary>
         /// Lấy items theo mã danh mục
         /// </summary>
-        public async Task<IEnumerable<CategoryItem>> GetItemsByCategoryCodeAsync(string categoryCode)
+        public virtual async Task<IEnumerable<CategoryItem>> GetItemsByCategoryCodeAsync(string categoryCode)
         {
             var categories = await GetAllCategoriesAsync();
             var category = categories.FirstOrDefault(c => c.CategoryCode == categoryCode);
@@ -68,7 +68,7 @@ namespace QuanLyNhanVien.BLL.Cache
         /// <summary>
         /// Invalidate cache (gọi khi user thay đổi danh mục)
         /// </summary>
-        public async Task<IEnumerable<Category>> InvalidateAndRefreshAsync()
+        public virtual async Task<IEnumerable<Category>> InvalidateAndRefreshAsync()
         {
             _memoryCache = null;
             return await RefreshCacheAsync();

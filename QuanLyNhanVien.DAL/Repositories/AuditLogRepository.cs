@@ -7,7 +7,7 @@ namespace QuanLyNhanVien.DAL.Repositories
     {
         public AuditLogRepository(DbConnectionFactory dbFactory) : base(dbFactory) { }
 
-        public async Task<IEnumerable<dynamic>> GetLogsAsync(DateTime? from = null, DateTime? to = null, int? userId = null, int limit = 200)
+        public virtual async Task<IEnumerable<dynamic>> GetLogsAsync(DateTime? from = null, DateTime? to = null, int? userId = null, int limit = 200)
         {
             var where = "WHERE 1=1";
             if (from.HasValue) where += " AND al.CreatedAt >= @From";
@@ -24,7 +24,7 @@ namespace QuanLyNhanVien.DAL.Repositories
             return await conn.QueryAsync(sql, new { Limit = limit, From = from, To = to, UserId = userId });
         }
 
-        public async Task InsertAsync(int userId, string action, string tableName, int? recordId,
+        public virtual async Task InsertAsync(int userId, string action, string tableName, int? recordId,
             string? oldValue = null, string? newValue = null, string? ipAddress = null)
         {
             var sql = @"INSERT INTO AuditLogs (UserId, Action, TableName, RecordId, OldValue, NewValue, IPAddress)

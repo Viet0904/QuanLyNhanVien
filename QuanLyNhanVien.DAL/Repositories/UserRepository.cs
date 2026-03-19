@@ -9,27 +9,27 @@ namespace QuanLyNhanVien.DAL.Repositories
     {
         public UserRepository(DbConnectionFactory dbFactory) : base(dbFactory) { }
 
-        public async Task<User?> GetByUsernameAsync(string username)
+        public virtual async Task<User?> GetByUsernameAsync(string username)
         {
             var sql = "SELECT * FROM Users WHERE Username = @Username";
             var users = await QuerySqlAsync<User>(sql, new { Username = username });
             return users.FirstOrDefault();
         }
 
-        public async Task<User?> GetByIdAsync(int userId)
+        public virtual async Task<User?> GetByIdAsync(int userId)
         {
             var sql = "SELECT * FROM Users WHERE UserId = @UserId";
             var users = await QuerySqlAsync<User>(sql, new { UserId = userId });
             return users.FirstOrDefault();
         }
 
-        public async Task UpdateLastLoginAsync(int userId)
+        public virtual async Task UpdateLastLoginAsync(int userId)
         {
             var sql = "UPDATE Users SET LastLogin = GETDATE(), FailedLoginCount = 0, LockedUntil = NULL WHERE UserId = @UserId";
             await ExecuteSqlAsync(sql, new { UserId = userId });
         }
 
-        public async Task IncrementFailedLoginAsync(int userId)
+        public virtual async Task IncrementFailedLoginAsync(int userId)
         {
             var sql = @"UPDATE Users SET FailedLoginCount = FailedLoginCount + 1,
                         LockedUntil = CASE WHEN FailedLoginCount + 1 >= 5 THEN DATEADD(MINUTE, 15, GETDATE()) ELSE LockedUntil END
@@ -37,7 +37,7 @@ namespace QuanLyNhanVien.DAL.Repositories
             await ExecuteSqlAsync(sql, new { UserId = userId });
         }
 
-        public async Task<int> InsertAsync(User user)
+        public virtual async Task<int> InsertAsync(User user)
         {
             var sql = @"INSERT INTO Users (Username, PasswordHash, Salt, IsActive) 
                         VALUES (@Username, @PasswordHash, @Salt, @IsActive);
@@ -46,13 +46,13 @@ namespace QuanLyNhanVien.DAL.Repositories
             return await conn.ExecuteScalarAsync<int>(sql, user);
         }
 
-        public async Task UpdatePasswordAsync(int userId, string passwordHash)
+        public virtual async Task UpdatePasswordAsync(int userId, string passwordHash)
         {
             var sql = "UPDATE Users SET PasswordHash = @PasswordHash, UpdatedAt = GETDATE() WHERE UserId = @UserId";
             await ExecuteSqlAsync(sql, new { UserId = userId, PasswordHash = passwordHash });
         }
 
-        public async Task<IEnumerable<Role>> GetUserRolesAsync(int userId)
+        public virtual async Task<IEnumerable<Role>> GetUserRolesAsync(int userId)
         {
             var sql = @"SELECT r.* FROM Roles r 
                         INNER JOIN UserRoles ur ON r.RoleId = ur.RoleId 
@@ -60,7 +60,7 @@ namespace QuanLyNhanVien.DAL.Repositories
             return await QuerySqlAsync<Role>(sql, new { UserId = userId });
         }
 
-        public async Task<IEnumerable<MenuPermissionDto>> GetUserPermissionsAsync(int userId)
+        public virtual async Task<IEnumerable<MenuPermissionDto>> GetUserPermissionsAsync(int userId)
         {
             var sql = @"SELECT DISTINCT m.MenuId, m.MenuCode, m.MenuName, m.ParentId, 
                         m.FormName, m.IconName, m.SortOrder,
@@ -81,7 +81,7 @@ namespace QuanLyNhanVien.DAL.Repositories
             return await QuerySqlAsync<MenuPermissionDto>(sql, new { UserId = userId });
         }
 
-        public async Task<IEnumerable<dynamic>> GetAllUsersAsync()
+        public virtual async Task<IEnumerable<dynamic>> GetAllUsersAsync()
         {
             var sql = @"SELECT u.UserId, u.Username, u.IsActive, u.FailedLoginCount, 
                         u.LockedUntil, u.LastLogin, u.CreatedAt,
@@ -95,26 +95,26 @@ namespace QuanLyNhanVien.DAL.Repositories
             return await QuerySqlAsync<dynamic>(sql);
         }
 
-        public async Task UpdateUserAsync(int userId, bool isActive)
+        public virtual async Task UpdateUserAsync(int userId, bool isActive)
         {
             var sql = "UPDATE Users SET IsActive = @IsActive, UpdatedAt = GETDATE() WHERE UserId = @UserId";
             await ExecuteSqlAsync(sql, new { UserId = userId, IsActive = isActive });
         }
 
-        public async Task ResetPasswordAsync(int userId, string passwordHash)
+        public virtual async Task ResetPasswordAsync(int userId, string passwordHash)
         {
             var sql = @"UPDATE Users SET PasswordHash = @PasswordHash, FailedLoginCount = 0, 
                         LockedUntil = NULL, UpdatedAt = GETDATE() WHERE UserId = @UserId";
             await ExecuteSqlAsync(sql, new { UserId = userId, PasswordHash = passwordHash });
         }
 
-        public async Task<IEnumerable<int>> GetUserRoleIdsAsync(int userId)
+        public virtual async Task<IEnumerable<int>> GetUserRoleIdsAsync(int userId)
         {
             var sql = "SELECT RoleId FROM UserRoles WHERE UserId = @UserId";
             return await QuerySqlAsync<int>(sql, new { UserId = userId });
         }
 
-        public async Task ReplaceUserRolesAsync(int userId, List<int> roleIds)
+        public virtual async Task ReplaceUserRolesAsync(int userId, List<int> roleIds)
         {
             using var conn = _dbFactory.CreateConnection();
             conn.Open();
