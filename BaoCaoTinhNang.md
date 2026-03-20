@@ -269,17 +269,7 @@ Chấm công  ██████████████████░░  89% 
 
 ---
 
-## 🔧 Bugs Đã Sửa (5)
 
-| # | Bug | Trước | Sau |
-|:-:|-----|-------|-----|
-| 1 | Tạm ứng không trừ vào lương | `NetSalary` không bao gồm tạm ứng | Inject `AdvanceRepository`, trừ vào lương, lưu `AdvanceAmount` |
-| 2 | Ngày lễ hardcode thiếu Tết | Chỉ có 1/1, 30/4, 1/5, 2/9 | Bảng `Holidays` trong DB, CRUD, seed đầy đủ 2026 |
-| 3 | Late + EarlyLeave không detect | Trả về `Late` khi cả 2 xảy ra | `LateAndEarlyLeave` → tính 2 vi phạm khi phạt |
-| 4 | SalaryConfig không lọc theo ngày | Lấy bất kỳ config active nào | Filter `EffectiveFrom`/`EffectiveTo`, lấy closest |
-| 5 | Không hủy duyệt phiếu lương | — | `UnapproveAsync()`: Approved → Draft |
-
----
 
 ## 📊 Thống Kê Code
 
